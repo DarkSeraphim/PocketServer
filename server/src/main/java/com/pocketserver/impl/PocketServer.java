@@ -2,12 +2,12 @@ package com.pocketserver.impl;
 
 import java.io.PrintStream;
 
+import com.pocketserver.impl.net.netty.PipelineInitializer;
 import org.slf4j.Logger;
 import org.slf4j.impl.SimpleLogger;
 
 import com.pocketserver.Server;
 import com.pocketserver.impl.console.ConsoleThread;
-import com.pocketserver.impl.net.netty.PocketServerHandler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -24,8 +24,8 @@ public class PocketServer {
 
     private PocketServer() {
 
-        // Recreate STDOUT and STDERR to have Auto-Flush on, so any newline
-        // chars flush them.
+
+        //TODO: Clean this up....
         System.setOut(new PrintStream(System.out, true));
         System.setErr(new PrintStream(System.err, true));
 
@@ -45,7 +45,7 @@ public class PocketServer {
             Bootstrap boot = new Bootstrap();
             {
                 boot.group(group);
-                boot.handler(new PocketServerHandler());
+                boot.handler(new PipelineInitializer());
                 boot.channel(NioDatagramChannel.class);
                 boot.option(ChannelOption.SO_BROADCAST, true);
             }
