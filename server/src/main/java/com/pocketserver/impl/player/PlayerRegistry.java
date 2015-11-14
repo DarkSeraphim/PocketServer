@@ -2,6 +2,7 @@ package com.pocketserver.impl.player;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerRegistry {
@@ -25,10 +26,7 @@ public class PlayerRegistry {
         return playerMap.get(address);
     }
 
-    public PocketPlayer getPlayer(String name) {
-        for (PocketPlayer p : playerMap.values())
-            if (p.getName().equalsIgnoreCase(name))
-                return p;
-        return null;
+    public Optional<PocketPlayer> getPlayer(String name) {
+        return playerMap.values().stream().filter(p -> p.getName().equalsIgnoreCase(name)).findAny();
     }
 }

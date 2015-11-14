@@ -11,7 +11,7 @@ public class InvalidPacketException extends RuntimeException {
     }
 
     public InvalidPacketException(Class<? extends Packet> packet) {
-        this.packet = packet;
+        this("Packet " + packet.getName() + " wasn't received correctly.",packet);
     }
 
     public Class<? extends Packet> getPacket() {

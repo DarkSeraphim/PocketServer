@@ -29,7 +29,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.pocketserver.impl.PocketServer</mainClass>
+              <mainClass>com.pocketserver.impl.PocketBootstrap</mainClass>
             </manifest>
           </archive>
         </configuration>

@@ -1,4 +1,4 @@
-package com.pocketserver.plugin;
+package com.pocketserver.plugin.old;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 import com.pocketserver.Server;
 
 public class PluginLoader {
-
+/*
     private final Set<URLClassLoader> loaders = new HashSet<>();
     private final Stack<Plugin> plugins = new Stack<>();
 
@@ -200,5 +200,5 @@ public class PluginLoader {
         plugins.clear();
         loaders.clear();
     }
-
+*/
 }

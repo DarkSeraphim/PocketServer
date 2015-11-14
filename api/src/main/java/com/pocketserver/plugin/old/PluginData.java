@@ -1,4 +1,4 @@
-package com.pocketserver.plugin;
+package com.pocketserver.plugin.old;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,9 +11,9 @@ public @interface PluginData {
 
     String name();
 
-    String version() default Plugin.DEFAULT_VERSION;
+   // String version() default Plugin.DEFAULT_VERSION;
 
-    String description() default Plugin.DEFAULT_DESCRIPTION;
+    //String description() default Plugin.DEFAULT_DESCRIPTION;
 
     String[]dependency() default {};
 

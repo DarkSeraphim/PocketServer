@@ -1,4 +1,4 @@
-package com.pocketserver.plugin;
+package com.pocketserver.plugin.old;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Description {
+public @interface Version {
 
     String value();
 
