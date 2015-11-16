@@ -17,8 +17,7 @@ public final class PacketUtils {
     }
 
     public static int readTriad(ByteBuf buf) {
-        ByteBuf byteBuf = buf.readBytes(new byte[3]);
-        byte[] bytes = byteBuf.array();
-        return (bytes[0] & 0xFF) | ((bytes[1] & 0xFF) << 8) | ((bytes[2] & 0x0F) << 16);
+        ByteBuf bytes = buf.readBytes(new byte[3]);
+        return (bytes.readByte() & 0xFF) | ((bytes.readByte() & 0xFF) << 8) | ((bytes.readByte() & 0x0F) << 16);
     }
 }

@@ -9,7 +9,6 @@ import io.netty.channel.socket.DatagramPacket;
 public class NACKPacket extends ACKPacket {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        System.out.println("Did NOT NOT NOT receive ACK.");
         super.decode(dg, ctx);
     }
 }

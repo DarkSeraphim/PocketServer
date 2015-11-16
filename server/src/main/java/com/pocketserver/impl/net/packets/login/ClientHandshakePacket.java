@@ -18,7 +18,7 @@ public class ClientHandshakePacket extends InPacket {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        System.out.println("Received next packet.");
+        System.out.println("Received next packet with length, " + dg.content().readableBytes());
         if (dg.content().readInt() != COOKIE && dg.content().readByte() != SECURITY)
             return;
         port = dg.content().readShort();

@@ -10,7 +10,6 @@ import io.netty.channel.socket.DatagramPacket;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 @PacketID(0xC0)
 public class ACKPacket extends Packet {
@@ -28,7 +27,8 @@ public class ACKPacket extends Packet {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        System.out.println("Thx mr skeletal");
+       // System.out.println("Received an acknowledge packet. Class: "
+       //         + this.getClass().getSimpleName());
     }
 
     @Override //Credit to jRakNet or whatever it's called. Very helpful. //TODO: Fix this up.
@@ -83,6 +83,7 @@ public class ACKPacket extends Packet {
 
     @Override
     public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress address) {
+        //System.out.println("Actually being sent.");
         return super.sendPacket(ctx, address);
     }
 }

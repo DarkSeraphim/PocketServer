@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
+import com.pocketserver.impl.net.PacketManager;
+import com.pocketserver.impl.net.packets.udp.ACKPacket;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -83,7 +85,7 @@ public class CustomPacketOld extends Packet {
             byte[] packet_data = new byte[packet_bytes + 1];
             packet_data[0] = packet_id;
             dg.content().readBytes(packet_data, 1, packet_bytes - 1);
-            //packet = PacketManager.getInstance().createGamePacket(packet_id);
+            packet = PacketManager.getInstance().initializePacketById(packet_id);
             System.out.format("Received game packet ID 0x%s", packet_id < 10 ? "0" + String.format("%X", packet_id) : String.format("%X", packet_id));
             if (packet != null) {
                 System.out.format(", type = %s\n", packet.getClass().getSimpleName());
@@ -91,7 +93,8 @@ public class CustomPacketOld extends Packet {
             } else {
                 System.out.println();
             }
-            AcknowledgedPacketOld.one(1, num).sendPacket(ctx, dg.sender());
+            new ACKPacket(new int[]{cap_count}).sendPacket(ctx,dg.sender());
+           // AcknowledgedPacketOld.one(1, num).sendPacket(ctx, dg.sender());
         }
     }
 

@@ -12,15 +12,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class EventBus {
     private final Map<Class<?>, List<EventData>> eventListeners;
     private final ExecutorService service;
 
-    public EventBus() {
+    public EventBus(ExecutorService executorService) {
         this.eventListeners = new ConcurrentHashMap<>();
-        this.service = new ScheduledThreadPoolExecutor(10); //TODO: Make this configurable
+        this.service = executorService;
     }
 
     public void registerListener(Plugin plugin, Object listener) {

@@ -1,5 +1,6 @@
 package com.pocketserver.plugin;
 
+import com.pocketserver.Server;
 import com.pocketserver.event.EventBus;
 import com.pocketserver.exceptions.InvalidPluginException;
 
@@ -8,14 +9,17 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class PluginManager {
     private final Deque<Plugin> queue = new ArrayDeque<>();
     private final List<Plugin> plugins = new ArrayList<>();
     private final EventBus bus;
+    private final Server server;
 
-    public PluginManager(EventBus bus) {
-        this.bus = bus;
+    public PluginManager(Server server) {
+        this.server = server;
+        this.bus = server.getEventBus();
     }
 
     public void loadPlugins() {
@@ -38,7 +42,12 @@ public class PluginManager {
     }
 
     public void registerPlugin(Plugin plugin) {
+        PluginInfo annotation = plugin.getClass().getAnnotation(PluginInfo.class);
+        if (annotation == null) {
+            throw new InvalidPluginException(plugin.getName());
+        }
         this.plugins.add(plugin);
+        plugin.load(Logger.getGlobal(),server,annotation);
         plugin.onEnable();
     }
 

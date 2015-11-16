@@ -22,7 +22,11 @@ public class CustomPacket extends Packet {
         EncapsulationStrategy strategy = EncapsulationStrategy.getById(encapsulation);
         DatagramPacket packet = new DatagramPacket(content,dg.recipient(),dg.sender());
         if (strategy != null) {
-            strategy.decode(ctx, packet,packetBytes);
+            System.out.println(content.readableBytes());
+            strategy.decode(ctx, packet);
+            System.out.println(content.readableBytes());
+        } else {
+            System.out.println("Houston, we have a problem.");
         }
     }
 
@@ -34,27 +38,29 @@ public class CustomPacket extends Packet {
     public enum EncapsulationStrategy {
         BARE(0x00) {
             @Override
-            public void decode(ChannelHandlerContext ctx, DatagramPacket packet, int bytes) {
+            public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
                 ByteBuf content = packet.content();
-                byte id = content.readByte();
 
+                byte id = content.readByte();
                 Packet initialized = PacketManager.getInstance().initializePacketById(id);
-                DatagramPacket send = new DatagramPacket(content.readBytes(bytes+1), packet.recipient(), packet.sender());
+                System.out.println("Received encapsulated packet: " + initialized.getClass().getSimpleName());
+
+                DatagramPacket send = new DatagramPacket(content.readBytes(content.readableBytes()), packet.recipient(), packet.sender());
                 initialized.decode(send,ctx);
             }
         },
         COUNT(0x40) {
             @Override
-            public void decode(ChannelHandlerContext ctx, DatagramPacket packet, int bytes) {
+            public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
                 packet.content().readBytes(3);
-                BARE.decode(ctx, packet, bytes-3);
+                BARE.decode(ctx, packet);
             }
         },
         COUNT_UNKNOWN(0x60) {
             @Override
-            public void decode(ChannelHandlerContext ctx, DatagramPacket packet, int bytes) {
-                packet.content().readBytes(7);
-                BARE.decode(ctx, packet, bytes-7);
+            public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
+                packet.content().readBytes(4);
+                COUNT.decode(ctx, packet);
             }
         };
 
@@ -70,6 +76,6 @@ public class CustomPacket extends Packet {
             return null;
         }
 
-        public abstract void decode(ChannelHandlerContext ctx, DatagramPacket packet, int bytes);
+        public abstract void decode(ChannelHandlerContext ctx, DatagramPacket packet);
     }
 }

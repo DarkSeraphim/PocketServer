@@ -10,6 +10,7 @@ import io.netty.channel.socket.DatagramPacket;
 public class LoginInfoPacket extends InPacket {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
+        System.out.println("LoginInfoPacket!!! woooooohooooo");
         ByteBuf content = dg.content();
         String name = readString(content);
         System.out.println("Username: " + name);

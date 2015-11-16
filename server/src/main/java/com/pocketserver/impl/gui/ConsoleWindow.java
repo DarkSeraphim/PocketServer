@@ -22,6 +22,10 @@ public class ConsoleWindow extends JFrame {
         bar.add(playersMenu);
         this.setJMenuBar(bar);
 
+        JPanel panel = new JPanel();
+        panel.add(new TextArea());
+        this.add(panel);
+
         this.add(new TextField());
         this.add(new JButton("Send"));
         this.setVisible(true);
