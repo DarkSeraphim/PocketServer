@@ -10,11 +10,11 @@ import io.netty.channel.socket.DatagramPacket;
 @PacketID(0x00)
 public class PingPacket extends InPacket {
 
-    long identifier;
+    private long identifier;
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         identifier = dg.content().readLong();
-        new PongPacket(identifier).sendGame(0x84, EncapsulationStrategy.BARE, 0, 0, ctx, dg.sender());
+        new PongPacket(identifier).sendPacket(ctx,dg.sender());
     }
 }

@@ -2,10 +2,11 @@ package com.pocketserver.impl.net;
 
 import com.google.common.base.Preconditions;
 import com.pocketserver.impl.exception.InvalidPacketException;
+import com.pocketserver.impl.net.packets.data.DataPacket;
 import com.pocketserver.impl.net.packets.login.ClientCancelConnectPacket;
 import com.pocketserver.impl.net.packets.login.ClientConnectPacket;
 import com.pocketserver.impl.net.packets.login.ClientHandshakePacket;
-import com.pocketserver.impl.net.packets.login.LoginInfoPacket;
+import com.pocketserver.impl.net.packets.data.LoginInfoPacket;
 import com.pocketserver.impl.net.packets.login.connect.OpenConnectionRequestAPacket;
 import com.pocketserver.impl.net.packets.login.connect.OpenConnectionRequestBPacket;
 import com.pocketserver.impl.net.packets.login.connect.UnconnectedPingPacket;
@@ -17,17 +18,21 @@ import com.pocketserver.impl.net.packets.udp.NACKPacket;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class PacketManager {
 
-    private PacketManager() {}
-
     private static final PacketManager INSTANCE = new PacketManager();
+
     public static PacketManager getInstance() {
         return INSTANCE;
     }
 
+    private PacketManager() {
+    }
+
     private final Map<Byte, Class<? extends Packet>> packetIds = new HashMap<>();
+    private final Map<Byte, Class<? extends Packet>> dataPacketIds = new HashMap<>();
 
     {
         registerPacket(UnconnectedPingPacket.class);
@@ -49,12 +54,16 @@ public final class PacketManager {
         Preconditions.checkNotNull(packet);
         PacketID id = packet.getDeclaredAnnotation(PacketID.class);
         if (id == null) {
-            throw new InvalidPacketException("All packets must be annotated with @PacketID.",packet);
+            throw new InvalidPacketException("All packets must be annotated with @PacketID.", packet);
         }
         for (int i : id.value()) {
-            System.out.println(packet.getName() + " === " + i);
-            Preconditions.checkNotNull(packetIds);
-            packetIds.put((byte) i,packet);
+            System.out.println(packet.getSimpleName() + " = " + ((byte)i) + " = " + i);
+            if (packet.isAnnotationPresent(DataPacket.class)) {
+                System.out.println(packet.getSimpleName() + " is a data packet. wooohooo");
+                this.dataPacketIds.put((byte) i, packet);
+                continue;
+            }
+            packetIds.put((byte) i, packet);
         }
     }
 
@@ -75,112 +84,13 @@ public final class PacketManager {
         return null;
     }
 
-    /*
-
-    private Map<Object, Object> packets;
-    private final Map<Byte, Class<? extends Packet>> loginPacketIds = new HashMap<>();
-    private final Map<Byte, Class<? extends Packet>> gamePacketIds = new HashMap<>();
-
-    private final Map<Integer, Packet> sentPackets = new HashMap<>();
-    private int lastSent = 0;
-
-    {
-        registerLoginPacket(UnconnectedPingPacket.class);
-        registerLoginPacket(OpenConnectionRequestAPacket.class);
-        registerLoginPacket(OpenConnectionRequestBPacket.class);
-        registerLoginPacket(CustomPacket.class);
-        registerLoginPacket(ACKPacket.class);
-        registerLoginPacket(NACKPacket.class);
-
-        registerGamePacket(PingPacket.class);
-        registerGamePacket(ChatPacket.class);
-        registerGamePacket(ClientConnectPacket.class);
-        registerGamePacket(ClientHandshakePacket.class);
-        registerGamePacket(ClientCancelConnectPacket.class);
-        registerGamePacket(LoginInfoPacket.class);
+    public Class<? extends Packet> getDataPacketById(byte id) {
+        System.out.println(dataPacketIds.containsKey(id));
+        System.out.println(dataPacketIds.values().stream().map(Class::getSimpleName).collect(Collectors.toList()));
+        return dataPacketIds.get(id);
     }
 
-    void registerLoginPacket(Class<? extends Packet> clazz) {
-        PacketID id = clazz.getAnnotation(PacketID.class);
-        if (id != null)
-            for (int i : id.value())
-                loginPacketIds.put((byte) i, clazz);
+    public Packet initializeDataPacketById(byte id) {
+        return initializePacket(getDataPacketById(id));
     }
-
-    public Class<? extends Packet> getLoginPacketClass(byte id) {
-        return loginPacketIds.get(id);
-    }
-
-    public Packet createLoginPacket(byte id) {
-        Class<? extends Packet> clazz = getLoginPacketClass(id);
-        if (clazz == null)
-            return null;
-        Packet pack = null;
-        try {
-            pack = clazz.getConstructor().newInstance();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        if (pack == null) {
-            try {
-                pack = clazz.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return pack;
-    }
-
-    void registerGamePacket(Class<? extends Packet> clazz) {
-        PacketID id = clazz.getAnnotation(PacketID.class);
-        if (id != null)
-            for (int i : id.value())
-                gamePacketIds.put((byte) i, clazz);
-    }
-
-    public Class<? extends Packet> getGamePacketClass(byte id) {
-        return gamePacketIds.get(id);
-    }
-
-    public Packet createGamePacket(byte id) {
-        Class<? extends Packet> clazz = getGamePacketClass(id);
-        if (clazz == null)
-            return null;
-        Packet pack = null;
-        try {
-            pack = clazz.getConstructor().newInstance();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        if (pack == null) {
-            try {
-                pack = clazz.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return pack;
-    }
-
-    public int save(Packet packet) {
-        if (packet == null)
-            return -1;
-        int id = lastSent++;
-        sentPackets.put(id, packet);
-        System.out.println("Saved " + packet.getClass().getSimpleName() + " as " + id);
-        return id;
-    }
-
-    public int getSentAmount() {
-        return lastSent;
-    }
-
-    public Packet getSavedPacket(int id) {
-        return sentPackets.get(id);
-    }
-
-    public Map<Byte, Class<? extends Packet>> getPackets() {
-        return gamePacketIds;
-    }
-    */
 }

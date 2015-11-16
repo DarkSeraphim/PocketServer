@@ -1,4 +1,4 @@
-package com.pocketserver.impl.net.packets.login;
+package com.pocketserver.impl.net.packets.data;
 
 import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.PacketID;
@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
+@DataPacket
 @PacketID(0x82)
 public class LoginInfoPacket extends InPacket {
     @Override

@@ -28,4 +28,11 @@ public class ClientConnectPacket extends InPacket {
         //.sendGame(0x84, EncapsulationStrategy.COUNT, 0x02F001, 0, ctx, dg.sender());
     }
 
+    public long getClientId() {
+        return clientId;
+    }
+
+    public long getSession() {
+        return session;
+    }
 }

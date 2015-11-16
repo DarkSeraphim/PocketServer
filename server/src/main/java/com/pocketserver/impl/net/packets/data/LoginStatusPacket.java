@@ -1,9 +1,10 @@
-package com.pocketserver.impl.net.packets.login;
+package com.pocketserver.impl.net.packets.data;
 
 import com.pocketserver.impl.net.OutPacket;
 import com.pocketserver.impl.net.PacketID;
 import io.netty.channel.socket.DatagramPacket;
 
+@DataPacket
 @PacketID(0x83)
 public class LoginStatusPacket extends OutPacket {
     private final int statusCode;

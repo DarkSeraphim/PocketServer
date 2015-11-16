@@ -40,9 +40,23 @@ public class CustomPacket extends Packet {
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
                 ByteBuf content = packet.content();
+                System.out.println("Debug: " + content.readableBytes());
 
                 byte id = content.readByte();
-                Packet initialized = PacketManager.getInstance().initializePacketById(id);
+                Packet initialized;
+                try {
+                    initialized = PacketManager.getInstance().initializePacketById(id);
+                } catch (Exception e) {
+                    e.getSuppressed();
+                    //System.out.println("Yeah this is messed uppppp");
+
+                    String sid = String.format("%X", id);
+                    System.out.format("FuckedPacket received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
+                    //System.out.println(id);
+                    //System.out.println(Byte.toUnsignedInt(id));
+                    //System.out.println(a);
+                    initialized = PacketManager.getInstance().initializeDataPacketById(id);
+                }
                 System.out.println("Received encapsulated packet: " + initialized.getClass().getSimpleName());
 
                 DatagramPacket send = new DatagramPacket(content.readBytes(content.readableBytes()), packet.recipient(), packet.sender());

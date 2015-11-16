@@ -48,12 +48,6 @@ public abstract class Packet {
         return this;
     }
 
-    @Deprecated
-    public Packet sendGame(int customPacketId, EncapsulationStrategy strategy, int count, int unk, ChannelHandlerContext ctx, InetSocketAddress address) {
-        new CustomPacketOld(customPacketId, strategy, count, unk, this).sendPacket(ctx, address);
-        return this;
-    }
-
     public abstract void decode(DatagramPacket dg, ChannelHandlerContext ctx);
 
     public abstract DatagramPacket encode(DatagramPacket dg);

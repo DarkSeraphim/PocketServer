@@ -1,22 +1,18 @@
 package com.pocketserver.impl.net.packets.login;
 
-import com.pocketserver.impl.net.OutPacket;
-import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
-import com.pocketserver.impl.net.util.PacketUtils;
+import com.pocketserver.impl.net.packets.udp.EncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 @PacketID(0x10)
-public class ServerHandshakePacket extends OutPacket {
+public class ServerHandshakePacket extends EncapsulatedPacket {
     private static final InetSocketAddress LOCAL_ADDRESS = new InetSocketAddress("127.0.0.1",0);
     private static final InetSocketAddress SYSTEM_ADDRESS = new InetSocketAddress("0.0.0.0",0);
 
@@ -24,7 +20,7 @@ public class ServerHandshakePacket extends OutPacket {
     private final long timeStamp;
     private final long serverTimeStamp;
 
-    private static int temp=-1;
+    private static int temp = -1;
 
     public ServerHandshakePacket(long timeStamp,InetSocketAddress address) {
         this.address = address;
@@ -73,6 +69,7 @@ public class ServerHandshakePacket extends OutPacket {
         return byteBuf;
     }
 
+    /*
     @Override
     public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress sentTo) {
         DatagramPacket encode = encode(new DatagramPacket(Unpooled.buffer(96), sentTo));
@@ -93,4 +90,5 @@ public class ServerHandshakePacket extends OutPacket {
         //System.out.println(Arrays.toString(encodedBuf.array()));
         return this;
     }
+    */
 }
