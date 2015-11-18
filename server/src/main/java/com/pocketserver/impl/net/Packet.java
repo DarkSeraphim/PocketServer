@@ -1,16 +1,13 @@
 package com.pocketserver.impl.net;
 
-import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
-
 import com.google.common.base.Preconditions;
-import com.pocketserver.impl.net.packets.oldudp.CustomPacketOld;
-import com.pocketserver.impl.net.packets.oldudp.CustomPacketOld.EncapsulationStrategy;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
+
+import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 
 public abstract class Packet {
     private final int id;
@@ -27,15 +24,15 @@ public abstract class Packet {
         return this.id;
     }
 
-
+    @Deprecated
     public final void writeString(ByteBuf buf, String str) {
         Preconditions.checkNotNull(str, "Cannot write a null string.");
         str = Protocol.DISALLOWED_CHARS.matcher(str).replaceAll("");
-        System.out.println(str);
         buf.writeShort(str.length());
         buf.writeBytes(str.getBytes(Charset.defaultCharset()));
     }
 
+    @Deprecated
     public final String readString(ByteBuf buf) {
         short len = buf.readShort();
         byte[] bytes = new byte[len];

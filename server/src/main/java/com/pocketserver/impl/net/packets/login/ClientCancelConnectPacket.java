@@ -14,5 +14,4 @@ public class ClientCancelConnectPacket extends InPacket {
         for (int i = 0; i < 10; i++)
             System.out.println(dg.sender().getHostName() + " has cancelled the login.");
     }
-
 }

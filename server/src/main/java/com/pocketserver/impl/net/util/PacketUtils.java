@@ -1,10 +1,13 @@
 package com.pocketserver.impl.net.util;
 
+import com.google.common.base.Preconditions;
+import com.pocketserver.impl.net.Protocol;
 import io.netty.buffer.ByteBuf;
 
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 public final class PacketUtils {
     private PacketUtils() {}
@@ -19,5 +22,20 @@ public final class PacketUtils {
     public static int readTriad(ByteBuf buf) {
         ByteBuf bytes = buf.readBytes(new byte[3]);
         return (bytes.readByte() & 0xFF) | ((bytes.readByte() & 0xFF) << 8) | ((bytes.readByte() & 0x0F) << 16);
+    }
+
+    public static void writeString(ByteBuf buf, String str) {
+        Preconditions.checkNotNull(str, "Cannot write a null string.");
+        str = Protocol.DISALLOWED_CHARS.matcher(str).replaceAll("");
+        buf.writeShort(str.length());
+        buf.writeBytes(str.getBytes(Charset.defaultCharset()));
+    }
+
+    @Deprecated
+    public static String readString(ByteBuf buf) {
+        short len = buf.readShort();
+        byte[] bytes = new byte[len];
+        buf.readBytes(bytes);
+        return new String(bytes, Charset.defaultCharset());
     }
 }

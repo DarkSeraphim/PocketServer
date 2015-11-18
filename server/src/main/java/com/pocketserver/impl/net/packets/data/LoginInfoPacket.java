@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @DataPacket
-@PacketID(0x82)
+@PacketID(0x8F)
 public class LoginInfoPacket extends InPacket {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {

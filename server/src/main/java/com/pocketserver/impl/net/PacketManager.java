@@ -3,6 +3,7 @@ package com.pocketserver.impl.net;
 import com.google.common.base.Preconditions;
 import com.pocketserver.impl.exception.InvalidPacketException;
 import com.pocketserver.impl.net.packets.data.DataPacket;
+import com.pocketserver.impl.net.packets.data.IPRecentlyConnected;
 import com.pocketserver.impl.net.packets.login.ClientCancelConnectPacket;
 import com.pocketserver.impl.net.packets.login.ClientConnectPacket;
 import com.pocketserver.impl.net.packets.login.ClientHandshakePacket;
@@ -48,6 +49,7 @@ public final class PacketManager {
         registerPacket(ClientHandshakePacket.class);
         registerPacket(ClientCancelConnectPacket.class);
         registerPacket(LoginInfoPacket.class);
+        registerPacket(IPRecentlyConnected.class);
     }
 
     public void registerPacket(Class<? extends Packet> packet) {
@@ -57,9 +59,7 @@ public final class PacketManager {
             throw new InvalidPacketException("All packets must be annotated with @PacketID.", packet);
         }
         for (int i : id.value()) {
-            System.out.println(packet.getSimpleName() + " = " + ((byte)i) + " = " + i);
             if (packet.isAnnotationPresent(DataPacket.class)) {
-                System.out.println(packet.getSimpleName() + " is a data packet. wooohooo");
                 this.dataPacketIds.put((byte) i, packet);
                 continue;
             }
@@ -85,8 +85,6 @@ public final class PacketManager {
     }
 
     public Class<? extends Packet> getDataPacketById(byte id) {
-        System.out.println(dataPacketIds.containsKey(id));
-        System.out.println(dataPacketIds.values().stream().map(Class::getSimpleName).collect(Collectors.toList()));
         return dataPacketIds.get(id);
     }
 

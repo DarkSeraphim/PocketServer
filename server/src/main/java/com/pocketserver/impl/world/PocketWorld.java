@@ -18,8 +18,7 @@ public class PocketWorld implements World {
 
     @Override
     public PocketChunk getChunk(int cx, int cz, boolean load) {
-        if (!load ||
-            chunks.contains(cx, cz))
+        if (!load || chunks.contains(cx, cz))
             return chunks.get(cx, cz);
         PocketChunk c = new PocketChunk(this, cx, cz);
         chunks.put(cx, cz, c);

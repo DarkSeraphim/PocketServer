@@ -1,11 +1,10 @@
 package com.pocketserver.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.pocketserver.Server;
 import com.pocketserver.event.EventBus;
 import com.pocketserver.impl.console.ConsoleThread;
 import com.pocketserver.impl.net.netty.PipelineInitializer;
-import com.pocketserver.impl.player.PocketPlayer;
+import com.pocketserver.impl.player.PlayerRegistry;
 import com.pocketserver.player.Player;
 import com.pocketserver.plugin.PluginManager;
 import io.netty.bootstrap.Bootstrap;
@@ -21,7 +20,6 @@ import org.slf4j.impl.SimpleLogger;
 import java.io.BufferedOutputStream;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -31,14 +29,13 @@ public class PocketServer implements Server {
     private final EventBus eventBus;
     private final PluginManager pluginManager;
     private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
-    private final List<PocketPlayer> onlinePlayers;
+
 
     PocketServer() {
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.pluginManager = new PluginManager(this);
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
-        this.onlinePlayers = new CopyOnWriteArrayList<>();
 
         System.setOut(new PrintStream(new BufferedOutputStream(System.out),true));
 
@@ -109,6 +106,6 @@ public class PocketServer implements Server {
 
     @Override
     public List<? extends Player> getOnlinePlayers() {
-        return ImmutableList.copyOf(onlinePlayers);
+        return PlayerRegistry.get().getPlayers();
     }
 }

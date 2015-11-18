@@ -17,9 +17,9 @@ public class ClientHandshakePacket extends InPacket {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
+        /*
         System.out.println("Received next packet with length, " + dg.content().readableBytes());
-//        if (dg.content().readInt() != COOKIE && dg.content().readByte() != SECURITY)
-//            return;
+
         getAddress(dg.content());
         for(int i = 0; i < 10; i++){
             getAddress(dg.content());
@@ -27,13 +27,24 @@ public class ClientHandshakePacket extends InPacket {
         dg.content().readLong();
         dg.content().readLong();
 
-        System.out.println(dg.content().readableBytes());
+        System.out.println("Finished reading next packet: " + dg.content().readableBytes());
+        dg.content().readByte();
+        dg.content().readByte();
         byte b = dg.content().readByte();
+        dg.content().readShort();
+
         CustomPacket.EncapsulationStrategy strategy = CustomPacket.EncapsulationStrategy.getById(b);
-        if (strategy != null) {
-            dg.content().readShort();
-            strategy.decode(ctx,dg);
-        }
+
+        String sid = String.format("%X", b);
+        System.out.format(" 22222222 Encapsulated PacketID received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
+        strategy.decode(ctx,dg);
+        */
+        ByteBuf content = dg.content();
+        int cookie = content.readInt();
+        byte b = content.readByte();
+        short port = content.readShort();
+        long session = content.readLong();
+        long session2 = content.readLong();
     }
 
     private void getAddress(ByteBuf buf) {

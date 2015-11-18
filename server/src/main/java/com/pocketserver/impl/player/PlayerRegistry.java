@@ -1,6 +1,10 @@
 package com.pocketserver.impl.player;
 
+import com.google.common.collect.ImmutableList;
+import com.pocketserver.player.Player;
+
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,5 +32,9 @@ public class PlayerRegistry {
 
     public Optional<PocketPlayer> getPlayer(String name) {
         return playerMap.values().stream().filter(p -> p.getName().equalsIgnoreCase(name)).findAny();
+    }
+
+    public List<? extends Player> getPlayers() {
+        return ImmutableList.copyOf(playerMap.values());
     }
 }

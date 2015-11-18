@@ -20,8 +20,6 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
     private final long timeStamp;
     private final long serverTimeStamp;
 
-    private static int temp = -1;
-
     public ServerHandshakePacket(long timeStamp,InetSocketAddress address) {
         this.address = address;
 
@@ -65,7 +63,6 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
             }
             byteBuf.writeShort((short) port);
         }
-        //System.out.println(byteBuf.readableBytes());
         return byteBuf;
     }
 

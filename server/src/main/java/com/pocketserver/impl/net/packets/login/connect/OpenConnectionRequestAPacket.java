@@ -22,9 +22,7 @@ public class OpenConnectionRequestAPacket extends InPacket {
         if (magic1 == Protocol.MAGIC_1 && magic2 == Protocol.MAGIC_2) {
             proto = buf.readByte();
             mtu = buf.readableBytes();
-            System.out.println("Proto = " + proto + ", MTU = " + mtu);
             if (proto == Protocol.RAKNET_VERSION) {
-                System.out.println("Sent?");
                 new OpenConnectionReplyAPacket(mtu).sendPacket(ctx, dg.sender());
             } else {
                 new IncompatibleProtocolPacket().sendPacket(ctx, dg.sender());

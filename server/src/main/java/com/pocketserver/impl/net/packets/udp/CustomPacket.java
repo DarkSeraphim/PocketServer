@@ -1,5 +1,6 @@
 package com.pocketserver.impl.net.packets.udp;
 
+import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.PacketManager;
@@ -8,31 +9,26 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID({ 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F })
-public class CustomPacket extends Packet {
+public class CustomPacket extends InPacket {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         ByteBuf content = dg.content();
+
         int counter = content.readMedium();
         byte encapsulation = content.readByte();
         short packetBits = content.readShort();
         short packetBytes = (short) (packetBits / 8);
-        new ACKPacket(new int[]{counter}).sendPacket(ctx,dg.sender());
+
+        new ACKPacket(new int[]{counter}).sendPacket(ctx, dg.sender());
 
         EncapsulationStrategy strategy = EncapsulationStrategy.getById(encapsulation);
         DatagramPacket packet = new DatagramPacket(content,dg.recipient(),dg.sender());
         if (strategy != null) {
-            System.out.println(content.readableBytes());
             strategy.decode(ctx, packet);
-            System.out.println(content.readableBytes());
         } else {
             System.out.println("Houston, we have a problem.");
         }
-    }
-
-    @Override
-    public DatagramPacket encode(DatagramPacket dg) {
-        return null;
     }
 
     public enum EncapsulationStrategy {
@@ -40,25 +36,20 @@ public class CustomPacket extends Packet {
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
                 ByteBuf content = packet.content();
-                System.out.println("Debug: " + content.readableBytes());
 
                 byte id = content.readByte();
+
+                String sid = String.format("%X", id);
+                System.out.format("Encapsulated PacketID received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
                 Packet initialized;
                 try {
                     initialized = PacketManager.getInstance().initializePacketById(id);
                 } catch (Exception e) {
                     e.getSuppressed();
-                    //System.out.println("Yeah this is messed uppppp");
-
-                    String sid = String.format("%X", id);
-                    System.out.format("FuckedPacket received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
-                    //System.out.println(id);
-                    //System.out.println(Byte.toUnsignedInt(id));
-                    //System.out.println(a);
                     initialized = PacketManager.getInstance().initializeDataPacketById(id);
+
                 }
                 System.out.println("Received encapsulated packet: " + initialized.getClass().getSimpleName());
-
                 DatagramPacket send = new DatagramPacket(content.readBytes(content.readableBytes()), packet.recipient(), packet.sender());
                 initialized.decode(send,ctx);
             }
