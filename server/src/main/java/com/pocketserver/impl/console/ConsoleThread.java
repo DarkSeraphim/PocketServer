@@ -4,7 +4,6 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import com.pocketserver.Server;
-import com.pocketserver.impl.PocketServer;
 
 public class ConsoleThread extends Thread {
 

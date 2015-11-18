@@ -1,7 +1,6 @@
 package com.pocketserver.impl;
 
 import com.pocketserver.impl.console.ArgumentParser;
-import com.pocketserver.impl.gui.ConsoleWindow;
 
 public class PocketBootstrap {
     public static void main(String[] args) {

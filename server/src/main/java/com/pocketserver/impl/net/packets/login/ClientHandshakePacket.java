@@ -1,16 +1,11 @@
 package com.pocketserver.impl.net.packets.login;
 
 import com.pocketserver.impl.net.InPacket;
-import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
-import com.pocketserver.impl.net.PacketManager;
-import com.pocketserver.impl.net.packets.udp.CustomPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-
-import java.net.InetSocketAddress;
 
 @PacketID(0x13)
 public class ClientHandshakePacket extends InPacket {

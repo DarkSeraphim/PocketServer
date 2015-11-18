@@ -1,12 +1,5 @@
 package com.pocketserver.plugin.old;
 
-import java.io.File;
-
-import org.slf4j.Logger;
-
-import com.pocketserver.Server;
-import com.pocketserver.event.EventBus;
-
 public abstract class Plugin {
 /*
     public static final String DEFAULT_VERSION = "1.0.0";
