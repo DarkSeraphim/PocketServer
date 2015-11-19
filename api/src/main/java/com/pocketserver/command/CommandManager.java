@@ -9,11 +9,15 @@ import com.google.common.base.Preconditions;
 import com.pocketserver.plugin.Plugin;
 
 public class CommandManager {
+    
+    public static final CommandManager INSTANCE = new CommandManager();
 
     private final Map<String, Command> commands = new ConcurrentHashMap<>();
     private final Map<String, String> commandPlugins = new ConcurrentHashMap<>();
     private final Map<String, List<String>> pluginCommands = new ConcurrentHashMap<>();
 
+    private CommandManager() {}
+    
     public void register(Command command, Plugin plugin) {
         Preconditions.checkNotNull(command, "Command cannot be null");
         Preconditions.checkNotNull(plugin, "Plugin cannot be null");

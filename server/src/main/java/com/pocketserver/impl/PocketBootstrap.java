@@ -3,8 +3,9 @@ package com.pocketserver.impl;
 import com.pocketserver.impl.console.ArgumentParser;
 
 public class PocketBootstrap {
+    
     public static void main(String[] args) {
-        PocketServer pocketServer = new PocketServer();
+        PocketServer server = new PocketServer();
 
         ArgumentParser parser = new ArgumentParser(args);
         //if (true) {//if (parser.isAllowed("gui")) {
@@ -13,4 +14,5 @@ public class PocketBootstrap {
         //    //JFrame frame = new JFrame("");
         //}
     }
+    
 }
