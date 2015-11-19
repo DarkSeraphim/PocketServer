@@ -19,7 +19,6 @@ import com.pocketserver.impl.net.packets.udp.NACKPacket;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class PacketManager {
 

@@ -39,12 +39,21 @@ public class ClientHandshakePacket extends InPacket {
         System.out.format(" 22222222 Encapsulated PacketID received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
         strategy.decode(ctx,dg);
         */
+        /*
         ByteBuf content = dg.content();
+        System.out.println(content.readableBytes());
         int cookie = content.readInt();
         byte b = content.readByte();
         short port = content.readShort();
         long session = content.readLong();
         long session2 = content.readLong();
+        System.out.println(content.readableBytes()-content.arrayOffset());
+
+        System.out.println("1:" + content.readByte());
+        System.out.println("2:" + content.readMedium());
+        System.out.println("3:" + content.readShort());
+        System.out.println("4: " + content.readByte());
+        */
     }
 
     private void getAddress(ByteBuf buf) {

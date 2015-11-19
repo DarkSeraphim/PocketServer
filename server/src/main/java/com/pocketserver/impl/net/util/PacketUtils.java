@@ -4,9 +4,6 @@ import com.google.common.base.Preconditions;
 import com.pocketserver.impl.net.Protocol;
 import io.netty.buffer.ByteBuf;
 
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 public final class PacketUtils {
@@ -31,11 +28,8 @@ public final class PacketUtils {
         buf.writeBytes(str.getBytes(Charset.defaultCharset()));
     }
 
-    @Deprecated
     public static String readString(ByteBuf buf) {
         short len = buf.readShort();
-        byte[] bytes = new byte[len];
-        buf.readBytes(bytes);
-        return new String(bytes, Charset.defaultCharset());
+        return buf.readBytes(len).toString(Charset.defaultCharset());
     }
 }
