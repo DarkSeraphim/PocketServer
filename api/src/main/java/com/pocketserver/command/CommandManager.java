@@ -1,6 +1,7 @@
 package com.pocketserver.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +15,7 @@ public class CommandManager {
     private final Map<String, String> commandPlugins = new ConcurrentHashMap<>();
     private final Map<String, List<String>> pluginCommands = new ConcurrentHashMap<>();
 
-    public void register(Command command, Plugin plugin) {
+    public void registerCommand(Command command, Plugin plugin) {
         Preconditions.checkNotNull(command, "Command cannot be null");
         Preconditions.checkNotNull(plugin, "Plugin cannot be null");
         List<String> cmds = pluginCommands.get(plugin.getName());
@@ -28,7 +29,7 @@ public class CommandManager {
         pluginCommands.put(plugin.getName(), cmds);
     }
 
-    public void unregister(Command command) {
+    public void unregisterCommand(Command command) {
         Preconditions.checkNotNull(command, "Command cannot be null");
         String[] aliases = command.getAliases();
         for (String s : aliases) {
@@ -43,10 +44,19 @@ public class CommandManager {
         }
     }
 
-    public void exec(CommandExecutor executor, String command) {
-        Preconditions.checkNotNull(executor, "CommandExecutor cannot be null");
-        Preconditions.checkNotNull(command, "Command string cannot be null");
+    public void executeCommand(CommandExecutor executor, String commandName) {
+        synchronized (this) {
+            Preconditions.checkNotNull(executor, "CommandExecutor cannot be null");
+            Preconditions.checkNotNull(commandName, "Command string cannot be null");
 
+            String[] arguments = commandName.split(" ");
+            String label = arguments[0];
+            Command command = getCommand(label);
+            command.executeCommand(executor, label, Arrays.copyOfRange(arguments,1,arguments.length));
+        }
     }
 
+    private Command getCommand(String commandName) {
+        return commands.get(commandName);
+    }
 }

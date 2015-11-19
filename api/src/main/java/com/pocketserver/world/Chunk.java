@@ -1,6 +1,7 @@
 package com.pocketserver.world;
 
 import com.pocketserver.block.Block;
+import com.pocketserver.block.Material;
 
 public interface Chunk {
 
@@ -17,4 +18,8 @@ public interface Chunk {
     boolean isInChunk(Location location);
 
     boolean isInChunk(int x,int y, int z);
+
+    void proposeUpdates();
+
+    void queueUpdate(int x, int y, int z, Material material);
 }
