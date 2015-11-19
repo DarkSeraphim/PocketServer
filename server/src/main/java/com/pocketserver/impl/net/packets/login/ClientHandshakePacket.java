@@ -1,16 +1,12 @@
 package com.pocketserver.impl.net.packets.login;
 
 import com.pocketserver.impl.net.InPacket;
-import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
-
-import com.pocketserver.impl.net.PacketManager;
-import com.pocketserver.impl.net.packets.udp.CustomPacket;
+import com.pocketserver.impl.net.packets.data.game.StartGamePacket;
+import com.pocketserver.player.GameMode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-
-import java.net.InetSocketAddress;
 
 @PacketID(0x13)
 public class ClientHandshakePacket extends InPacket {
@@ -54,6 +50,7 @@ public class ClientHandshakePacket extends InPacket {
         System.out.println("3:" + content.readShort());
         System.out.println("4: " + content.readByte());
         */
+        new StartGamePacket(0,0, GameMode.SURVIVAL,0,1,1,1).sendPacket(ctx,dg.sender());
     }
 
     private void getAddress(ByteBuf buf) {

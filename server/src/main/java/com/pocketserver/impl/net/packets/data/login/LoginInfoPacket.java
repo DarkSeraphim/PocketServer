@@ -1,7 +1,8 @@
-package com.pocketserver.impl.net.packets.data;
+package com.pocketserver.impl.net.packets.data.login;
 
 import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.PacketID;
+import com.pocketserver.impl.net.packets.data.DataPacket;
 import com.pocketserver.impl.net.util.PacketUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

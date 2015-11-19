@@ -79,9 +79,12 @@ public class CustomPacket extends InPacket {
             }
         },
         COUNT_UNKNOWN(0x60) {
+            private boolean used;
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
-                packet.content().readBytes(4);
+                if (!used)
+                    packet.content().readBytes(4);
+                used = true; //TODO: Figure out if this is per run or per user. Guessing per user?
                 COUNT.decode(ctx, packet);
             }
         };
