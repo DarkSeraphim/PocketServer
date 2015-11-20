@@ -19,7 +19,7 @@ public interface Chunk {
 
     boolean isInChunk(int x,int y, int z);
 
-    void proposeUpdates();
-
     void queueUpdate(int x, int y, int z, Material material);
+
+    void proposeUpdates();
 }

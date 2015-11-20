@@ -78,4 +78,16 @@ public class PocketChunk implements Chunk {
     public boolean isInChunk(int x, int y, int z) {
         return isInChunk(new Location(world,x,y,z));
     }
+
+    @Override
+    public void queueUpdate(int x, int y, int z, Material material) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void proposeUpdates() {
+        // TODO Auto-generated method stub
+        
+    }
 }
