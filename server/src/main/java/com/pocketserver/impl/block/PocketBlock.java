@@ -8,17 +8,17 @@ import com.pocketserver.world.Location;
 public class PocketBlock implements Block {
 
     private final Location location;
-    private Material material;
-    private byte data;
+    private volatile Material material;
+    private volatile byte data;
 
-    public PocketBlock(Material material, byte data, Location location) {
+    public PocketBlock(Material material, Location location, byte data) {
         this.material = material;
-        this.data = data;
         this.location = location;
+        this.data = data;
     }
 
     public PocketBlock(Material material, Location location) {
-        this(material, (byte) 0, location);
+        this(material, location, (byte) 0);
     }
 
     @Override
@@ -35,7 +35,6 @@ public class PocketBlock implements Block {
     public Location getLocation() {
         return location;
     }
-    // TODO: Implement a block.
 
     @Override
     public Chunk getChunk() {

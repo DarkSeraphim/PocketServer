@@ -7,7 +7,7 @@ import com.pocketserver.impl.net.packets.data.IPRecentlyConnected;
 import com.pocketserver.impl.net.packets.login.ClientCancelConnectPacket;
 import com.pocketserver.impl.net.packets.login.ClientConnectPacket;
 import com.pocketserver.impl.net.packets.login.ClientHandshakePacket;
-import com.pocketserver.impl.net.packets.data.LoginInfoPacket;
+import com.pocketserver.impl.net.packets.data.login.LoginInfoPacket;
 import com.pocketserver.impl.net.packets.login.connect.OpenConnectionRequestAPacket;
 import com.pocketserver.impl.net.packets.login.connect.OpenConnectionRequestBPacket;
 import com.pocketserver.impl.net.packets.login.connect.UnconnectedPingPacket;
@@ -19,7 +19,6 @@ import com.pocketserver.impl.net.packets.udp.NACKPacket;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class PacketManager {
 

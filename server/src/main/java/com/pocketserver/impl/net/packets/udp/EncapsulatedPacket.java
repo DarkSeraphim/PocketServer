@@ -1,14 +1,14 @@
 package com.pocketserver.impl.net.packets.udp;
 
+import java.net.InetSocketAddress;
+
 import com.pocketserver.impl.net.OutPacket;
 import com.pocketserver.impl.net.Packet;
-import com.pocketserver.impl.net.util.PacketUtils;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-
-import java.net.InetSocketAddress;
 
 public abstract class EncapsulatedPacket extends OutPacket {
     private static int ctr = -1;
@@ -18,7 +18,7 @@ public abstract class EncapsulatedPacket extends OutPacket {
         DatagramPacket packet = new DatagramPacket(Unpooled.buffer(), address);
         ByteBuf content = packet.content();
         content.writeByte(0x80);
-        content.writeBytes(PacketUtils.getTriad(ctr++));
+        content.writeMedium(ctr++);
         content.writeByte(0x00);
 
         DatagramPacket ePacket = encode(new DatagramPacket(Unpooled.buffer(), address));

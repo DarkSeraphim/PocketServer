@@ -11,6 +11,7 @@ public abstract class Plugin {
     private Logger logger;
     private Server server;
     private PluginInfo info;
+    private boolean enabled;
 
     public void onEnable() {
 
@@ -43,5 +44,9 @@ public abstract class Plugin {
 
     public String getName() {
         return this.info.value();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

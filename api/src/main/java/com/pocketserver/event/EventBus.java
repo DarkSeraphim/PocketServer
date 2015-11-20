@@ -1,5 +1,6 @@
 package com.pocketserver.event;
 
+import com.google.common.base.Preconditions;
 import com.pocketserver.plugin.Plugin;
 
 import java.lang.reflect.InvocationTargetException;
@@ -7,14 +8,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class EventBus {
-    private final Map<Class<?>, List<EventData>> eventListeners;
+    private final ConcurrentMap<Class<?>, List<EventData>> eventListeners;
     private final ExecutorService service;
 
     public EventBus(ExecutorService executorService) {
@@ -23,8 +24,9 @@ public class EventBus {
     }
 
     public void registerListener(Plugin plugin, Object listener) {
-        if (listener == null)
-            return;
+        Preconditions.checkArgument(plugin != null && plugin.isEnabled());
+        Preconditions.checkNotNull(listener);
+
         for (Method method : listener.getClass().getMethods()) {
             if (!method.isAnnotationPresent(Listener.class)) {
                 continue;
@@ -34,7 +36,7 @@ public class EventBus {
                 continue;
             }
             Class<?> type = parameters[0];
-            List<EventData> dataList = eventListeners.containsKey(type) ? eventListeners.get(type) : new ArrayList<>();
+            List<EventData> dataList = eventListeners.getOrDefault(type, new ArrayList<>());
             EventData data = new EventData(plugin, listener, method);
             dataList.add(data);
             eventListeners.put(type, dataList);

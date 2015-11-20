@@ -1,15 +1,14 @@
 package com.pocketserver.impl.net.packets.udp;
 
+import java.net.InetSocketAddress;
+
 import com.google.common.base.Preconditions;
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
-import com.pocketserver.impl.net.util.PacketUtils;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
 @PacketID(0xC0)
 public class ACKPacket extends Packet {
@@ -36,7 +35,6 @@ public class ACKPacket extends Packet {
         Preconditions.checkNotNull(packets);
 
         ByteBuf content = dg.content();
-        ByteBuffer payload = ByteBuffer.allocate(1024);
         int count = packets.length;
         int records = 0;
 
@@ -52,13 +50,13 @@ public class ACKPacket extends Packet {
                     last = current;
                 } else if (diff > 1) {
                     if (start == last) {
-                        payload.put((byte) 0x01);
-                        payload.put(PacketUtils.getTriad(start));
+                        content.writeByte((byte) 0x01);
+                        content.writeMedium(start);
                         start = last = current;
                     } else {
-                        payload.put((byte) 0x00);
-                        payload.put(PacketUtils.getTriad(start));
-                        payload.put(PacketUtils.getTriad(last));
+                        content.writeByte((byte) 0x00);
+                        content.writeMedium(start);
+                        content.writeMedium(last);
                         start = last = current;
                     }
                     records = records + 1;
@@ -66,18 +64,17 @@ public class ACKPacket extends Packet {
             }
 
             if (start == last) {
-                payload.put((byte) 0x01);
-                payload.put(PacketUtils.getTriad(start));
+                content.writeByte((byte) 0x01);
+                content.writeMedium(start);
             } else {
-                payload.put((byte) 0x00);
-                payload.put(PacketUtils.getTriad(start));
-                payload.put(PacketUtils.getTriad(last));
+                content.writeByte((byte) 0x00);
+                content.writeMedium(start);
+                content.writeMedium(last);
             }
             records = records + 1;
         }
         content.writeByte(getPacketID());
         content.writeShort((short) records);
-        content.writeBytes(payload.array());
         return dg;
     }
 

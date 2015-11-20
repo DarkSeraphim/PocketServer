@@ -2,6 +2,8 @@ package com.pocketserver.impl.net.packets.message;
 
 import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.PacketID;
+import com.pocketserver.impl.net.util.PacketUtils;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
@@ -12,7 +14,7 @@ public class ChatPacket extends InPacket {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        message = readString(dg.content());
+        message = PacketUtils.readString(dg.content());
         /*
          * Player player = PlayerRegistry.get().getPlayer(dg.sender()); if
          * (player == null) return; PlayerChatEvent event = new

@@ -4,6 +4,7 @@ import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.PacketManager;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -29,6 +30,20 @@ public class CustomPacket extends InPacket {
         } else {
             System.out.println("Houston, we have a problem.");
         }
+
+        byte[] a = new byte[content.readableBytes()];
+        for (int i = 0; i < a.length; i++) {
+            a[i] = content.getByte(i);
+        }
+        System.out.println(dumpHexFromBytes(a));
+    }
+    public static String dumpHexFromBytes(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 
     public enum EncapsulationStrategy {
@@ -62,9 +77,12 @@ public class CustomPacket extends InPacket {
             }
         },
         COUNT_UNKNOWN(0x60) {
+            private boolean used;
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
-                packet.content().readBytes(4);
+                if (!used)
+                    packet.content().readBytes(4);
+                used = true; //TODO: Figure out if this is per run or per user. Guessing per user?
                 COUNT.decode(ctx, packet);
             }
         };

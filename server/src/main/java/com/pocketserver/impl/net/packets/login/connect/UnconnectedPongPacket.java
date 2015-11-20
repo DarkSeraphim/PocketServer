@@ -2,8 +2,9 @@ package com.pocketserver.impl.net.packets.login.connect;
 
 import com.pocketserver.impl.net.OutPacket;
 import com.pocketserver.impl.net.PacketID;
-
 import com.pocketserver.impl.net.Protocol;
+import com.pocketserver.impl.net.util.PacketUtils;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 
@@ -30,7 +31,7 @@ public class UnconnectedPongPacket extends OutPacket {
         content.writeLong(id);
         content.writeLong(Protocol.TEMP_SERVER_ID);
         writeMagic(content);
-        writeString(content, Protocol.TEMP_IDENTIFIER);
+        PacketUtils.writeString(content, Protocol.TEMP_IDENTIFIER);
         return buf;
     }
 

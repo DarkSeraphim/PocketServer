@@ -1,6 +1,7 @@
 package com.pocketserver.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +33,7 @@ public class CommandManager {
         pluginCommands.put(plugin.getName(), cmds);
     }
 
-    public void unregister(Command command) {
+    public void unregisterCommand(Command command) {
         Preconditions.checkNotNull(command, "Command cannot be null");
         String[] aliases = command.getAliases();
         for (String s : aliases) {
@@ -47,10 +48,17 @@ public class CommandManager {
         }
     }
 
-    public void exec(CommandExecutor executor, String command) {
+    public synchronized void executeCommand(CommandExecutor executor, String commandName) {
         Preconditions.checkNotNull(executor, "CommandExecutor cannot be null");
-        Preconditions.checkNotNull(command, "Command string cannot be null");
+        Preconditions.checkNotNull(commandName, "Command string cannot be null");
 
+        String[] arguments = commandName.split(" ");
+        String label = arguments[0];
+        Command command = getCommand(label);
+        command.executeCommand(executor, label, Arrays.copyOfRange(arguments,1,arguments.length));
     }
 
+    private Command getCommand(String commandName) {
+        return commands.get(commandName);
+    }
 }

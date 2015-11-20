@@ -2,6 +2,7 @@ package com.pocketserver.impl.net.packets.message;
 
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
+import com.pocketserver.impl.net.util.PacketUtils;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -20,13 +21,13 @@ public class MessagePacket extends Packet {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        message = readString(dg.content());
+        message = PacketUtils.readString(dg.content());
     }
 
     @Override
     public DatagramPacket encode(DatagramPacket dg) {
         dg.content().writeByte(getPacketID());
-        writeString(dg.content(), message);
+        PacketUtils.writeString(dg.content(), message);
         return dg;
     }
 
