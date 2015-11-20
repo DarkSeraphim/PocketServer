@@ -13,4 +13,5 @@ public interface Block {
 
     Chunk getChunk();
 
+    void setType(Material type);
 }
