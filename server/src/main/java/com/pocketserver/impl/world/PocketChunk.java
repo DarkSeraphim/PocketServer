@@ -7,12 +7,15 @@ import com.pocketserver.world.Chunk;
 import com.pocketserver.world.Location;
 import com.pocketserver.world.World;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class PocketChunk implements Chunk {
 
     private final int x;
     private final int z;
     private final PocketWorld world;
     private final PocketBlock[] blocks = new PocketBlock[256 * 16 * 16];
+    private AtomicBoolean updated;
 
     public PocketChunk(PocketWorld world, int x, int z) {
         this.world = world;
@@ -32,6 +35,10 @@ public class PocketChunk implements Chunk {
 
     public PocketChunk(Location loc) {
         this((PocketWorld) loc.getWorld(), loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
+    }
+
+    private int getBlockIndex(int x, int y, int z) {
+        return (y << 8) + (x << 4) + z;
     }
 
     @Override
@@ -57,10 +64,6 @@ public class PocketChunk implements Chunk {
         return getBlock(dx & 0xF, loc.getBlockY(), dz & 0xF);
     }
 
-    private int getBlockIndex(int x, int y, int z) {
-        return (y << 8) + (x << 4) + z;
-    }
-
     @Override
     public Block getBlock(int x, int y, int z) {
         if (0 <= x && x < 16 && 0 <= y && y < 256 && 0 <= z && z < 16)
@@ -77,5 +80,17 @@ public class PocketChunk implements Chunk {
     @Override
     public boolean isInChunk(int x, int y, int z) {
         return isInChunk(new Location(world,x,y,z));
+    }
+
+    @Override
+    public void proposeUpdates() {
+        //TODO: Send all the new blocks to client.
+    }
+
+    @Override
+    public void queueUpdate(int x, int y, int z, Material material) {
+        this.updated.set(true);
+
+        blocks[getBlockIndex(x,y,z)].setType(material);
     }
 }

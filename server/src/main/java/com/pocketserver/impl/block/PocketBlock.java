@@ -27,6 +27,11 @@ public class PocketBlock implements Block {
     }
 
     @Override
+    public void setType(Material type) {
+        this.material = type;
+    }
+
+    @Override
     public byte getData() {
         return data;
     }
@@ -40,5 +45,4 @@ public class PocketBlock implements Block {
     public Chunk getChunk() {
         return getLocation().getChunk();
     }
-
 }
