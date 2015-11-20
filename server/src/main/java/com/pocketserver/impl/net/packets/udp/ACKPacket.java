@@ -7,6 +7,7 @@ import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
@@ -35,6 +36,7 @@ public class ACKPacket extends Packet {
         Preconditions.checkNotNull(packets);
 
         ByteBuf content = dg.content();
+        ByteBuf payload = Unpooled.buffer(2048);
         int count = packets.length;
         int records = 0;
 
@@ -50,13 +52,13 @@ public class ACKPacket extends Packet {
                     last = current;
                 } else if (diff > 1) {
                     if (start == last) {
-                        content.writeByte((byte) 0x01);
-                        content.writeMedium(start);
+                        payload.writeByte((byte) 0x01);
+                        payload.writeMedium(start);
                         start = last = current;
                     } else {
-                        content.writeByte((byte) 0x00);
-                        content.writeMedium(start);
-                        content.writeMedium(last);
+                        payload.writeByte((byte) 0x00);
+                        payload.writeMedium(start);
+                        payload.writeMedium(last);
                         start = last = current;
                     }
                     records = records + 1;
@@ -64,17 +66,18 @@ public class ACKPacket extends Packet {
             }
 
             if (start == last) {
-                content.writeByte((byte) 0x01);
-                content.writeMedium(start);
+                payload.writeByte((byte) 0x01);
+                payload.writeMedium(start);
             } else {
-                content.writeByte((byte) 0x00);
-                content.writeMedium(start);
-                content.writeMedium(last);
+                payload.writeByte((byte) 0x00);
+                payload.writeMedium(start);
+                payload.writeMedium(last);
             }
             records = records + 1;
         }
         content.writeByte(getPacketID());
         content.writeShort((short) records);
+        content.writeBytes(payload);
         return dg;
     }
 
