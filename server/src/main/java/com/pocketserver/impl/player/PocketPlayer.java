@@ -14,20 +14,19 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class PocketPlayer extends PocketLivingEntity implements Player {
 
-    private String name;
-    private ChannelHandlerContext ctx;
-    private final InetSocketAddress address;
-    private GameMode gameMode = GameMode.SURVIVAL;
     private final Map<String, Boolean> permissions = new HashMap<>();
+    private final PlayerConnection playerConnection;
+    private GameMode gameMode = GameMode.SURVIVAL;
+    private String name;
 
-    public PocketPlayer(int entityId, InetSocketAddress address) {
+    public PocketPlayer(int entityId, PlayerConnection playerConnection) {
         super(entityId);
-        this.address = address;
+        this.playerConnection = playerConnection;
     }
 
     @Override
     public void sendMessage(String message) {
-        new MessagePacket(message).sendPacket(ctx, address);
+        new MessagePacket(message);
     }
 
     @Override
@@ -41,17 +40,13 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     }
 
     @Override
-    public void chat(String message) {
-
+    public InetSocketAddress getAddress() {
+        return playerConnection.getAddress();
     }
 
     @Override
-    public InetSocketAddress getAddress() {
-        return address;
-    }
+    public void chat(String message) {
 
-    public ChannelHandlerContext getChannelContext() {
-        return ctx;
     }
 
     @Override
