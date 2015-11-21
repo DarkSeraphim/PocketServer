@@ -1,13 +1,13 @@
 package com.pocketserver.impl.world;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.pocketserver.block.Block;
 import com.pocketserver.block.Material;
 import com.pocketserver.impl.block.PocketBlock;
 import com.pocketserver.world.Chunk;
 import com.pocketserver.world.Location;
 import com.pocketserver.world.World;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PocketChunk implements Chunk {
 
