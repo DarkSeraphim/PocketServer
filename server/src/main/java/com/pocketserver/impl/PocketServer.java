@@ -1,54 +1,38 @@
 package com.pocketserver.impl;
 
-import java.io.BufferedOutputStream;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.impl.SimpleLogger;
-
 import com.pocketserver.Server;
 import com.pocketserver.event.EventBus;
 import com.pocketserver.impl.console.ConsoleThread;
-import com.pocketserver.impl.gui.ConsoleWindow;
 import com.pocketserver.impl.net.netty.PipelineInitializer;
 import com.pocketserver.impl.player.PlayerRegistry;
 import com.pocketserver.player.Player;
 import com.pocketserver.plugin.PluginManager;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.impl.SimpleLogger;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class PocketServer implements Server {
-    
-    static Server server;
-    
-    public static Server server() {
-        return server;
-    }
-    
+
     private final Logger logger;
     private final EventBus eventBus;
-    private final ConsoleWindow console;
     private final PluginManager pluginManager;
     private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
     
     PocketServer() {
-        server = this;
-        this.console = new ConsoleWindow(getOnlinePlayers());
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.pluginManager = new PluginManager(this);
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
-
-        System.setOut(new PSPrintStream(console, false, new BufferedOutputStream(System.out), true));
-        System.setErr(new PSPrintStream(console, true, new BufferedOutputStream(System.err), true));
 
         setProperties();
         startThreads();
