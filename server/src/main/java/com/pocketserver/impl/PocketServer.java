@@ -1,6 +1,7 @@
 package com.pocketserver.impl;
 
 import com.pocketserver.Server;
+import com.pocketserver.command.CommandManager;
 import com.pocketserver.event.EventBus;
 import com.pocketserver.impl.console.ConsoleThread;
 import com.pocketserver.impl.net.netty.PipelineInitializer;
@@ -102,5 +103,10 @@ public class PocketServer implements Server {
     @Override
     public List<? extends Player> getOnlinePlayers() {
         return PlayerRegistry.get().getPlayers();
+    }
+
+    @Override
+    public CommandManager getCommandManager() {
+        return new CommandManager();
     }
 }

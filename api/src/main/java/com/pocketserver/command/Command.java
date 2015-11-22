@@ -1,5 +1,8 @@
 package com.pocketserver.command;
 
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+
 public abstract class Command {
     private final String commandName;
     private final String[] aliases;
@@ -18,5 +21,9 @@ public abstract class Command {
 
     public String getCommandName() {
         return commandName;
+    }
+
+    public Predicate<CommandExecutor> getPermission() {
+        return executor -> true;
     }
 }

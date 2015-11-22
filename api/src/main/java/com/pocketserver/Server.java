@@ -2,6 +2,7 @@ package com.pocketserver;
 
 import java.util.List;
 
+import com.pocketserver.command.CommandManager;
 import org.slf4j.Logger;
 
 import com.pocketserver.event.EventBus;
@@ -19,4 +20,6 @@ public interface Server {
     boolean isRunning();
 
     List<? extends Player> getOnlinePlayers();
+
+    CommandManager getCommandManager();
 }

@@ -2,9 +2,7 @@ package com.pocketserver.impl.net.packets.login;
 
 import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.PacketID;
-import com.pocketserver.impl.net.packets.data.game.StartGamePacket;
-import com.pocketserver.player.GameMode;
-
+import com.pocketserver.impl.net.packets.udp.CustomPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -51,7 +49,26 @@ public class ClientHandshakePacket extends InPacket {
         System.out.println("3:" + content.readShort());
         System.out.println("4: " + content.readByte());
         */
-        new StartGamePacket(0,0, GameMode.SURVIVAL,0,1,1,1).sendPacket(ctx,dg.sender());
+        //new StartGamePacket(0,0, GameMode.SURVIVAL,0,1,1,1).sendPacket(ctx,dg.sender());d
+        ByteBuf content = dg.content();
+        System.out.println(content.readableBytes());
+        content.readBytes(94);
+        if (content.isReadable()) {
+            System.out.println("readdabblleeee");
+            byte b = content.readByte();
+            CustomPacket.EncapsulationStrategy strategy = CustomPacket.EncapsulationStrategy.getById(b);
+            if (strategy != null) {
+                System.out.println("Strategy is gud!");
+                strategy.decode(ctx, dg);
+                String sid = String.format("%X",b);
+                System.out.format("STRATEGY PacketID: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
+            } else {
+                String sid = String.format("%X",b);
+                System.out.format("NULL PacketID: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
+            }
+        } else {
+            System.out.println(content.readableBytes());
+        }
     }
 
     private void getAddress(ByteBuf buf) {
