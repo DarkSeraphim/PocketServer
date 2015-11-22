@@ -15,8 +15,9 @@ public class UnconnectedPingPacket extends InPacket {
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         ByteBuf content = dg.content();
         UnconnectedPongPacket packet = new UnconnectedPongPacket(0x1C, content.readLong());
+        System.out.println(content.readableBytes());
         if (content.readLong() == Protocol.MAGIC_1 && content.readLong() == Protocol.MAGIC_2)
             packet.sendPacket(ctx, dg.sender());
+        else {System.out.println("weird...");}
     }
-
 }

@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import com.pocketserver.Server;
+import com.pocketserver.command.CommandManager;
 
 public class ConsoleThread extends Thread {
 
@@ -26,6 +27,7 @@ public class ConsoleThread extends Thread {
     }
 
     private void executeCommand(String line) {
-        System.out.println("Received command: " + line);
+        CommandManager manager = this.server.getCommandManager();
+        manager.executeCommand(manager.getConsole(),line);
     }
 }

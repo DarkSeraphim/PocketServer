@@ -18,8 +18,7 @@ public class CustomPacket extends InPacket {
 
         int counter = content.readMedium();
         byte encapsulation = content.readByte();
-        short packetBits = content.readShort();
-        short packetBytes = (short) (packetBits / 8);
+        content.readShort(); //AKA short packetBits = content.readShort();
 
         new ACKPacket(new int[]{counter}).sendPacket(ctx, dg.sender());
 
@@ -51,19 +50,14 @@ public class CustomPacket extends InPacket {
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
                 ByteBuf content = packet.content();
+                System.out.println(name());
 
                 byte id = content.readByte();
+                String sid = String.format("%X",id);
 
-                String sid = String.format("%X", id);
-                System.out.format("Encapsulated PacketID received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
-                Packet initialized;
-                try {
-                    initialized = PacketManager.getInstance().initializePacketById(id);
-                } catch (Exception e) {
-                    e.getSuppressed();
-                    initialized = PacketManager.getInstance().initializeDataPacketById(id);
+                System.out.format("PacketID: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
 
-                }
+                Packet initialized = PacketManager.getInstance().initializePacketById(id);
                 System.out.println("Received encapsulated packet: " + initialized.getClass().getSimpleName());
                 DatagramPacket send = new DatagramPacket(content.readBytes(content.readableBytes()), packet.recipient(), packet.sender());
                 initialized.decode(send,ctx);
@@ -72,7 +66,8 @@ public class CustomPacket extends InPacket {
         COUNT(0x40) {
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
-                packet.content().readBytes(3);
+                packet.content().readMedium();
+                System.out.println(name());
                 BARE.decode(ctx, packet);
             }
         },
@@ -80,10 +75,12 @@ public class CustomPacket extends InPacket {
             private boolean used;
             @Override
             public void decode(ChannelHandlerContext ctx, DatagramPacket packet) {
-                if (!used)
+                //if (!used)
                     packet.content().readBytes(4);
                 used = true; //TODO: Figure out if this is per run or per user. Guessing per user?
+                System.out.println(name());
                 COUNT.decode(ctx, packet);
+
             }
         };
 

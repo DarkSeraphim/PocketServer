@@ -11,7 +11,6 @@ public class ClientCancelConnectPacket extends InPacket {
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        for (int i = 0; i < 10; i++)
-            System.out.println(dg.sender().getHostName() + " has cancelled the login.");
+        System.out.println(dg.sender().getHostName() + " has cancelled the login.");
     }
 }

@@ -6,4 +6,7 @@ public interface Permissible {
 
     void setPermission(String permission, boolean value);
 
+    boolean isOp();
+
+    void setOp(boolean op);
 }

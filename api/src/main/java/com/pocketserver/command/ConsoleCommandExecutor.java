@@ -1,5 +1,7 @@
 package com.pocketserver.command;
 
+import org.slf4j.LoggerFactory;
+
 public class ConsoleCommandExecutor implements CommandExecutor {
 
     @Override
@@ -9,7 +11,7 @@ public class ConsoleCommandExecutor implements CommandExecutor {
 
     @Override
     public void sendMessage(String message) {
-        System.out.println(message);
+        LoggerFactory.getLogger("PocketServer").info(message);
     }
 
     @Override
@@ -21,4 +23,13 @@ public class ConsoleCommandExecutor implements CommandExecutor {
     public void setPermission(String permission, boolean value) {
     }
 
+    @Override
+    public boolean isOp() {
+        return true;
+    }
+
+    @Override
+    public void setOp(boolean op) {
+
+    }
 }

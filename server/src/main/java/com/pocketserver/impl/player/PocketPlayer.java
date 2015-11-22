@@ -10,24 +10,22 @@ import com.pocketserver.impl.net.packets.message.MessagePacket;
 import com.pocketserver.player.GameMode;
 import com.pocketserver.player.Player;
 
-import io.netty.channel.ChannelHandlerContext;
-
 public class PocketPlayer extends PocketLivingEntity implements Player {
 
-    private String name;
-    private ChannelHandlerContext ctx;
-    private final InetSocketAddress address;
-    private GameMode gameMode = GameMode.SURVIVAL;
     private final Map<String, Boolean> permissions = new HashMap<>();
+    private final PlayerConnection playerConnection;
+    private boolean op;
+    private String name;
+    private GameMode gameMode = GameMode.SURVIVAL;
 
-    public PocketPlayer(int entityId, InetSocketAddress address) {
+    public PocketPlayer(int entityId, PlayerConnection playerConnection) {
         super(entityId);
-        this.address = address;
+        this.playerConnection = playerConnection;
     }
 
     @Override
     public void sendMessage(String message) {
-        new MessagePacket(message).sendPacket(ctx, address);
+        new MessagePacket(message);
     }
 
     @Override
@@ -41,17 +39,13 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     }
 
     @Override
-    public void chat(String message) {
-
+    public InetSocketAddress getAddress() {
+        return playerConnection.getAddress();
     }
 
     @Override
-    public InetSocketAddress getAddress() {
-        return address;
-    }
+    public void chat(String message) {
 
-    public ChannelHandlerContext getChannelContext() {
-        return ctx;
     }
 
     @Override
@@ -81,5 +75,15 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     public void setPermission(String permission, boolean value) {
         Preconditions.checkNotNull(permission, "Permission cannot be null");
         permissions.put(permission, value);
+    }
+
+    @Override
+    public boolean isOp() {
+        return op;
+    }
+
+    @Override
+    public void setOp(boolean op) {
+        this.op = op;
     }
 }

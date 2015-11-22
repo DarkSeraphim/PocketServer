@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
+import com.pocketserver.command.CommandManager;
 import com.pocketserver.event.EventBus;
 import com.pocketserver.player.Player;
 import com.pocketserver.plugin.PluginManager;
@@ -30,4 +31,7 @@ public abstract class Server {
     public abstract boolean isRunning();
 
     public abstract List<? extends Player> getOnlinePlayers();
+
+    public abstract CommandManager getCommandManager();
+    
 }

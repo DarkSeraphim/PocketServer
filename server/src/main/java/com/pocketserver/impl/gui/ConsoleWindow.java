@@ -119,7 +119,6 @@ public class ConsoleWindow {
         if (string.isEmpty())
             return;
         write(false, "Sent command: " + string + "\n");
-        CommandManager.INSTANCE.executeCommand(new ConsoleCommandExecutor(), string);
     }
     
     public void write(boolean isErr, char c) {

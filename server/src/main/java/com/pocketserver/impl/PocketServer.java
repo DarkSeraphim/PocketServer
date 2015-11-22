@@ -1,6 +1,5 @@
 package com.pocketserver.impl;
 
-import java.io.BufferedOutputStream;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 import com.pocketserver.Server;
+import com.pocketserver.command.CommandManager;
 import com.pocketserver.event.EventBus;
 import com.pocketserver.impl.console.ConsoleThread;
 import com.pocketserver.impl.gui.ConsoleWindow;
@@ -26,7 +26,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
 public class PocketServer extends Server {
-    
+
     private final Logger logger;
     private final EventBus eventBus;
     private final ConsoleWindow console;
@@ -40,9 +40,6 @@ public class PocketServer extends Server {
         this.pluginManager = new PluginManager(this);
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
-
-        System.setOut(new PSPrintStream(console, false, new BufferedOutputStream(System.out), true));
-        System.setErr(new PSPrintStream(console, true, new BufferedOutputStream(System.err), true));
 
         setProperties();
         startThreads();
@@ -88,6 +85,10 @@ public class PocketServer extends Server {
     }
 
     //Start api design
+    
+    public ConsoleWindow getConsoleWindow() {
+        return console;
+    }
 
     @Override
     public EventBus getEventBus() {
@@ -112,5 +113,10 @@ public class PocketServer extends Server {
     @Override
     public List<? extends Player> getOnlinePlayers() {
         return PlayerRegistry.get().getPlayers();
+    }
+
+    @Override
+    public CommandManager getCommandManager() {
+        return new CommandManager();
     }
 }

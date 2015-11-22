@@ -20,6 +20,7 @@ public final class PacketUtils {
 
     public static String readString(ByteBuf buf) {
         short len = buf.readShort();
+        System.out.println("Len" + len);
         return buf.readBytes(len).toString(Charset.defaultCharset());
     }
 }

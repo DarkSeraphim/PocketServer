@@ -9,14 +9,15 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @DataPacket
-@PacketID({0x82,0x8f})
+@PacketID({0x92})
 public class LoginInfoPacket extends InPacket {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         System.out.println("LoginInfoPacket!!! woooooohooooo");
         System.out.println(dg.content().readableBytes());
         ByteBuf content = dg.content();
+        content.readByte();
         String name = PacketUtils.readString(content);
-        System.out.println("Username: " + name);
+        System.out.println(name);
     }
 }
