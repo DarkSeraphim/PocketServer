@@ -25,13 +25,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
-public class PocketServer implements Server {
-    
-    static Server server;
-    
-    public static Server server() {
-        return server;
-    }
+public class PocketServer extends Server {
     
     private final Logger logger;
     private final EventBus eventBus;
@@ -40,7 +34,7 @@ public class PocketServer implements Server {
     private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
     
     PocketServer() {
-        server = this;
+        Server.setServer(this);
         this.console = new ConsoleWindow(getOnlinePlayers());
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.pluginManager = new PluginManager(this);

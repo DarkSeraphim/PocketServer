@@ -83,7 +83,6 @@ public class ACKPacket extends Packet {
 
     @Override
     public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress address) {
-        //System.out.println("Actually being sent.");
         return super.sendPacket(ctx, address);
     }
 }

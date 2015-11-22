@@ -11,9 +11,9 @@ public @interface PluginData {
 
     String name();
 
-   // String version() default Plugin.DEFAULT_VERSION;
+    String version() default Plugin.DEFAULT_VERSION;
 
-    //String description() default Plugin.DEFAULT_DESCRIPTION;
+    String description() default Plugin.DEFAULT_DESCRIPTION;
 
     String[]dependency() default {};
 

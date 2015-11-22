@@ -3,6 +3,8 @@ package com.pocketserver.impl.exception;
 import com.pocketserver.impl.net.Packet;
 
 public class InvalidPacketException extends RuntimeException {
+
+    private static final long serialVersionUID = -8707220715813143314L;
     private final Class<? extends Packet> packet;
 
     public InvalidPacketException(String message,Class<? extends Packet> packet) {

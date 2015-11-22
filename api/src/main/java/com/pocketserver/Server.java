@@ -8,15 +8,26 @@ import com.pocketserver.event.EventBus;
 import com.pocketserver.player.Player;
 import com.pocketserver.plugin.PluginManager;
 
-public interface Server {
+public abstract class Server {
     
-    EventBus getEventBus();
+    private static Server server;
     
-    PluginManager getPluginManager();
+    public static Server getServer() {
+        return server;
+    }
     
-    Logger getLogger();
+    public static void setServer(Server server) {
+        if (Server.server == null)
+            Server.server = server;
+    }
+    
+    public abstract EventBus getEventBus();
+    
+    public abstract PluginManager getPluginManager();
+    
+    public abstract Logger getLogger();
 
-    boolean isRunning();
+    public abstract boolean isRunning();
 
-    List<? extends Player> getOnlinePlayers();
+    public abstract List<? extends Player> getOnlinePlayers();
 }
