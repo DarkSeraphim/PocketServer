@@ -13,12 +13,14 @@
         <module>api</module>
     </modules>
     <packaging>pom</packaging>
-
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-
+    <build>
+        <defaultGoal>clean package -DskipTests=true</defaultGoal>
+    </build>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -60,12 +62,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>1.6.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

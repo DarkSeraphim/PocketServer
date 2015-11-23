@@ -1,8 +1,10 @@
 package com.pocketserver.example;
 
 import com.pocketserver.plugin.Plugin;
-import com.pocketserver.plugin.PluginInfo;
 
-@PluginInfo("Example")
-public class ExamplePlugin extends Plugin {
+public final class ExamplePlugin extends Plugin {
+  @Override
+  public void onEnable() {
+    getServer().getEventBus().registerListener(this, new ExampleListener());
+  }
 }

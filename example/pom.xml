@@ -9,6 +9,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>pocketserver-example</artifactId>
+    <build>
+        <defaultGoal>clean package</defaultGoal>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
     <dependencies>
         <dependency>
             <artifactId>pocketserver-api</artifactId>

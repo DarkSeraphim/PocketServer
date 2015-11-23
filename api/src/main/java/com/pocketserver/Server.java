@@ -1,5 +1,6 @@
 package com.pocketserver;
 
+import java.io.File;
 import java.util.List;
 
 import com.pocketserver.command.PermissionResolver;
@@ -38,4 +39,6 @@ public abstract class Server {
     public abstract void setPermissionResolver(PermissionResolver permissionResolver);
 
     public abstract PermissionResolver getPermissionResolver();
+
+    public abstract File getDirectory();
 }

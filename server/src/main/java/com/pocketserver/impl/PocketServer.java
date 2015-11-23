@@ -2,6 +2,7 @@ package com.pocketserver.impl;
 
 import com.google.common.base.Preconditions;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -32,14 +33,18 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 public class PocketServer extends Server {
 
     private final Logger logger;
+    private final File directory;
     private final EventBus eventBus;
     private final ConsoleWindow console;
     private final PluginManager pluginManager;
     private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
 
     private PermissionResolver permissionResolver;
-    
+
     PocketServer() {
+        this.directory = new File(".");
+        Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
+
         Server.setServer(this);
         this.console = new ConsoleWindow(getOnlinePlayers());
         this.logger = LoggerFactory.getLogger("PocketServer");
@@ -61,6 +66,10 @@ public class PocketServer extends Server {
                 return false;
             }
         };
+
+        if (new File(directory, "plugins").mkdirs()) {
+            getLogger().info("Created \"plugins\" directory");
+        }
 
         setProperties();
         startThreads();
@@ -149,5 +158,10 @@ public class PocketServer extends Server {
     @Override
     public PermissionResolver getPermissionResolver() {
         return permissionResolver;
+    }
+
+    @Override
+    public File getDirectory() {
+        return directory;
     }
 }
