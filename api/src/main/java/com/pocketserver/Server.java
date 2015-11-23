@@ -2,6 +2,7 @@ package com.pocketserver;
 
 import java.util.List;
 
+import com.pocketserver.command.PermissionResolver;
 import org.slf4j.Logger;
 
 import com.pocketserver.command.CommandManager;
@@ -33,5 +34,8 @@ public abstract class Server {
     public abstract List<? extends Player> getOnlinePlayers();
 
     public abstract CommandManager getCommandManager();
-    
+
+    public abstract void setPermissionResolver(PermissionResolver permissionResolver);
+
+    public abstract PermissionResolver getPermissionResolver();
 }

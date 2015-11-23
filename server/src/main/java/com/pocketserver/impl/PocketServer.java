@@ -1,9 +1,13 @@
 package com.pocketserver.impl;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import com.pocketserver.command.PermissionResolver;
+import com.pocketserver.impl.player.PocketPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -32,6 +36,8 @@ public class PocketServer extends Server {
     private final ConsoleWindow console;
     private final PluginManager pluginManager;
     private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
+
+    private PermissionResolver permissionResolver;
     
     PocketServer() {
         Server.setServer(this);
@@ -40,6 +46,21 @@ public class PocketServer extends Server {
         this.pluginManager = new PluginManager(this);
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
+        /*
+         * Not converted to a lambda as the PermissionResolver interface may be subject to
+         * drastic changes with each update.
+         */
+        this.permissionResolver = new PermissionResolver() {
+            @Override
+            public boolean checkPermission(Player player, String permission) {
+                if (player != null && player instanceof PocketPlayer) {
+                    PocketPlayer actualPlayer = (PocketPlayer) player;
+                    Boolean value = actualPlayer.getPermissions().get(permission);
+                    return value != null && value;
+                }
+                return false;
+            }
+        };
 
         setProperties();
         startThreads();
@@ -118,5 +139,15 @@ public class PocketServer extends Server {
     @Override
     public CommandManager getCommandManager() {
         return new CommandManager();
+    }
+
+    @Override
+    public void setPermissionResolver(PermissionResolver permissionResolver) {
+        this.permissionResolver = Preconditions.checkNotNull(permissionResolver, "permissionResolver should not be null!");
+    }
+
+    @Override
+    public PermissionResolver getPermissionResolver() {
+        return permissionResolver;
     }
 }
