@@ -1,6 +1,5 @@
 package com.pocketserver.impl.net.packets.udp;
 
-import com.pocketserver.impl.net.InPacket;
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.PacketManager;
@@ -10,8 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID({ 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F })
-public class CustomPacket extends InPacket {
-
+public class CustomPacket extends Packet {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         ByteBuf content = dg.content();

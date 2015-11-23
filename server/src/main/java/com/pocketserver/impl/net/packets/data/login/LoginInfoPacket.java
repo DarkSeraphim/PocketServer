@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.data.login;
 
-import com.pocketserver.impl.net.InPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.packets.data.DataPacket;
 import com.pocketserver.impl.net.util.PacketUtils;
@@ -9,8 +9,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @DataPacket
-@PacketID({0x92})
-public class LoginInfoPacket extends InPacket {
+@PacketID(0x92)
+public class LoginInfoPacket extends Packet {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         System.out.println("LoginInfoPacket!!! woooooohooooo");

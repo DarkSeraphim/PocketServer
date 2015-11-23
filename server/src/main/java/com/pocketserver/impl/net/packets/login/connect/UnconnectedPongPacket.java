@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.login.connect;
 
-import com.pocketserver.impl.net.OutPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.Protocol;
 import com.pocketserver.impl.net.util.PacketUtils;
@@ -9,8 +9,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID({ 0x1C, 0x1D })
-public class UnconnectedPongPacket extends OutPacket {
-
+public class UnconnectedPongPacket extends Packet {
     private final int packetId;
     private final long id;
 
@@ -34,5 +33,4 @@ public class UnconnectedPongPacket extends OutPacket {
         PacketUtils.writeString(content, Protocol.TEMP_IDENTIFIER);
         return buf;
     }
-
 }

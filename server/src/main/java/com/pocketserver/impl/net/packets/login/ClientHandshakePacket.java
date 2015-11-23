@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.login;
 
-import com.pocketserver.impl.net.InPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.packets.udp.CustomPacket;
 import io.netty.buffer.ByteBuf;
@@ -8,8 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0x13)
-public class ClientHandshakePacket extends InPacket {
-
+public class ClientHandshakePacket extends Packet {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         /*

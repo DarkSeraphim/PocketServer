@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.login.connect;
 
-import com.pocketserver.impl.net.InPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
 import com.pocketserver.impl.net.Protocol;
@@ -9,12 +9,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0x07)
-public class OpenConnectionRequestBPacket extends InPacket {
-
-    byte sec;
-    int cookie;
-    short port, mtu;
+public class OpenConnectionRequestBPacket extends Packet {
     long clientId;
+    int cookie;
+    short port;
+    short mtu;
+    byte sec;
 
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
@@ -29,5 +29,4 @@ public class OpenConnectionRequestBPacket extends InPacket {
             new OpenConnectionReplyBPacket(mtu, dg.sender().getPort()).sendPacket(ctx, dg.sender());
         }
     }
-
 }

@@ -1,13 +1,12 @@
 package com.pocketserver.impl.net.packets.ping;
 
-import com.pocketserver.impl.net.OutPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0x03)
-public class PongPacket extends OutPacket {
-
+public class PongPacket extends Packet {
     private long identifier;
 
     protected PongPacket(long identifier) {

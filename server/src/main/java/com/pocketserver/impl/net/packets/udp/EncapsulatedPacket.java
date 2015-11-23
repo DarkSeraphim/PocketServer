@@ -2,7 +2,6 @@ package com.pocketserver.impl.net.packets.udp;
 
 import java.net.InetSocketAddress;
 
-import com.pocketserver.impl.net.OutPacket;
 import com.pocketserver.impl.net.Packet;
 
 import io.netty.buffer.ByteBuf;
@@ -10,7 +9,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
-public abstract class EncapsulatedPacket extends OutPacket {
+public abstract class EncapsulatedPacket extends Packet {
     private static int ctr = -1;
 
     @Override

@@ -1,15 +1,15 @@
 package com.pocketserver.impl.net.packets.login.connect;
 
-import com.pocketserver.impl.net.OutPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
 import com.pocketserver.impl.net.Protocol;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0x08)
-public class OpenConnectionReplyBPacket extends OutPacket {
-
-    private final int mtu, clientPort;
+public class OpenConnectionReplyBPacket extends Packet {
+    private final int clientPort;
+    private final int mtu;
 
     protected OpenConnectionReplyBPacket(int mtu, int clientPort) {
         this.mtu = mtu;
@@ -26,5 +26,4 @@ public class OpenConnectionReplyBPacket extends OutPacket {
         dg.content().writeByte(0);
         return dg;
     }
-
 }

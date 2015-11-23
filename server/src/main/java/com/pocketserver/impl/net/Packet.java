@@ -1,7 +1,10 @@
 package com.pocketserver.impl.net;
 
+import com.google.common.base.MoreObjects;
+
 import java.net.InetSocketAddress;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -26,12 +29,21 @@ public abstract class Packet {
         return this;
     }
 
-    public abstract void decode(DatagramPacket dg, ChannelHandlerContext ctx);
+    public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
+        throw new UnsupportedOperationException(String.format("%s#decode(DatagramPacket, ChannelHandlerContext) should be implemented.", getClass().getName()));
+    }
 
-    public abstract DatagramPacket encode(DatagramPacket dg);
+    public DatagramPacket encode(DatagramPacket dg) {
+        throw new UnsupportedOperationException(String.format("%s#encode(DatagramPacket) should be implemented.", getClass().getName()));
+    }
+
+    protected final void writeMagic(ByteBuf buf) {
+        buf.writeLong(Protocol.MAGIC_1);
+        buf.writeLong(Protocol.MAGIC_2);
+    }
 
     @Override
     public String toString() {
-        return this.getPacketID() + " " + this.getClass().getName();
+        return MoreObjects.toStringHelper(Packet.class).add("id", id).toString();
     }
 }

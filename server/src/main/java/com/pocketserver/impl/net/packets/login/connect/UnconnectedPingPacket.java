@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.login.connect;
 
-import com.pocketserver.impl.net.InPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
 import com.pocketserver.impl.net.Protocol;
@@ -9,8 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0x01)
-public class UnconnectedPingPacket extends InPacket {
-
+public class UnconnectedPingPacket extends Packet {
     @Override
     public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
         ByteBuf content = dg.content();

@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.login.connect;
 
-import com.pocketserver.impl.net.InPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 
 import com.pocketserver.impl.net.Protocol;
@@ -9,8 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0x05)
-public class OpenConnectionRequestAPacket extends InPacket {
-
+public class OpenConnectionRequestAPacket extends Packet {
     private byte proto;
     private int mtu;
 
@@ -29,5 +28,4 @@ public class OpenConnectionRequestAPacket extends InPacket {
             }
         }
     }
-
 }

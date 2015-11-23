@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.message;
 
-import com.pocketserver.impl.net.InPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.util.PacketUtils;
 
@@ -8,8 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0xB5)
-public class ChatPacket extends InPacket {
-
+public class ChatPacket extends Packet {
     String message;
 
     @Override
@@ -23,5 +22,4 @@ public class ChatPacket extends InPacket {
          * (event.isCancelled()) return; player.chat(event.getMessage());
          */
     }
-
 }

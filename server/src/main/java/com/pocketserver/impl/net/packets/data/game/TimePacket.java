@@ -1,6 +1,6 @@
 package com.pocketserver.impl.net.packets.data.game;
 
-import com.pocketserver.impl.net.OutPacket;
+import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.packets.data.DataPacket;
 import io.netty.buffer.ByteBuf;
@@ -8,7 +8,7 @@ import io.netty.channel.socket.DatagramPacket;
 
 @DataPacket
 @PacketID(0x86)
-public class TimePacket extends OutPacket {
+public class TimePacket extends Packet {
     private final int time;
 
     public TimePacket(int time) {
