@@ -8,9 +8,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>pocketserver-server</artifactId>
-    
     <dependencies>
         <dependency>
             <artifactId>pocketserver-api</artifactId>
@@ -18,7 +16,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -31,6 +28,9 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -41,8 +41,6 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>com.pocketserver.impl.PocketBootstrap</mainClass>
                         </manifest>
                     </archive>
@@ -50,5 +48,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
