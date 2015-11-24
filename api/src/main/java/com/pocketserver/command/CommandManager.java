@@ -37,7 +37,6 @@ public class CommandManager {
 
         String[] arguments = commandName.split(" ");
         String label = arguments[0];
-        System.out.println("hm");
         Command command = getCommand(label);
         if (command == null) {
             executor.sendMessage(NO_COMMAND);

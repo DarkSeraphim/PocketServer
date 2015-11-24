@@ -26,7 +26,7 @@ public class OpenConnectionRequestBPacket extends Packet {
             mtu = buf.readShort();
             clientId = buf.readLong();
 
-            new OpenConnectionReplyBPacket(mtu, dg.sender().getPort()).sendPacket(ctx, dg.sender());
+            new OpenConnectionReplyBPacket(mtu, dg.sender().getPort()).sendPacket(ctx);
         }
     }
 }

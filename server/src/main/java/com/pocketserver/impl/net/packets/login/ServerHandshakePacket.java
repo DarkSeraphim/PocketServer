@@ -29,11 +29,13 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
 
     @Override
     public DatagramPacket encode(DatagramPacket dg) {
-        ByteBuf content = dg.content();
+        DatagramPacket encode = super.encode(dg);
+        ByteBuf content = encode.content();
+        content.writeShort(96*8);
+
         content.writeByte(getPacketID());
         content.writeBytes(writeAddress(address));
         content.writeShort(0);
-
         content.writeBytes(writeAddress(LOCAL_ADDRESS));
         for (int i = 0; i < 9; i++) {
             content.writeBytes(writeAddress(SYSTEM_ADDRESS));
@@ -47,7 +49,7 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
         return putAddress(systemAddress.getHostName(),systemAddress.getPort(),(byte)4).array();
     }
 
-    protected ByteBuf putAddress(String addr, int port, byte version){
+    private ByteBuf putAddress(String addr, int port, byte version){
         if(!addr.contains(Pattern.quote("."))){
             try {
                 addr = InetAddress.getByName(addr).getHostAddress();

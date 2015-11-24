@@ -1,17 +1,22 @@
 package com.pocketserver.impl.net.packets.udp;
 
-import java.net.InetSocketAddress;
-
 import com.pocketserver.impl.net.Packet;
-
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 public abstract class EncapsulatedPacket extends Packet {
     private static int ctr = -1;
 
+    @Override
+    public DatagramPacket encode(DatagramPacket dg) {
+        ByteBuf content = dg.content();
+        content.writeByte(0x80);
+        content.writeMedium(ctr++);
+        content.writeByte(0x00);
+        return dg;
+    }
+
+    /*
     @Override
     public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress address) {
         DatagramPacket packet = new DatagramPacket(Unpooled.buffer(), address);
@@ -28,4 +33,5 @@ public abstract class EncapsulatedPacket extends Packet {
         ctx.writeAndFlush(packet);
         return this;
     }
+    */
 }

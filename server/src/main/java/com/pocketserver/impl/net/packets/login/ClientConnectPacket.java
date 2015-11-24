@@ -21,7 +21,7 @@ public class ClientConnectPacket extends Packet {
         session = content.readLong();
         boolean b = content.readBoolean();
 
-        new ServerHandshakePacket(session,dg.sender()).sendPacket(ctx, dg.sender());
+        new ServerHandshakePacket(session,dg.sender()).sendPacket(ctx);
     }
 
     public long getClientId() {

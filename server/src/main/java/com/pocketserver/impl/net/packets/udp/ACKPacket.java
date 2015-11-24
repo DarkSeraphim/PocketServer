@@ -80,9 +80,4 @@ public class ACKPacket extends Packet {
         content.writeBytes(payload);
         return dg;
     }
-
-    @Override
-    public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress address) {
-        return super.sendPacket(ctx, address);
-    }
 }

@@ -22,9 +22,9 @@ public class OpenConnectionRequestAPacket extends Packet {
             proto = buf.readByte();
             mtu = buf.readableBytes();
             if (proto == Protocol.RAKNET_VERSION) {
-                new OpenConnectionReplyAPacket(mtu).sendPacket(ctx, dg.sender());
+                new OpenConnectionReplyAPacket(mtu).sendPacket(ctx);
             } else {
-                new IncompatibleProtocolPacket().sendPacket(ctx, dg.sender());
+                new IncompatibleProtocolPacket().sendPacket(ctx);
             }
         }
     }

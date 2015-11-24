@@ -9,6 +9,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import com.pocketserver.command.PermissionResolver;
 import com.pocketserver.impl.player.PocketPlayer;
+import io.netty.channel.oio.OioEventLoopGroup;
+import io.netty.channel.socket.oio.OioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -55,16 +57,13 @@ public class PocketServer extends Server {
          * Not converted to a lambda as the PermissionResolver interface may be subject to
          * drastic changes with each update.
          */
-        this.permissionResolver = new PermissionResolver() {
-            @Override
-            public boolean checkPermission(Player player, String permission) {
-                if (player != null && player instanceof PocketPlayer) {
-                    PocketPlayer actualPlayer = (PocketPlayer) player;
-                    Boolean value = actualPlayer.getPermissions().get(permission);
-                    return value != null && value;
-                }
-                return false;
+        this.permissionResolver = (player, permission) -> {
+            if (player != null && player instanceof PocketPlayer) {
+                PocketPlayer actualPlayer = (PocketPlayer) player;
+                Boolean value = actualPlayer.getPermissions().get(permission);
+                return value != null && value;
             }
+            return false;
         };
 
         if (new File(directory, "plugins").mkdirs()) {
@@ -81,14 +80,15 @@ public class PocketServer extends Server {
     }
 
     private void startNetty() {
+
         this.executorService.submit(() -> {
-            EventLoopGroup group = new NioEventLoopGroup();
+            EventLoopGroup group = new OioEventLoopGroup();
             try {
                 Bootstrap boot = new Bootstrap();
                 {
                     boot.group(group);
                     boot.handler(new PipelineInitializer());
-                    boot.channel(NioDatagramChannel.class);
+                    boot.channel(OioDatagramChannel.class);
                     boot.option(ChannelOption.SO_BROADCAST, true);
                 }
                 ChannelFuture future = boot.bind(19132).sync();

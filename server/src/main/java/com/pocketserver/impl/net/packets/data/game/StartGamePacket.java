@@ -59,6 +59,7 @@ public class StartGamePacket extends EncapsulatedPacket {
         return dg;
     }
 
+    /*
     @Override
     public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress address) {
         new LoginStatusPacket(LoginStatusPacket.StatusCode.GOOD).sendPacket(ctx,address);
@@ -66,4 +67,5 @@ public class StartGamePacket extends EncapsulatedPacket {
         new TimePacket(0).sendPacket(ctx,address);
         return packet;
     }
+    */
 }

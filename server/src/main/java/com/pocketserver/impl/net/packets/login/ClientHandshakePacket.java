@@ -52,22 +52,6 @@ public class ClientHandshakePacket extends Packet {
         ByteBuf content = dg.content();
         System.out.println(content.readableBytes());
         content.readBytes(94);
-        if (content.isReadable()) {
-            System.out.println("readdabblleeee");
-            byte b = content.readByte();
-            CustomPacket.EncapsulationStrategy strategy = CustomPacket.EncapsulationStrategy.getById(b);
-            if (strategy != null) {
-                System.out.println("Strategy is gud!");
-                strategy.decode(ctx, dg);
-                String sid = String.format("%X",b);
-                System.out.format("STRATEGY PacketID: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
-            } else {
-                String sid = String.format("%X",b);
-                System.out.format("NULL PacketID: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
-            }
-        } else {
-            System.out.println(content.readableBytes());
-        }
     }
 
     private void getAddress(ByteBuf buf) {

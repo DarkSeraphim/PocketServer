@@ -3,7 +3,6 @@ package com.pocketserver.impl.net.packets.udp;
 import com.pocketserver.impl.net.Packet;
 import com.pocketserver.impl.net.PacketID;
 import com.pocketserver.impl.net.PacketManager;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -18,7 +17,7 @@ public class CustomPacket extends Packet {
         byte encapsulation = content.readByte();
         content.readShort(); //AKA short packetBits = content.readShort();
 
-        new ACKPacket(new int[]{counter}).sendPacket(ctx, dg.sender());
+        new ACKPacket(new int[]{counter}).sendPacket(ctx);
 
         EncapsulationStrategy strategy = EncapsulationStrategy.getById(encapsulation);
         DatagramPacket packet = new DatagramPacket(content,dg.recipient(),dg.sender());
@@ -27,20 +26,6 @@ public class CustomPacket extends Packet {
         } else {
             System.out.println("Houston, we have a problem.");
         }
-
-        byte[] a = new byte[content.readableBytes()];
-        for (int i = 0; i < a.length; i++) {
-            a[i] = content.getByte(i);
-        }
-        System.out.println(dumpHexFromBytes(a));
-    }
-    public static String dumpHexFromBytes(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02X", b));
-            sb.append(" ");
-        }
-        return sb.toString();
     }
 
     public enum EncapsulationStrategy {

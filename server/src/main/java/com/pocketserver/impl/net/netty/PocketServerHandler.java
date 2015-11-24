@@ -5,13 +5,19 @@ import com.pocketserver.impl.net.PacketManager;
 
 import com.pocketserver.impl.net.packets.udp.CustomPacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 
-public class PocketServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public class PocketServerHandler extends ChannelHandlerAdapter {
 
     @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (msg instanceof Packet) {
+            ((Packet) msg).handlePacket(ctx.channel());
+        }
+    }
+
     protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         ByteBuf buf = msg.content();
         byte id = buf.readByte();
@@ -31,7 +37,7 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<DatagramPac
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
+     //   ctx.flush();
     }
 
     @Override
