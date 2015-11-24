@@ -1,6 +1,7 @@
 package com.pocketserver.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import com.pocketserver.api.Server;
@@ -119,5 +120,14 @@ public class PluginManager {
      */
     public void setEnabled(Plugin plugin, boolean enabled) {
         Preconditions.checkNotNull(plugin, "plugin should not be null").setEnabled(enabled);
+    }
+
+    /**
+     * Retrieve an immutable list of loaded plugins.
+     *
+     * @return immutable list of plugins
+     */
+    public List<Plugin> getPlugins() {
+        return ImmutableList.copyOf(plugins);
     }
 }

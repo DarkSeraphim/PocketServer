@@ -20,23 +20,23 @@ public abstract class Plugin {
 
     }
 
-    public Logger getLogger() {
+    public final Logger getLogger() {
         return this.logger;
     }
 
-    public Server getServer() {
+    public final Server getServer() {
         return server;
     }
 
-    public PluginDescriptor getPluginDescriptor() {
+    public final PluginDescriptor getPluginDescriptor() {
         return descriptor;
     }
 
-    public String getName() {
+    public final String getName() {
         return this.descriptor.getName();
     }
 
-    public boolean isEnabled() {
+    public final boolean isEnabled() {
         return this.enabled;
     }
 
@@ -55,6 +55,7 @@ public abstract class Plugin {
         } else {
             logger.info(PluginManager.INIT_MARKER, "Disabling {}", descriptor.getName());
             benchmarkMethod("onDisable", this::onDisable);
+            getServer().getEventBus().unregisterListener(this);
         }
     }
 
