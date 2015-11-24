@@ -17,6 +17,8 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 /**
  * @author Connor Spencer Harries
@@ -27,7 +29,7 @@ public final class PipelineUtils {
     static {
         Logger logger = LoggerFactory.getLogger("PocketServer");
         boolean tempUseEpoll = false;
-        if (!PlatformDependent.isWindows() && Boolean.parseBoolean("pocket.use-epoll")) {
+        if (!PlatformDependent.isWindows() && Boolean.getBoolean("pocket.use-epoll")) {
             if (Epoll.isAvailable()) {
                 tempUseEpoll = true;
                 logger.info("Epoll is supported by your system!");
@@ -38,12 +40,14 @@ public final class PipelineUtils {
         useEpoll = tempUseEpoll;
     }
 
-    public static ChannelInitializer<?> INITIALISER = new ChannelInitializer<Channel>() {
+    public static final ChannelInitializer<?> INITIALISER = new ChannelInitializer<Channel>() {
         @Override
         protected void initChannel(Channel ch) throws Exception {
             ch.pipeline().addLast(new PocketServerHandler());
         }
     };
+
+    public static final Marker NETWORK_MARKER = MarkerFactory.getMarker("NETWORK");
 
     public static Class<? extends Channel> getChannelClass() {
         if (useEpoll) {
