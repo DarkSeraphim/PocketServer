@@ -5,9 +5,12 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.pocketserver.net.netty.PacketDecoder;
+import com.pocketserver.net.netty.PacketEncoder;
 import com.pocketserver.net.netty.PocketServerHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
@@ -43,7 +46,10 @@ public final class PipelineUtils {
     public static final ChannelInitializer<?> INITIALISER = new ChannelInitializer<Channel>() {
         @Override
         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(new PocketServerHandler());
+            ChannelPipeline pipeline = ch.pipeline();
+            pipeline.addLast("encoder", new PacketEncoder());
+            pipeline.addLast("decoder", new PacketDecoder());
+            pipeline.addLast("handler", new PocketServerHandler());
         }
     };
 

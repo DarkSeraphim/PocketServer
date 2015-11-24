@@ -18,6 +18,7 @@ public class PocketServerHandler extends ChannelHandlerAdapter {
         }
     }
 
+    /*
     protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         ByteBuf buf = msg.content();
         byte id = buf.readByte();
@@ -34,6 +35,7 @@ public class PocketServerHandler extends ChannelHandlerAdapter {
             packet.decode(msg, ctx);
         }
     }
+    */
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
