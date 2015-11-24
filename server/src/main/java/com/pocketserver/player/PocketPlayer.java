@@ -1,21 +1,18 @@
 package com.pocketserver.player;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
 import com.pocketserver.api.Server;
-import com.pocketserver.entity.living.PocketLivingEntity;
-import com.pocketserver.net.packets.message.MessagePacket;
 import com.pocketserver.api.player.GameMode;
 import com.pocketserver.api.player.Player;
+import com.pocketserver.entity.living.PocketLivingEntity;
+import com.pocketserver.net.packets.message.MessagePacket;
 
 public class PocketPlayer extends PocketLivingEntity implements Player {
-
-    private final Map<String, Boolean> permissions = new HashMap<>();
     private final PlayerConnection playerConnection;
     private boolean op;
     private String name;
@@ -57,6 +54,7 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     }
 
     public Player setName(String name) {
+        Preconditions.checkArgument(this.name == null, "name cannot be reassigned once set!");
         this.name = name;
         return this;
     }
@@ -71,10 +69,7 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
     @Override
     public void setPermission(String permission, boolean value) {
-        /*
-         * TODO: Possibly move elsewhere, doesn't make much sense based on how hasPermission implementation works.
-         */
-        permissions.put(Preconditions.checkNotNull(permission, "permission should not be null").toLowerCase(), value);
+        Server.getServer().getPermissionResolver().setPermission(this, permission, value);
     }
 
     @Override
@@ -85,13 +80,5 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     @Override
     public void setOp(boolean op) {
         this.op = op;
-    }
-
-    // TODO: Make less ugly, copying a Map on every invocation isn't awesome.
-    public Map<String, Boolean> getPermissions() {
-        /*
-         * TODO: Possibly move elsewhere, doesn't make much sense based on how hasPermission implementation works.
-         */
-        return ImmutableMap.copyOf(permissions);
     }
 }

@@ -1,14 +1,24 @@
 package com.pocketserver;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import com.pocketserver.api.command.PermissionResolver;
 import com.pocketserver.player.PocketPlayer;
+import com.sun.corba.se.impl.javax.rmi.PortableRemoteObject;
+import com.sun.corba.se.impl.naming.pcosnaming.PersistentBindingIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -48,19 +58,37 @@ public class PocketServer extends Server {
         this.pluginManager = new PluginManager(this);
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
-        /*
-         * Not converted to a lambda as the PermissionResolver interface may be subject to
-         * drastic changes with each update.
-         */
         this.permissionResolver = new PermissionResolver() {
+            // TODO: Make less ugly
+            private LoadingCache<String, List<String>> permissions = CacheBuilder.newBuilder().build(new CacheLoader<String, List<String>>() {
+                @Override
+                public List<String> load(String key) {
+                    return Lists.newArrayList();
+                }
+            });
+
+            @Override
+            public void setPermission(Player player, String permission, boolean state) {
+                Preconditions.checkNotNull(permission, "permission should not be null!");
+                Preconditions.checkArgument(permission.length() > 0, "permission should not be empty!");
+
+                permission = permission.toLowerCase();
+                List<String> target = getPermissions(player);
+                if (state) {
+                    target.add(permission);
+                } else {
+                    target.remove(permission);
+                }
+            }
+
             @Override
             public boolean checkPermission(Player player, String permission) {
-                if (player != null && player instanceof PocketPlayer) {
-                    PocketPlayer actualPlayer = (PocketPlayer) player;
-                    Boolean value = actualPlayer.getPermissions().get(permission);
-                    return value != null && value;
-                }
-                return false;
+                return getPermissions(player).contains(permission.toLowerCase());
+            }
+
+            @Override
+            public List<String> getPermissions(Player player) {
+                return permissions.getUnchecked(Preconditions.checkNotNull(player, "player should not be null!").getName());
             }
         };
 
