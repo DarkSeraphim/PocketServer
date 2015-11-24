@@ -13,33 +13,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.pocketserver.api.Server;
+import com.pocketserver.api.command.CommandManager;
 import com.pocketserver.api.command.PermissionResolver;
+import com.pocketserver.api.event.EventBus;
+import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.Plugin;
+import com.pocketserver.api.plugin.PluginManager;
 import com.pocketserver.command.CommandShutdown;
+import com.pocketserver.net.netty.PipelineInitializer;
+import com.pocketserver.player.PlayerRegistry;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.slf4j.impl.SimpleLogger;
-
-import com.pocketserver.api.Server;
-import com.pocketserver.api.command.CommandManager;
-import com.pocketserver.api.event.EventBus;
-import com.pocketserver.console.ConsoleThread;
-import com.pocketserver.net.netty.PipelineInitializer;
-import com.pocketserver.player.PlayerRegistry;
-import com.pocketserver.api.player.Player;
-import com.pocketserver.api.plugin.PluginManager;
-
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 
 public class PocketServer extends Server {
     private static final Marker LISTENER_SHUTDOWN = MarkerFactory.getMarker("LISTENER_SHUTDOWN");
@@ -119,11 +116,6 @@ public class PocketServer extends Server {
         getCommandManager().registerCommand(new CommandShutdown(this));
 
         setProperties();
-        startThreads();
-    }
-
-    private void startThreads() {
-        new ConsoleThread(this).start();
         startListener();
     }
 
