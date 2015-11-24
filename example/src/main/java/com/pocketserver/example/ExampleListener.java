@@ -1,7 +1,7 @@
 package com.pocketserver.example;
 
-import com.pocketserver.event.Listener;
-import com.pocketserver.event.player.PlayerChatEvent;
+import com.pocketserver.api.event.Listener;
+import com.pocketserver.api.event.player.PlayerChatEvent;
 
 /**
  * Our example listener.

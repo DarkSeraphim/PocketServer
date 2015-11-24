@@ -1,0 +1,38 @@
+package com.pocketserver.net.packets.login.connect;
+
+<<<<<<< HEAD:server/src/main/java/com/pocketserver/impl/net/packets/login/connect/UnconnectedPingPacket.java
+import com.google.common.base.Preconditions;
+import com.pocketserver.impl.net.Packet;
+import com.pocketserver.impl.net.PacketID;
+
+=======
+import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketID;
+
+import com.pocketserver.net.Protocol;
+>>>>>>> origin/master:server/src/main/java/com/pocketserver/net/packets/login/connect/UnconnectedPingPacket.java
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
+
+@PacketID(0x01)
+public class UnconnectedPingPacket extends Packet {
+
+    private long identifier = -1;
+
+    @Override
+    public void decode(ByteBuf content) {
+        this.identifier = content.readLong();
+        content.readLong();
+        content.readLong();
+    }
+
+    @Override
+    public void handlePacket(Channel channel) {
+        Preconditions.checkArgument(identifier != -1);
+        UnconnectedPongPacket packet = new UnconnectedPongPacket(0x1C, identifier);
+        channel.flush();
+        packet.sendPacket(channel);
+    }
+}

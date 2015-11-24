@@ -1,6 +1,6 @@
 package com.pocketserver.example;
 
-import com.pocketserver.plugin.Plugin;
+import com.pocketserver.api.plugin.Plugin;
 
 /**
  * Our example plugin.
