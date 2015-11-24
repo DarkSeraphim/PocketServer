@@ -41,7 +41,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.pocketserver.impl.PocketBootstrap</mainClass>
+                            <mainClass>com.pocketserver.PocketBootstrap</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Implementation-Title>PocketServer</Implementation-Title>
