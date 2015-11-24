@@ -16,24 +16,28 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.pocketserver.Server;
 import com.pocketserver.command.CommandManager;
 import com.pocketserver.command.ConsoleCommandExecutor;
+import com.pocketserver.impl.PocketServer;
 import com.pocketserver.player.Player;
 
+// TODO: Lots of improvements.
 public class ConsoleWindow {
-
+    private final PocketServer server;
     private final JFrame frame;
     private final JScrollPane pane;
     private final JTextArea console;
     private final JTextField command;
     private final JButton sendButton;
     
-    public ConsoleWindow(List<? extends Player> players) {
+    public ConsoleWindow(PocketServer server) {
+        this.server = server;
 
         JMenu settingsMenu = new JMenu("Settings");
         JMenu playersMenu = new JMenu("Players");
 
-        players.forEach(p -> playersMenu.add(new JMenuItem(p.getName())));
+        server.getOnlinePlayers().forEach(p -> playersMenu.add(new JMenuItem(p.getName())));
 
         JMenuBar bar = new JMenuBar();
         bar.add(settingsMenu);
@@ -119,6 +123,7 @@ public class ConsoleWindow {
         if (string.isEmpty())
             return;
         write(false, "Sent command: " + string + "\n");
+        server.getCommandManager().executeCommand(server.getCommandManager().getConsole(), string);
     }
     
     public void write(boolean isErr, char c) {

@@ -35,7 +35,6 @@ public class PocketServer extends Server {
     private final Logger logger;
     private final File directory;
     private final EventBus eventBus;
-    private final ConsoleWindow console;
     private final PluginManager pluginManager;
     private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
 
@@ -46,7 +45,6 @@ public class PocketServer extends Server {
         Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
 
         Server.setServer(this);
-        this.console = new ConsoleWindow(getOnlinePlayers());
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.pluginManager = new PluginManager(this);
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
@@ -112,12 +110,6 @@ public class PocketServer extends Server {
         System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "true");
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
         System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[yyyy-MM-dd HH:mm:ss]");
-    }
-
-    //Start api design
-    
-    public ConsoleWindow getConsoleWindow() {
-        return console;
     }
 
     @Override
