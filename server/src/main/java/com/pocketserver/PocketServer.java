@@ -21,7 +21,7 @@ import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
 import com.pocketserver.command.CommandShutdown;
-import com.pocketserver.net.netty.PipelineInitializer;
+import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.player.PlayerRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -29,8 +29,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,8 +107,7 @@ public class PocketServer extends Server {
             getLogger().info("Created \"plugins\" directory");
         }
 
-        // TODO: Add epoll support
-        this.eventLoopGroup = new NioEventLoopGroup();
+        this.eventLoopGroup = PipelineUtils.newEventLoop(6);
         this.running = true;
 
         getCommandManager().registerCommand(new CommandShutdown(this));
@@ -138,8 +135,8 @@ public class PocketServer extends Server {
 
         new Bootstrap()
             .group(eventLoopGroup)
-            .handler(new PipelineInitializer())
-            .channel(NioDatagramChannel.class)
+            .handler(PipelineUtils.INITIALISER)
+            .channel(PipelineUtils.getChannelClass())
             .option(ChannelOption.SO_BROADCAST, true)
             .bind(19132)
             .addListener(listener);
