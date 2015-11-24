@@ -1,5 +1,6 @@
 package com.pocketserver.api.command;
 
+import java.io.Closeable;
 import java.util.List;
 
 import com.pocketserver.api.Server;
@@ -25,7 +26,7 @@ import com.pocketserver.api.player.Player;
  *             published as it is likely that it will evolve rapidly until a final design
  *             decision has been made by the project collaborators.
  */
-public interface PermissionResolver {
+public interface PermissionResolver extends Closeable {
     void setPermission(Player player, String permission, boolean state);
     boolean checkPermission(Player player, String permission);
     List<String> getPermissions(Player player);

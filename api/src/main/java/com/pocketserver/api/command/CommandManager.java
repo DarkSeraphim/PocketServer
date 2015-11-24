@@ -11,8 +11,6 @@ public class CommandManager {
     private static final String NO_COMMAND = "That is not a valid command.";
     private final Map<String, Command> commands = new ConcurrentHashMap<>();
 
-    public CommandManager() {}
-    
     public void registerCommand(Command command) {
         Preconditions.checkNotNull(command, "Command cannot be null");
 
@@ -37,7 +35,6 @@ public class CommandManager {
 
         String[] arguments = commandName.split(" ");
         String label = arguments[0];
-        System.out.println("hm");
         Command command = getCommand(label);
         if (command == null) {
             executor.sendMessage(NO_COMMAND);

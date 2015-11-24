@@ -3,18 +3,17 @@ package com.pocketserver;
 import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
+import java.util.Scanner;
 
-import com.pocketserver.gui.ConsoleWindow;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 public class PocketBootstrap {
-    
     public static void main(String[] args) {
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
-        OptionSpec<Boolean> gui = parser.acceptsAll(ImmutableList.of("g", "gui"), "display a window containing console output").withRequiredArg().ofType(Boolean.class).defaultsTo(false);
+        OptionSpec<Boolean> gui = parser.acceptsAll(ImmutableList.of("g", "gui"), "display console output in a window").withRequiredArg().ofType(Boolean.class).defaultsTo(false);
         parser.acceptsAll(ImmutableList.of("v", "version"), "print the application version");
         parser.acceptsAll(ImmutableList.of("h", "help"), "print command line help");
 
@@ -49,8 +48,18 @@ public class PocketBootstrap {
 
         PocketServer server = new PocketServer();
 
-        if (options.has(gui) && gui.value(options)) {
-            ConsoleWindow window = new ConsoleWindow(server);
+        // TODO: Possibly move elsewhere
+        // if (options.has(gui) && gui.value(options)) {
+        //     ConsoleWindow window = new ConsoleWindow(server);
+        // }
+
+        Scanner reader = new Scanner(System.in);
+        while (server.isRunning()) {
+            // TODO: Implement console handling
+            String line = reader.nextLine();
+            if (!line.isEmpty()) {
+                server.getCommandManager().executeCommand(server.getCommandManager().getConsole(), line);
+            }
         }
     }
     

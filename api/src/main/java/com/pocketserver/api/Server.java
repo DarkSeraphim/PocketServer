@@ -1,5 +1,7 @@
 package com.pocketserver.api;
 
+import com.google.common.base.Preconditions;
+
 import java.io.File;
 import java.util.List;
 
@@ -20,9 +22,11 @@ public abstract class Server {
     }
     
     public static void setServer(Server server) {
-        if (Server.server == null)
-            Server.server = server;
+        Preconditions.checkState(Server.server == null, "cannot redefine Server singleton!");
+        Server.server = server;
     }
+
+    public abstract void shutdown();
     
     public abstract EventBus getEventBus();
     

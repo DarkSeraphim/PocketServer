@@ -3,24 +3,27 @@ package com.pocketserver;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URLClassLoader;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.pocketserver.api.command.PermissionResolver;
-import com.pocketserver.player.PocketPlayer;
-import com.sun.corba.se.impl.javax.rmi.PortableRemoteObject;
-import com.sun.corba.se.impl.naming.pcosnaming.PersistentBindingIterator;
+import com.pocketserver.api.plugin.Plugin;
+import com.pocketserver.command.CommandShutdown;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 import com.pocketserver.api.Server;
@@ -33,39 +36,47 @@ import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.PluginManager;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
 public class PocketServer extends Server {
+    private static final Marker LISTENER_SHUTDOWN = MarkerFactory.getMarker("LISTENER_SHUTDOWN");
+    private static final Marker LISTENER_INIT = MarkerFactory.getMarker("LISTENER_INIT");
 
     private final Logger logger;
     private final File directory;
     private final EventBus eventBus;
     private final PluginManager pluginManager;
-    private final ExecutorService executorService; //TODO: Implement the same instance of an executor service.
+    private final CommandManager commandManager;
+    private final EventLoopGroup eventLoopGroup;
+
+    // TODO: Implement elsewhere, probably in a scheduler class
+    private final ExecutorService executorService;
 
     private PermissionResolver permissionResolver;
+    private volatile boolean running;
+    private Channel channel;
 
     PocketServer() {
         this.directory = new File(".");
         Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
 
         Server.setServer(this);
-        this.logger = LoggerFactory.getLogger("PocketServer");
+        this.commandManager = new CommandManager();
         this.pluginManager = new PluginManager(this);
+        this.logger = LoggerFactory.getLogger("PocketServer");
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
         this.permissionResolver = new PermissionResolver() {
+            @Override
+            public void close() throws IOException {
+                // NOP
+            }
+
             // TODO: Make less ugly
-            private LoadingCache<String, List<String>> permissions = CacheBuilder.newBuilder().build(new CacheLoader<String, List<String>>() {
-                @Override
-                public List<String> load(String key) {
-                    return Lists.newArrayList();
-                }
-            });
+            private Cache<String, List<String>> cache = CacheBuilder.newBuilder().maximumSize(250).build();
 
             @Override
             public void setPermission(Player player, String permission, boolean state) {
@@ -88,7 +99,12 @@ public class PocketServer extends Server {
 
             @Override
             public List<String> getPermissions(Player player) {
-                return permissions.getUnchecked(Preconditions.checkNotNull(player, "player should not be null!").getName());
+                List<String> permissions = cache.getIfPresent(Preconditions.checkNotNull(player, "player should not be null!").getName());
+                if (permissions == null) {
+                    permissions = Lists.newArrayList();
+                    cache.put(player.getName(), permissions);
+                }
+                return permissions;
             }
         };
 
@@ -96,37 +112,45 @@ public class PocketServer extends Server {
             getLogger().info("Created \"plugins\" directory");
         }
 
+        // TODO: Add epoll support
+        this.eventLoopGroup = new NioEventLoopGroup();
+        this.running = true;
+
+        getCommandManager().registerCommand(new CommandShutdown(this));
+
         setProperties();
         startThreads();
     }
 
     private void startThreads() {
         new ConsoleThread(this).start();
-        startNetty();
+        startListener();
     }
 
-    private void startNetty() {
-        this.executorService.submit(() -> {
-            EventLoopGroup group = new NioEventLoopGroup();
-            try {
-                Bootstrap boot = new Bootstrap();
-                {
-                    boot.group(group);
-                    boot.handler(new PipelineInitializer());
-                    boot.channel(NioDatagramChannel.class);
-                    boot.option(ChannelOption.SO_BROADCAST, true);
+    private void startListener() {
+        // TODO: Add configuration stuff
+        ChannelFutureListener listener = new ChannelFutureListener() {
+            static final int PORT = 19132;
+
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    channel = future.channel();
+                    getLogger().info(LISTENER_INIT, "Listening on port {}", PORT);
+                } else {
+                    getLogger().error(LISTENER_INIT, "Could not bind to {}", PORT, future.cause());
+                    shutdown();
                 }
-                ChannelFuture future = boot.bind(19132).sync();
-                logger.info("Successfully bound to *:19132");
-                logger.info("Server is done loading!");
-                future.channel().closeFuture().sync();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            } finally {
-                logger.info("Goodbye.");
-                group.shutdownGracefully();
             }
-        });
+        };
+
+        new Bootstrap()
+            .group(eventLoopGroup)
+            .handler(new PipelineInitializer())
+            .channel(NioDatagramChannel.class)
+            .option(ChannelOption.SO_BROADCAST, true)
+            .bind(19132)
+            .addListener(listener);
     }
     
     private void setProperties() {
@@ -137,6 +161,61 @@ public class PocketServer extends Server {
         System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "true");
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
         System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[yyyy-MM-dd HH:mm:ss]");
+    }
+
+    @Override
+    public void shutdown() {
+        running = false;
+
+        if (channel != null) {
+            channel.close().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        getLogger().info(LISTENER_SHUTDOWN, "Closing listener {}", channel);
+                    } else {
+                        getLogger().error(LISTENER_SHUTDOWN, "Failed to close listener", future.cause());
+                    }
+                }
+            }).syncUninterruptibly();
+        }
+
+        // TODO: Kick connected clients
+
+        try {
+            // Allows people writing resolvers to close their connection pools and such.
+            permissionResolver.close();
+        } catch (IOException ex) {
+            getLogger().error(LISTENER_SHUTDOWN, "Failed to close permission resolver", ex);
+        }
+
+        getLogger().info(LISTENER_SHUTDOWN, "Disabling plugins");
+        Lists.reverse(getPluginManager().getPlugins()).stream().filter(Plugin::isEnabled).forEachOrdered(plugin -> {
+            getPluginManager().setEnabled(plugin, false);
+            try {
+                ClassLoader loader = plugin.getClass().getClassLoader();
+                if (loader instanceof URLClassLoader) {
+                    URLClassLoader classLoader = (URLClassLoader) loader;
+                    classLoader.close();
+
+                    if (PlatformDependent.isWindows()) {
+                        System.gc();
+                    }
+                }
+            } catch (Exception ex) {
+                // NOP
+            }
+        });
+
+        getLogger().info(LISTENER_SHUTDOWN, "Closing IO threads");
+        eventLoopGroup.shutdownGracefully();
+        try {
+            eventLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+
+        }
+        getLogger().info(LISTENER_SHUTDOWN, "Thanks for using PocketServer!");
+        System.exit(0);
     }
 
     @Override
@@ -156,7 +235,7 @@ public class PocketServer extends Server {
 
     @Override
     public boolean isRunning() {
-        return true;
+        return this.running;
     }
 
     @Override
@@ -166,7 +245,7 @@ public class PocketServer extends Server {
 
     @Override
     public CommandManager getCommandManager() {
-        return new CommandManager();
+        return this.commandManager;
     }
 
     @Override
