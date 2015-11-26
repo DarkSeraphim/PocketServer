@@ -39,7 +39,7 @@ public interface PocketLogging {
      */
     interface Plugin {
         /**
-         * Logging {@link Marker} used to tag log messages that record how long it takes for the
+         * Logging {@link Marker} used to tag messages that record how long it takes for the
          * {@link com.pocketserver.api.plugin.Plugin#onEnable()} and {@link
          * com.pocketserver.api.plugin.Plugin#onDisable()}}
          * methods to execute. Time is given in nanos.
@@ -50,5 +50,10 @@ public interface PocketLogging {
          * Logging {@link Marker} used to tag events like plugin state changes.
          */
         Marker INIT = MarkerFactory.getMarker("PLUGIN_INIT");
+
+        /**
+         * Logging {@link Marker} used to tag messages that are related to event handling.
+         */
+        Marker EVENT = MarkerFactory.getMarker("EVENT");
     }
 }

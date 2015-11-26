@@ -7,8 +7,6 @@ import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.pocketserver.api.Server;
@@ -40,9 +38,7 @@ public class PocketServer extends Server {
     private final CommandManager commandManager;
     private final EventLoopGroup eventLoopGroup;
 
-    // TODO: Implement elsewhere, probably in a scheduler class
-    private final ExecutorService executorService;
-
+    // TODO: Possibly replace with Pipeline<PermissionResolver>
     private PermissionResolver permissionResolver;
     private volatile boolean running;
     private Channel channel;
@@ -55,8 +51,7 @@ public class PocketServer extends Server {
         this.commandManager = new CommandManager();
         this.pluginManager = new PluginManager(this);
         this.logger = LoggerFactory.getLogger("PocketServer");
-        this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
-        this.eventBus = new EventBus(executorService);
+        this.eventBus = new EventBus();
 
         // TODO: Replace with Pipeline<PermissionResolver>
         this.permissionResolver = new PermissionResolver() {
