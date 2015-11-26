@@ -79,7 +79,7 @@ public final class PacketRegistry {
 
     public static byte getId(Packet packet) {
         for (Map.Entry<Byte, Class<? extends Packet>> entry : packetMap.entrySet()) {
-            if (entry.getClass() == packet.getClass()) {
+            if (entry.getValue() == packet.getClass()) {
                 return entry.getKey();
             }
         }

@@ -7,15 +7,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 public class PacketPingUnconnectedPing extends Packet {
-    private long identifier;
+    private long pingTimestamp;
 
     @Override
     public void read(ByteBuf buf) {
-        identifier = buf.readLong();
+        pingTimestamp = buf.readLong();
     }
 
     @Override
     public Optional<Packet> handle(ChannelHandlerContext ctx) {
-        return Optional.of(new PacketPingUnconnectedPong(identifier).setRemote(getRemote()));
+        return Optional.of(new PacketPingUnconnectedPong(pingTimestamp).setRemote(getRemote()));
     }
 }
