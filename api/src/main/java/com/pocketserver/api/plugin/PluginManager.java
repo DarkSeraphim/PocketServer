@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.InputStream;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -15,6 +16,7 @@ import java.util.jar.JarFile;
 import com.pocketserver.api.Server;
 import com.pocketserver.api.exceptions.InvalidPluginException;
 import com.pocketserver.api.util.PocketLogging;
+import io.netty.util.internal.PlatformDependent;
 import org.slf4j.LoggerFactory;
 
 public class PluginManager {
@@ -118,5 +120,47 @@ public class PluginManager {
      */
     public List<Plugin> getPlugins() {
         return ImmutableList.copyOf(plugins);
+    }
+
+    /**
+     * Attempt to unload a plugin from the server.
+     *
+     * @param plugin plugin instance to unload
+     */
+    public void unloadPlugin(Plugin plugin) {
+        Preconditions.checkNotNull(plugin, "plugin must not be null");
+        if (plugin.isEnabled()) {
+            plugin.setEnabled(false);
+        }
+
+        try {
+            if (plugin.getClass().getClassLoader() instanceof URLClassLoader) {
+                URLClassLoader loader = (URLClassLoader) plugin.getClass().getClassLoader();
+                loader.close();
+
+                // Force explicit garbage collection to release Windows' lock on the JAR file
+                if (PlatformDependent.isWindows()) {
+                    System.gc();
+                }
+            }
+        } catch (Exception ex) {
+            server.getLogger().error(PocketLogging.Plugin.INIT, "Failed to unload plugin!", ex);
+        }
+    }
+
+    /**
+     * Test whether a plugin is currently enabled or not
+     *
+     * @param pluginName plugin name to test
+     * @return {@code true} if a plugin with that name is found and enabled
+     */
+    public boolean isEnabled(String pluginName) {
+        Preconditions.checkNotNull(pluginName, "pluginName should not be null!");
+        for (Plugin plugin : getPlugins()) {
+            if (plugin.getName().equals(pluginName)) {
+                return plugin.isEnabled();
+            }
+        }
+        return false;
     }
 }

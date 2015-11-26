@@ -17,6 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <netty.version>5.0.0.Alpha2</netty.version>
     </properties>
     <build>
         <defaultGoal>clean package -DskipTests=true</defaultGoal>
@@ -32,7 +33,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>5.0.0.Alpha2</version>
+                <version>${netty.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
