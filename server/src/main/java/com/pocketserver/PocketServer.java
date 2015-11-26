@@ -22,6 +22,7 @@ import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
 import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.PipelineUtils;
+import com.pocketserver.net.Protocol;
 import com.pocketserver.player.PlayerRegistry;
 
 import io.netty.bootstrap.Bootstrap;
@@ -36,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
-import org.slf4j.impl.SimpleLogger;
 
 public class PocketServer extends Server {
     private static final Marker LISTENER_SHUTDOWN = MarkerFactory.getMarker("LISTENER_SHUTDOWN");
@@ -114,7 +114,6 @@ public class PocketServer extends Server {
 
         getCommandManager().registerCommand(new CommandShutdown(this));
 
-        setProperties();
         startListener();
     }
 
@@ -128,6 +127,7 @@ public class PocketServer extends Server {
                 if (future.isSuccess()) {
                     channel = future.channel();
                     getLogger().info(LISTENER_INIT, "Listening on port {}", PORT);
+                    getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
                 } else {
                     getLogger().error(LISTENER_INIT, "Could not bind to {}", PORT, future.cause());
                     shutdown();
@@ -142,16 +142,6 @@ public class PocketServer extends Server {
                 .option(ChannelOption.SO_BROADCAST, true)
                 .bind(19132)
                 .addListener(listener);
-    }
-    
-    private void setProperties() {
-        System.setProperty(SimpleLogger.LOG_FILE_KEY, "System.out");
-        System.setProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, "true");
-        System.setProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, "false");
-        System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "true");
-        System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "true");
-        System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
-        System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[yyyy-MM-dd HH:mm:ss]");
     }
 
     @Override
