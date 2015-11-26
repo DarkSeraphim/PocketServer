@@ -13,7 +13,14 @@
         <dependency>
             <artifactId>pocketserver-api</artifactId>
             <groupId>com.pocketserver</groupId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
         </dependency>
     </dependencies>
     <build>
