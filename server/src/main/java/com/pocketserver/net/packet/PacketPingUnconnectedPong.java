@@ -15,7 +15,7 @@ public class PacketPingUnconnectedPong extends Packet {
     public void write(ByteBuf buf) {
         buf.writeLong(pingTimestamp);
         buf.writeLong(Protocol.SERVER_ID);
-        buf.writeBytes(Protocol.OFFLINE_MESSAGE_ID);
+        writeMagic(buf);
         writeString(buf, Protocol.TEMP_IDENTIFIER);
     }
 }

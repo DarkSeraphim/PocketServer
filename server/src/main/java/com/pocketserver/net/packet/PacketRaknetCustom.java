@@ -3,6 +3,7 @@ package com.pocketserver.net.packet;
 import java.util.Optional;
 
 import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.codec.Encapsulation;
 import io.netty.buffer.ByteBuf;
@@ -37,7 +38,7 @@ public class PacketRaknetCustom extends Packet {
                     Encapsulation.decode(Encapsulation.COUNT_UNKNOWN, content, ctx, getRemote());
                     break;
                 default:
-                    Server.getServer().getLogger().debug(Encapsulation.ENCAPSULATION_MARKER, "Unhandled EncapsulationStrategy: 0x{}", String.format("%02x", encapsulationMethod));
+                    Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Unhandled EncapsulationStrategy: 0x{}", String.format("%02x", encapsulationMethod));
                     break;
             }
             content.release();

@@ -18,6 +18,7 @@ import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.Protocol;
@@ -30,13 +31,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 public class PocketServer extends Server {
-    private static final Marker LISTENER_SHUTDOWN = MarkerFactory.getMarker("LISTENER_SHUTDOWN");
-    private static final Marker LISTENER_INIT = MarkerFactory.getMarker("LISTENER_INIT");
-
     private final Logger logger;
     private final File directory;
     private final EventBus eventBus;
@@ -98,7 +94,7 @@ public class PocketServer extends Server {
         };
 
         if (new File(directory, "plugins").mkdirs()) {
-            getLogger().info("Created \"plugins\" directory");
+            getLogger().info(PocketLogging.Server.STARTUP, "Created \"plugins\" directory");
         }
 
         this.eventLoopGroup = PipelineUtils.newEventLoop(6);
@@ -118,10 +114,10 @@ public class PocketServer extends Server {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
                     channel = future.channel();
-                    getLogger().info(LISTENER_INIT, "Listening on port {}", PORT);
+                    getLogger().info(PocketLogging.Server.STARTUP, "Listening on port {}", PORT);
                     getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
                 } else {
-                    getLogger().error(LISTENER_INIT, "Could not bind to {}", PORT, future.cause());
+                    getLogger().error(PocketLogging.Server.STARTUP, "Could not bind to {}", PORT, future.cause());
                     shutdown();
                 }
             }
@@ -145,9 +141,9 @@ public class PocketServer extends Server {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
-                        getLogger().info(LISTENER_SHUTDOWN, "Closing listener {}", channel);
+                        getLogger().info(PocketLogging.Server.SHUTDOWN, "Closing listener {}", channel);
                     } else {
-                        getLogger().error(LISTENER_SHUTDOWN, "Failed to close listener", future.cause());
+                        getLogger().error(PocketLogging.Server.SHUTDOWN, "Failed to close listener", future.cause());
                     }
                 }
             }).syncUninterruptibly();
@@ -157,12 +153,12 @@ public class PocketServer extends Server {
 
         permissionResolver.close();
 
-        getLogger().info(LISTENER_SHUTDOWN, "Disabling plugins");
+        getLogger().info(PocketLogging.Server.SHUTDOWN, "Disabling plugins");
         Lists.reverse(getPluginManager().getPlugins()).stream().filter(Plugin::isEnabled).forEachOrdered(plugin -> {
             getPluginManager().setEnabled(plugin, false);
         });
 
-        getLogger().info(LISTENER_SHUTDOWN, "Closing IO threads");
+        getLogger().info(PocketLogging.Server.SHUTDOWN, "Closing IO threads");
         eventLoopGroup.shutdownGracefully();
         try {
             // Don't bother if it already shut down
@@ -173,7 +169,7 @@ public class PocketServer extends Server {
 
         }
 
-        getLogger().info(LISTENER_SHUTDOWN, "Thanks for using PocketServer!");
+        getLogger().info("Thanks for using PocketServer!");
         System.exit(0);
     }
 

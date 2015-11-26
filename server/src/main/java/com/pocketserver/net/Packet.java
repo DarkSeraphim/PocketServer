@@ -14,7 +14,7 @@ public abstract class Packet {
     private InetSocketAddress remote;
 
     public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        throw new UnsupportedOperationException("packet should implement handle");
+        return Optional.empty();
     }
 
     public void write(ByteBuf buf) throws Exception {

@@ -1,8 +1,8 @@
 package com.pocketserver.net.packet;
 
 import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
-import com.pocketserver.net.PipelineUtils;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -11,6 +11,6 @@ import io.netty.buffer.ByteBuf;
 public class PacketClientConnect extends Packet {
     @Override
     public void read(ByteBuf buf) throws Exception {
-        Server.getServer().getLogger().info(PipelineUtils.NETWORK_MARKER, "A client is logging in!");
+        Server.getServer().getLogger().info(PocketLogging.Server.NETWORK, "A client is logging in!");
     }
 }

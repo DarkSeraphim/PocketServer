@@ -5,20 +5,17 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 
 import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 public final class Encapsulation {
-    public static final Marker ENCAPSULATION_MARKER = MarkerFactory.getMarker("ENCAPSULATION");
-
     public static final EncapsulationStrategy BARE = (buf, ctx, remoteAddress) -> {
         Preconditions.checkArgument(buf.isReadable(), "unable to read from buf!");
         byte packetId = buf.readByte();
-        Server.getServer().getLogger().debug(ENCAPSULATION_MARKER, "Decoding packet 0x{} using BARE strategy", String.format("%02x", packetId));
+        Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Decoding packet 0x{} using BARE strategy", String.format("%02x", packetId));
         Packet packet = PacketRegistry.construct(packetId);
         packet.setRemote(remoteAddress).read(buf);
         packet.handle(ctx);
@@ -38,7 +35,7 @@ public final class Encapsulation {
         try {
             strategy.decode(buf, ctx, remoteAddress);
         } catch (Exception ex) {
-            Server.getServer().getLogger().error(ENCAPSULATION_MARKER, "Failed to decode packet!", ex);
+            Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to decode packet!", ex);
         }
     }
 

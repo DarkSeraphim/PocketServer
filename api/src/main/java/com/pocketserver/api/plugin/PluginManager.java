@@ -4,12 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import com.pocketserver.api.Server;
-import com.pocketserver.api.exceptions.InvalidPluginException;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.InputStream;
@@ -18,21 +12,16 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.pocketserver.api.Server;
+import com.pocketserver.api.exceptions.InvalidPluginException;
+import com.pocketserver.api.util.PocketLogging;
+import org.slf4j.LoggerFactory;
+
 public class PluginManager {
     /**
      * File filter that only "accepts" JAR files.
      */
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
-
-    /**
-     * Logging {@link Marker} used for filtering benchmark messages.
-     */
-    public static final Marker BENCHMARK_MARKER = MarkerFactory.getMarker("PLUGIN_BENCHMARK");
-
-    /**
-     * Logging {@link Marker} used for filtering messages that describe the initialisation of a plugin.
-     */
-    public static final Marker INIT_MARKER = MarkerFactory.getMarker("PLUGIN_INIT");
 
     private final List<Plugin> plugins;
     private final Server server;
@@ -60,7 +49,7 @@ public class PluginManager {
                 plugin.setEnabled(true);
                 plugins.add(plugin);
             } catch (Exception ex) {
-                server.getLogger().error(INIT_MARKER, "Failed to initialise plugin {}", file.getName(), ex);
+                server.getLogger().error(PocketLogging.Plugin.INIT, "Failed to initialise plugin {}", file.getName(), ex);
             }
         }
     }

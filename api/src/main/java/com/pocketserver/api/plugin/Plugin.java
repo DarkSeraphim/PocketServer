@@ -3,6 +3,7 @@ package com.pocketserver.api.plugin;
 import com.google.common.base.Preconditions;
 
 import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import org.slf4j.Logger;
 
 public abstract class Plugin {
@@ -49,11 +50,11 @@ public abstract class Plugin {
 
         this.enabled = enabled;
         if (this.enabled) {
-            logger.info(PluginManager.INIT_MARKER, "Enabling {} v{} by {}", descriptor.getName(), descriptor.getVersion(), descriptor.getAuthor());
-            logger.debug(PluginManager.INIT_MARKER, "Main class: {}", descriptor.getMain().getCanonicalName());
+            logger.info(PocketLogging.Plugin.INIT, "Enabling {} v{} by {}", descriptor.getName(), descriptor.getVersion(), descriptor.getAuthor());
+            logger.debug(PocketLogging.Plugin.INIT, "Main class: {}", descriptor.getMain().getCanonicalName());
             benchmarkMethod("onEnable", this::onEnable);
         } else {
-            logger.info(PluginManager.INIT_MARKER, "Disabling {}", descriptor.getName());
+            logger.info(PocketLogging.Plugin.INIT, "Disabling {}", descriptor.getName());
             benchmarkMethod("onDisable", this::onDisable);
             getServer().getEventBus().unregisterListener(this);
         }
@@ -64,7 +65,7 @@ public abstract class Plugin {
         try {
             action.run();
         } finally {
-            logger.debug(PluginManager.BENCHMARK_MARKER, "Executing {} took {} nanos", methodName, System.nanoTime() - start);
+            logger.debug(PocketLogging.Plugin.BENCHMARK, "Executing {} took {} nanos", methodName, System.nanoTime() - start);
         }
     }
 
