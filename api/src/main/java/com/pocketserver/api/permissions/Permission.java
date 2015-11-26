@@ -1,4 +1,4 @@
-package com.pocketserver.api;
+package com.pocketserver.api.permissions;
 
 public class Permission {
     private final String permission;

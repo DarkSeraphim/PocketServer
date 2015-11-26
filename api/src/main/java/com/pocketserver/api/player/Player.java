@@ -7,8 +7,6 @@ import com.pocketserver.api.entity.living.LivingEntity;
 
 public interface Player extends LivingEntity, CommandExecutor {
 
-    void sendMessage(String message);
-
     void chat(String message);
 
     GameMode getGameMode();

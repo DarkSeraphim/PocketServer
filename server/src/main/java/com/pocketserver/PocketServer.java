@@ -6,8 +6,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URLClassLoader;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -15,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.command.CommandManager;
-import com.pocketserver.api.command.PermissionResolver;
 import com.pocketserver.api.event.EventBus;
+import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
@@ -24,15 +22,12 @@ import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.Protocol;
 import com.pocketserver.player.PlayerRegistry;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.util.internal.PlatformDependent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -67,11 +62,6 @@ public class PocketServer extends Server {
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
         this.permissionResolver = new PermissionResolver() {
-            @Override
-            public void close() throws IOException {
-                // NOP
-            }
-
             // TODO: Make less ugly
             private Cache<String, List<String>> cache = CacheBuilder.newBuilder().maximumSize(250).build();
 
@@ -163,38 +153,24 @@ public class PocketServer extends Server {
 
         // TODO: Kick connected clients
 
-        try {
-            // Allows people writing resolvers to close their connection pools and such.
-            permissionResolver.close();
-        } catch (IOException ex) {
-            getLogger().error(LISTENER_SHUTDOWN, "Failed to close permission resolver", ex);
-        }
+        permissionResolver.close();
 
         getLogger().info(LISTENER_SHUTDOWN, "Disabling plugins");
         Lists.reverse(getPluginManager().getPlugins()).stream().filter(Plugin::isEnabled).forEachOrdered(plugin -> {
             getPluginManager().setEnabled(plugin, false);
-            try {
-                ClassLoader loader = plugin.getClass().getClassLoader();
-                if (loader instanceof URLClassLoader) {
-                    URLClassLoader classLoader = (URLClassLoader) loader;
-                    classLoader.close();
-
-                    if (PlatformDependent.isWindows()) {
-                        System.gc();
-                    }
-                }
-            } catch (Exception ex) {
-                // NOP
-            }
         });
 
         getLogger().info(LISTENER_SHUTDOWN, "Closing IO threads");
         eventLoopGroup.shutdownGracefully();
         try {
-            eventLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
+            // Don't bother if it already shut down
+            if (eventLoopGroup.isShuttingDown()) {
+                eventLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            }
+        } catch (Exception e) {
 
         }
+
         getLogger().info(LISTENER_SHUTDOWN, "Thanks for using PocketServer!");
         System.exit(0);
     }

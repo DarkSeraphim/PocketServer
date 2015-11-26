@@ -5,13 +5,12 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.util.List;
 
-import com.pocketserver.api.command.PermissionResolver;
-import org.slf4j.Logger;
-
 import com.pocketserver.api.command.CommandManager;
 import com.pocketserver.api.event.EventBus;
+import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.PluginManager;
+import org.slf4j.Logger;
 
 public abstract class Server {
     

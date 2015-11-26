@@ -1,4 +1,4 @@
-package com.pocketserver.api;
+package com.pocketserver.api.permissions;
 
 public interface Permissible {
 
