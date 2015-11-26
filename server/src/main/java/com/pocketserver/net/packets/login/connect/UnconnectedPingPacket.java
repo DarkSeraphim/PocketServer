@@ -22,7 +22,7 @@ public class UnconnectedPingPacket extends Packet {
     public void handlePacket(Channel channel) {
         Preconditions.checkArgument(identifier != -1);
         UnconnectedPongPacket packet = new UnconnectedPongPacket(0x1C, identifier);
-        channel.flush();
+        packet.setRemote(getRemote());
         packet.sendPacket(channel);
     }
 }

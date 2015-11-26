@@ -2,7 +2,6 @@ package com.pocketserver.net.packets.login;
 
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketID;
-import com.pocketserver.net.packets.udp.CustomPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;

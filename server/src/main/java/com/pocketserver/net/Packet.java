@@ -1,18 +1,18 @@
 package com.pocketserver.net;
 
 import com.google.common.base.MoreObjects;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
+import java.net.InetSocketAddress;
+
 public abstract class Packet {
     private final int id;
+    private InetSocketAddress remote;
 
     protected Packet() {
         id = getClass().getAnnotation(PacketID.class).value()[0];
@@ -32,9 +32,11 @@ public abstract class Packet {
     }
 
     public Packet sendPacket(Channel channel) {
+        Preconditions.checkArgument(channel.isWritable());
         channel.writeAndFlush(this);
         return this;
     }
+
 
     public void handlePacket(Channel channel) {
         throw new UnsupportedOperationException(String.format("%s#handlePacket() should be implemented.", getClass().getName()));
@@ -52,8 +54,9 @@ public abstract class Packet {
         throw new UnsupportedOperationException(String.format("%s#decode(InetAddress, ByteBuf) should be implemented.", getClass().getName()));
     }
 
-    public byte[] encode(SocketAddress address) {
-        return encode(new DatagramPacket(Unpooled.buffer(), (InetSocketAddress) address)).content().array();
+    public void encode(ByteBuf content) {
+        throw new UnsupportedOperationException(getClass().getSimpleName() +
+                "#decode(ByteBuf, SocketAddress) should be implemented.");
     }
 
     protected final void writeMagic(ByteBuf buf) {
@@ -64,5 +67,17 @@ public abstract class Packet {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(Packet.class).add("id", id).toString();
+    }
+
+    public DatagramPacket createDatagram(int pool) {
+        return new DatagramPacket(Unpooled.buffer(pool), remote);
+    }
+
+    public final InetSocketAddress getRemote() {
+        return remote;
+    }
+
+    public void setRemote(InetSocketAddress remote) {
+        this.remote = remote;
     }
 }

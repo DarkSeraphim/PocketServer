@@ -7,16 +7,16 @@ import com.pocketserver.net.packets.udp.CustomPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 
-public class PocketServerHandler extends ChannelHandlerAdapter {
+public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof Packet) {
-            ((Packet) msg).handlePacket(ctx.channel());
-        }
+    protected void messageReceived(ChannelHandlerContext ctx, Packet packet) throws Exception {
+        packet.handlePacket(ctx.channel());
     }
+
 
     /*
     protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {

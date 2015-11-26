@@ -23,6 +23,7 @@ import com.pocketserver.api.plugin.PluginManager;
 import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.player.PlayerRegistry;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -30,6 +31,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.internal.PlatformDependent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -119,7 +121,7 @@ public class PocketServer extends Server {
     private void startListener() {
         // TODO: Add configuration stuff
         ChannelFutureListener listener = new ChannelFutureListener() {
-            static final int PORT = 19132;
+            private static final int PORT = 19132;
 
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -134,12 +136,12 @@ public class PocketServer extends Server {
         };
 
         new Bootstrap()
-            .group(eventLoopGroup)
-            .handler(PipelineUtils.INITIALISER)
-            .channel(PipelineUtils.getChannelClass())
-            .option(ChannelOption.SO_BROADCAST, true)
-            .bind(19132)
-            .addListener(listener);
+                .group(eventLoopGroup)
+                .handler(PipelineUtils.INITIALIZER)
+                .channel(PipelineUtils.getChannelClass())
+                .option(ChannelOption.SO_BROADCAST, true)
+                .bind(19132)
+                .addListener(listener);
     }
     
     private void setProperties() {

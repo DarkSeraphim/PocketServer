@@ -1,11 +1,8 @@
 package com.pocketserver.net.packets.udp;
 
-import java.net.InetSocketAddress;
-
 import com.google.common.base.Preconditions;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketID;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;

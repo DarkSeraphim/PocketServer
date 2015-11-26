@@ -63,7 +63,6 @@ public class CustomPacket extends Packet {
                 used = true; //TODO: Figure out if this is per run or per user. Guessing per user?
                 System.out.println(name());
                 COUNT.decode(ctx, packet);
-
             }
         };
 

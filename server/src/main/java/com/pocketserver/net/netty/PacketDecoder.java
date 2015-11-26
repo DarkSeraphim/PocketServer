@@ -37,6 +37,7 @@ public class PacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
         } else {
             mcpePacket = PacketManager.getInstance().initializePacketById(id);
         }
+        mcpePacket.setRemote(packet.sender());
         mcpePacket.decode(content);
         list.add(mcpePacket);
         System.out.println("everyday im decodin'.... da dda da da da da da daaa");

@@ -43,7 +43,7 @@ public final class PipelineUtils {
         useEpoll = tempUseEpoll;
     }
 
-    public static final ChannelInitializer<?> INITIALISER = new ChannelInitializer<Channel>() {
+    public static final ChannelInitializer<?> INITIALIZER = new ChannelInitializer<Channel>() {
         @Override
         protected void initChannel(Channel ch) throws Exception {
             ChannelPipeline pipeline = ch.pipeline();
