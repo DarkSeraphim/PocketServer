@@ -1,54 +1,62 @@
 package com.pocketserver.net;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
+import java.util.Optional;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 
 public abstract class Packet {
-    private final int id;
     private InetSocketAddress remote;
 
-    protected Packet() {
-        id = getClass().getAnnotation(PacketID.class).value()[0];
+    public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
+        throw new UnsupportedOperationException("packet should implement handle");
     }
 
-    public final int getPacketID() {
-        return this.id;
+    public void write(ByteBuf buf) throws Exception {
+        throw new UnsupportedOperationException("packet should implement write");
     }
 
-    public Packet sendPacket(Channel channel) {
-        Preconditions.checkArgument(channel.isWritable());
-        channel.writeAndFlush(this);
-        return this;
-    }
-
-    public void handlePacket(Channel channel) {
-        throw new UnsupportedOperationException(String.format(
-                "%s#handlePacket() should be implemented.", getClass().getName()));
-    }
-
-    public void decode(ByteBuf content) {
-        throw new UnsupportedOperationException(String.format(
-                "%s#decode(ByteBuf) should be implemented.", getClass().getName()));
-    }
-
-    public void encode(ByteBuf content) {
-        throw new UnsupportedOperationException(String.format(
-                "%s#encode(ByteBuf) should be implemented.", getClass().getSimpleName()));
+    public void read(ByteBuf buf) throws Exception {
+        throw new UnsupportedOperationException("packet should implement read");
     }
 
     public final InetSocketAddress getRemote() {
         return remote;
     }
 
-    public void setRemote(InetSocketAddress remote) {
+    public final Packet setRemote(InetSocketAddress remote) {
         this.remote = remote;
+        return this;
     }
 
-    public String toString() {
-        return MoreObjects.toStringHelper(Packet.class).add("id", id).toString();
+    @Override
+    public final String toString() {
+        return MoreObjects.toStringHelper(Packet.class).add("type", getClass().getSimpleName()).toString();
+    }
+
+    protected final void writeMagic(ByteBuf buf) {
+        Preconditions.checkArgument(buf.isWritable(), "unable to write to buf");
+        buf.writeLong(Protocol.MAGIC_1);
+        buf.writeLong(Protocol.MAGIC_2);
+    }
+
+    protected final String readString(ByteBuf buf) {
+        Preconditions.checkArgument(buf.isReadable(), "unable to read from buf");
+        byte[] data = new byte[buf.readShort()];
+        buf.readBytes(data);
+        return new String(data, Charsets.UTF_8);
+    }
+
+    protected final void writeString(ByteBuf buf, String str) {
+        Preconditions.checkArgument(buf.isWritable(), "unable to write to buf");
+        str = Protocol.DISALLOWED_CHARS.matcher(str).replaceAll("");
+        byte[] data = str.getBytes(Charsets.UTF_8);
+        buf.writeShort(data.length);
+        buf.writeBytes(data);
     }
 }

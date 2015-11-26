@@ -1,16 +1,13 @@
 package com.pocketserver.player;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.player.GameMode;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.entity.living.PocketLivingEntity;
-import com.pocketserver.net.packets.message.MessagePacket;
 
 public class PocketPlayer extends PocketLivingEntity implements Player {
     private final PlayerConnection playerConnection;
@@ -25,7 +22,7 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
     @Override
     public void sendMessage(String message) {
-        new MessagePacket(message);
+
     }
 
     @Override

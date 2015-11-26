@@ -18,3 +18,7 @@ We're attempting to tag as many incomplete files as possible with `TODO` comment
 ## Project ETA
 
 While we currently have no ETA, we are working actively on it and hope to be finished as soon as possible.
+
+## Captain's Log
+
+We're aware the API and packet system need a little work. It's on the todo list.
