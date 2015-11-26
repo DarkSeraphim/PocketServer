@@ -4,6 +4,7 @@ import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketID;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
@@ -13,22 +14,15 @@ public class ClientConnectPacket extends Packet {
     private long session;
 
     @Override
-    public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-       // System.out.println("0x09 is a decode packet.");
-        ByteBuf content = dg.content();
-
+    public void decode(ByteBuf content) {
         clientId = content.readLong();
         session = content.readLong();
-        boolean b = content.readBoolean();
-
-        new ServerHandshakePacket(session,dg.sender()).sendPacket(ctx);
     }
 
-    public long getClientId() {
-        return clientId;
-    }
-
-    public long getSession() {
-        return session;
+    @Override
+    public void handlePacket(Channel channel) {
+        ServerHandshakePacket packet = new ServerHandshakePacket(session);
+        packet.setRemote(getRemote());
+        packet.sendPacket(channel);
     }
 }

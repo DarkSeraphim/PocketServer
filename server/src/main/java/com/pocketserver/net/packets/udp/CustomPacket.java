@@ -4,30 +4,81 @@ import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketID;
 import com.pocketserver.net.PacketManager;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.Channel;
+
+import java.net.InetSocketAddress;
 
 @PacketID({ 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F })
 public class CustomPacket extends Packet {
+
+    private int counter;
+    private byte encapsulation;
+    private ByteBuf content;
+
     @Override
-    public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        ByteBuf content = dg.content();
+    public void decode(ByteBuf content) {
+        this.content = content.retain();
+        this.counter = content.readMedium();
+        this.encapsulation = content.readByte();
+        content.readShort();
+    }
 
-        int counter = content.readMedium();
-        byte encapsulation = content.readByte();
-        content.readShort(); //AKA short packetBits = content.readShort();
-
-        new ACKPacket(new int[]{counter}).sendPacket(ctx);
-
-        EncapsulationStrategy strategy = EncapsulationStrategy.getById(encapsulation);
-        DatagramPacket packet = new DatagramPacket(content,dg.recipient(),dg.sender());
-        if (strategy != null) {
-            strategy.decode(ctx, packet);
-        } else {
-            System.out.println("Houston, we have a problem.");
+    @Override
+    public void handlePacket(Channel channel) {
+        {
+            ACKPacket ack = new ACKPacket(new int[]{counter});
+            ack.setRemote(getRemote());
+            ack.sendPacket(channel);
+        }
+        {
+            EncapsulationStrategy strategy = EncapsulationStrategy.fromId(encapsulation);
+            if (strategy != null) {
+                strategy.decode(content, channel, getRemote());
+            }
+            content.release();
         }
     }
 
+    private enum EncapsulationStrategy {
+        BARE(0x00) {
+            @Override
+            protected void decode(ByteBuf content, Channel channel, InetSocketAddress remote) {
+                byte id = content.readByte();
+                Packet packet = PacketManager.getInstance().initializePacketById(id);
+                packet.decode(content);
+            }
+        },
+        COUNT(0x40) {
+            @Override
+            protected void decode(ByteBuf content, Channel channel, InetSocketAddress remote) {
+                content.readBytes(3);
+                BARE.decode(content, channel, remote);
+            }
+        },
+        COUNT_UNKNOWN(0x60) {
+            @Override
+            protected void decode(ByteBuf content, Channel channel, InetSocketAddress remote) {
+                content.readBytes(4);
+                COUNT.decode(content, channel, remote);
+            }
+        };
+
+        private final byte id;
+        EncapsulationStrategy(int id) {
+            this.id = (byte) id;
+        }
+
+        protected abstract void decode(ByteBuf content, Channel channel, InetSocketAddress remote);
+
+        public static EncapsulationStrategy fromId(byte encapsulation) {
+            for (EncapsulationStrategy encapsulationStrategy : values()) {
+                if (encapsulationStrategy.id == encapsulation) return encapsulationStrategy;
+            }
+            return null;
+        }
+    }
+
+    /*
     public enum EncapsulationStrategy {
         BARE(0x00) {
             @Override
@@ -80,4 +131,5 @@ public class CustomPacket extends Packet {
 
         public abstract void decode(ChannelHandlerContext ctx, DatagramPacket packet);
     }
+    */
 }

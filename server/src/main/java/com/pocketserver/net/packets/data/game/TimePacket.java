@@ -16,10 +16,8 @@ public class TimePacket extends Packet {
     }
 
     @Override
-    public DatagramPacket encode(DatagramPacket dg) {
-        ByteBuf content = dg.content();
+    public void encode(ByteBuf content) {
         content.writeByte(getPacketID());
         content.writeInt(time);
-        return dg;
     }
 }

@@ -21,7 +21,7 @@ public class UnconnectedPongPacket extends Packet {
         content.writeByte(packetId);
         content.writeLong(id);
         content.writeLong(Protocol.TEMP_SERVER_ID);
-        writeMagic(content);
+        PacketUtils.writeMagic(content);
         PacketUtils.writeString(content, Protocol.TEMP_IDENTIFIER);
     }
 }

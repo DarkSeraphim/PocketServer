@@ -17,26 +17,6 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
         packet.handlePacket(ctx.channel());
     }
 
-
-    /*
-    protected void messageReceived(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
-        ByteBuf buf = msg.content();
-        byte id = buf.readByte();
-        String sid = String.format("%X", id);
-        System.out.format("PacketID received: 0x%s\n", sid.length() == 1 ? "0" + sid : sid);
-        Packet packet;
-        if (id <= (byte) 0x8F && id >= (byte) 0x80) {
-            packet = new CustomPacket();
-        } else {
-            packet = PacketManager.getInstance().initializePacketById(id);
-        }
-        if (packet != null) { // if null, then there's no packet with that id!
-            //  System.out.println("Received " + packet.getClass().getSimpleName());
-            packet.decode(msg, ctx);
-        }
-    }
-    */
-
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
      //   ctx.flush();

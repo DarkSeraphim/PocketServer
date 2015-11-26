@@ -5,8 +5,6 @@ import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketID;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
 
 @PacketID(0xC0)
 public class ACKPacket extends Packet {
@@ -16,23 +14,21 @@ public class ACKPacket extends Packet {
         this.packets = packets;
     }
 
-    @Deprecated //You shouldn't be initializing it like this.
+    //You shouldn't be initializing it like this.
     @SuppressWarnings("unused") //This will be used through reflection for receiving.
     public ACKPacket() {
         this(null);
     }
 
     @Override
-    public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-       // System.out.println("Received an acknowledge packet. Class: "
-       //         + this.getClass().getSimpleName());
+    public void decode(ByteBuf content) {
+        //Don't do anything. No need to respond/whatever.
     }
 
     @Override //Credit to jRakNet or whatever it's called. Very helpful. //TODO: Fix this up.
-    public DatagramPacket encode(DatagramPacket dg) {
+    public void encode(ByteBuf content) {
         Preconditions.checkNotNull(packets);
 
-        ByteBuf content = dg.content();
         ByteBuf payload = Unpooled.buffer(2048);
         int count = packets.length;
         int records = 0;
@@ -75,6 +71,5 @@ public class ACKPacket extends Packet {
         content.writeByte(getPacketID());
         content.writeShort((short) records);
         content.writeBytes(payload);
-        return dg;
     }
 }

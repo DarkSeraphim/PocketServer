@@ -9,12 +9,10 @@ public abstract class EncapsulatedPacket extends Packet {
     private static int ctr = -1;
 
     @Override
-    public DatagramPacket encode(DatagramPacket dg) {
-        ByteBuf content = dg.content();
+    public void encode(ByteBuf content) {
         content.writeByte(0x80);
         content.writeMedium(ctr++);
         content.writeByte(0x00);
-        return dg;
     }
 
     /*

@@ -11,11 +11,11 @@ import io.netty.channel.socket.DatagramPacket;
 @DataPacket
 @PacketID(0x82)
 public class LoginInfoPacket extends Packet {
+
     @Override
-    public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
+    public void decode(ByteBuf content) {
         System.out.println("LoginInfoPacket!!! woooooohooooo");
-        System.out.println(dg.content().readableBytes());
-        ByteBuf content = dg.content();
+        System.out.println(content.readableBytes());
         content.readByte();
         String name = PacketUtils.readString(content);
         System.out.println(name);

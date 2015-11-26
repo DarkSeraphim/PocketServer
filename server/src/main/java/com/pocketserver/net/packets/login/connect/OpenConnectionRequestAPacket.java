@@ -5,6 +5,7 @@ import com.pocketserver.net.PacketID;
 
 import com.pocketserver.net.Protocol;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
@@ -14,18 +15,24 @@ public class OpenConnectionRequestAPacket extends Packet {
     private int mtu;
 
     @Override
-    public void decode(DatagramPacket dg, ChannelHandlerContext ctx) {
-        ByteBuf buf = dg.content();
-        long magic1 = buf.readLong();
-        long magic2 = buf.readLong();
+    public void decode(ByteBuf content) {
+        long magic1 = content.readLong();
+        long magic2 = content.readLong();
         if (magic1 == Protocol.MAGIC_1 && magic2 == Protocol.MAGIC_2) {
-            proto = buf.readByte();
-            mtu = buf.readableBytes();
-            if (proto == Protocol.RAKNET_VERSION) {
-                new OpenConnectionReplyAPacket(mtu).sendPacket(ctx);
-            } else {
-                new IncompatibleProtocolPacket().sendPacket(ctx);
-            }
+            proto = content.readByte();
+            mtu = content.readableBytes();
         }
+    }
+
+    @Override
+    public void handlePacket(Channel channel) {
+        Packet packet;
+        if (proto == Protocol.RAKNET_VERSION) {
+            packet = new OpenConnectionReplyAPacket(mtu);
+        } else {
+            packet = new IncompatibleProtocolPacket();
+        }
+        packet.setRemote(getRemote());
+        packet.sendPacket(channel);
     }
 }

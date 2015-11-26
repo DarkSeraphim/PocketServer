@@ -1,16 +1,10 @@
 package com.pocketserver.net.packets.data.game;
 
-import com.pocketserver.net.Packet;
+import com.pocketserver.api.player.GameMode;
 import com.pocketserver.net.PacketID;
 import com.pocketserver.net.packets.data.DataPacket;
-import com.pocketserver.net.packets.data.login.LoginStatusPacket;
 import com.pocketserver.net.packets.udp.EncapsulatedPacket;
-import com.pocketserver.api.player.GameMode;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
-
-import java.net.InetSocketAddress;
 
 @DataPacket
 @PacketID(0x87)
@@ -46,8 +40,8 @@ public class StartGamePacket extends EncapsulatedPacket {
     }
 
     @Override
-    public DatagramPacket encode(DatagramPacket dg) {
-        ByteBuf content = dg.content();
+    public void encode(ByteBuf content) {
+        super.encode(content);
         content.writeByte(getPacketID());
         content.writeInt(levelSeed);
         content.writeInt(unknown);
@@ -56,7 +50,6 @@ public class StartGamePacket extends EncapsulatedPacket {
         content.writeFloat(x);
         content.writeFloat(y);
         content.writeFloat(z);
-        return dg;
     }
 
     /*

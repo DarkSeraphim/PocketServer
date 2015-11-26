@@ -23,4 +23,10 @@ public final class PacketUtils {
         System.out.println("Len" + len);
         return buf.readBytes(len).toString(Charset.defaultCharset());
     }
+
+    public static void writeMagic(ByteBuf buf) {
+        buf.writeLong(Protocol.MAGIC_1);
+        buf.writeLong(Protocol.MAGIC_2);
+    }
+
 }

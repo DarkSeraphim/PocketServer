@@ -4,7 +4,6 @@ import com.pocketserver.net.PacketID;
 import com.pocketserver.net.packets.udp.EncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.socket.DatagramPacket;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -16,25 +15,20 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
     private static final InetSocketAddress LOCAL_ADDRESS = new InetSocketAddress("127.0.0.1",0);
     private static final InetSocketAddress SYSTEM_ADDRESS = new InetSocketAddress("0.0.0.0",0);
 
-    private final InetSocketAddress address;
     private final long timeStamp;
     private final long serverTimeStamp;
 
-    public ServerHandshakePacket(long timeStamp,InetSocketAddress address) {
-        this.address = address;
-
+    public ServerHandshakePacket(long timeStamp) {
         this.timeStamp = timeStamp;
         this.serverTimeStamp = timeStamp+1000L;  //When ya just don't care anymore
     }
 
     @Override
-    public DatagramPacket encode(DatagramPacket dg) {
-        DatagramPacket encode = super.encode(dg);
-        ByteBuf content = encode.content();
+    public void encode(ByteBuf content) {
         content.writeShort(96*8);
 
         content.writeByte(getPacketID());
-        content.writeBytes(writeAddress(address));
+        content.writeBytes(writeAddress(getRemote()));
         content.writeShort(0);
         content.writeBytes(writeAddress(LOCAL_ADDRESS));
         for (int i = 0; i < 9; i++) {
@@ -42,7 +36,6 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
         }
         content.writeLong(timeStamp);
         content.writeLong(serverTimeStamp);
-        return dg;
     }
 
     private byte[] writeAddress(InetSocketAddress systemAddress) {
@@ -67,27 +60,4 @@ public class ServerHandshakePacket extends EncapsulatedPacket {
         }
         return byteBuf;
     }
-
-    /*
-    @Override
-    public Packet sendPacket(ChannelHandlerContext ctx, InetSocketAddress sentTo) {
-        DatagramPacket encode = encode(new DatagramPacket(Unpooled.buffer(96), sentTo));
-        ByteBuf encodedBuf = encode.content();
-        //System.out.println(encodedBuf.readableBytes());
-
-        DatagramPacket encapsulated = new DatagramPacket(Unpooled.buffer(102),sentTo);
-        ByteBuf content = encapsulated.content();
-        content.writeByte(0x80);
-        content.writeBytes(PacketUtils.getTriad(temp++)); //Changing to 1 makes us receive a NACK
-        content.writeByte(0x00);
-        //System.out.println(encodedBuf.readableBytes()*8);
-        content.writeShort(encodedBuf.readableBytes()*8);
-        content.writeBytes(encodedBuf.array());
-        ctx.writeAndFlush(encapsulated);
-        //System.out.println("Adios new packet");
-        //System.out.println(encodedBuf.array().length);
-        //System.out.println(Arrays.toString(encodedBuf.array()));
-        return this;
-    }
-    */
 }

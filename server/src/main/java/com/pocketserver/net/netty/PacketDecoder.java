@@ -12,20 +12,6 @@ import java.util.List;
 
 //TODO: Properly use decoders (thx connur)
 public class PacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
-    /*
-    @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) throws Exception {
-        byte id = byteBuf.readByte();
-        Packet packet;
-        if (id <= (byte) 0x8F && id >= (byte) 0x80) {
-            packet = new CustomPacket();
-        } else {
-            packet = PacketManager.getInstance().initializePacketById(id);
-        }
-        System.out.println("DECODING WORKS");
-        list.add(packet);
-    }
-    */
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket packet, List<Object> list) throws Exception {
@@ -40,6 +26,6 @@ public class PacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
         mcpePacket.setRemote(packet.sender());
         mcpePacket.decode(content);
         list.add(mcpePacket);
-        System.out.println("everyday im decodin'.... da dda da da da da da daaa");
+        System.out.println("Received a new packet: " + mcpePacket.getPacketID() + " = " + mcpePacket.getClass().getSimpleName());
     }
 }

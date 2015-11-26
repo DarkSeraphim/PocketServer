@@ -3,6 +3,7 @@ package com.pocketserver.net.packets.data.login;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketID;
 import com.pocketserver.net.packets.data.DataPacket;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 
 @DataPacket
@@ -19,10 +20,9 @@ public class LoginStatusPacket extends Packet {
     }
 
     @Override
-    public DatagramPacket encode(DatagramPacket dg) {
-        dg.content().writeInt(getPacketID());
-        dg.content().writeInt(statusCode);
-        return dg;
+    public void encode(ByteBuf content) {
+        content.writeInt(getPacketID());
+        content.writeInt(statusCode);
     }
 
     public enum StatusCode {
