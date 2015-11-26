@@ -1,9 +1,9 @@
 package com.pocketserver.api.event;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,10 +40,7 @@ public final class EventBus {
                     continue;
                 }
                 Class<?> type = parameters[0];
-                List<EventData> dataList = eventListeners.getOrDefault(type, new ArrayList<>());
-                EventData data = new EventData(plugin, listener, method);
-                dataList.add(data);
-                eventListeners.put(type, dataList);
+                eventListeners.computeIfAbsent(type, t -> Lists.newArrayList()).add(new EventData(plugin, listener, method));
             }
         } finally {
             listenerLock.unlock();
