@@ -1,7 +1,13 @@
+# PocketServer
+plugins/
+pocket.conf
+
+# IntelliJ
 target/
 .idea/
 *.iml
 
+# Not worthy
 .settings
 .classpath
 .project

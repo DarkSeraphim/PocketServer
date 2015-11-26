@@ -61,6 +61,8 @@ public class PocketServer extends Server {
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.executorService = new ScheduledThreadPoolExecutor(10); //TODO: Configure this
         this.eventBus = new EventBus(executorService);
+
+        // TODO: Replace with Pipeline<PermissionResolver>
         this.permissionResolver = new PermissionResolver() {
             // TODO: Make less ugly
             private Cache<String, List<String>> cache = CacheBuilder.newBuilder().maximumSize(250).build();
@@ -138,7 +140,7 @@ public class PocketServer extends Server {
     public void shutdown() {
         running = false;
 
-        if (channel != null) {
+        if (channel != null && channel.isOpen()) {
             channel.close().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
@@ -164,7 +166,7 @@ public class PocketServer extends Server {
         eventLoopGroup.shutdownGracefully();
         try {
             // Don't bother if it already shut down
-            if (eventLoopGroup.isShuttingDown()) {
+            if (!eventLoopGroup.isShutdown() && eventLoopGroup.isShuttingDown()) {
                 eventLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
             }
         } catch (Exception e) {

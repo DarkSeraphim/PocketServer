@@ -10,7 +10,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) throws Exception {
-        Server.getServer().getLogger().debug(PipelineUtils.NETWORK_MARKER, "Invoking handle");
         packet.handle(ctx).ifPresent(outbound -> {
             ctx.writeAndFlush(outbound).addListener(future -> {
                 if (future.isSuccess()) {
