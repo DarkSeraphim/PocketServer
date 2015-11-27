@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Properties;
@@ -82,16 +83,19 @@ public class PluginManager {
                 properties.load(stream);
 
                 PluginDescriptor descriptor = new PluginDescriptor(properties);
-                if(!Plugin.class.isAssignableFrom(descriptor.getMain())) {
-                    throw new RuntimeException("main class is not a descendant of " + Plugin.class.getCanonicalName());
-                }
-
                 try {
-                    Plugin plugin = (Plugin) descriptor.getMain().newInstance();
+                    URLClassLoader loader = new URLClassLoader(new URL[] {
+                       file.toURI().toURL()
+                    });
+                    Class clazz = loader.loadClass(descriptor.getMain());
+                    if(!Plugin.class.isAssignableFrom(clazz)) {
+                        throw new RuntimeException("main class is not a descendant of " + Plugin.class.getCanonicalName());
+                    }
+                    Plugin plugin = (Plugin) clazz.newInstance();
                     plugin.init(LoggerFactory.getLogger(descriptor.getName()), server, descriptor);
                     return plugin;
                 } catch  (ReflectiveOperationException ex) {
-                    throw new RuntimeException("Failed to create an instance of " + descriptor.getMain().getCanonicalName(), ex);
+                    throw new RuntimeException("Failed to create an instance of " + descriptor.getMain(), ex);
                 }
             }
         } catch (InvalidPluginException ex) {

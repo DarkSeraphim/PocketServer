@@ -22,13 +22,13 @@ public final class PluginDescriptor {
     private String name;
     private String version;
     private String author;
-    private Class main;
+    private String main;
 
     public PluginDescriptor() {
 
     }
 
-    public PluginDescriptor(String name, String version, String author, Class main) {
+    public PluginDescriptor(String name, String version, String author, String main) {
         this.name = name;
         this.version = version;
         this.author = author;
@@ -38,11 +38,7 @@ public final class PluginDescriptor {
         setVersion(verifyKey(properties, "version"));
         setAuthor(verifyKey(properties, "author"));
         setName(verifyKey(properties, "name"));
-        try {
-            setMain(Class.forName(verifyKey(properties, "main")));
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not locate main class", e);
-        }
+        setMain(verifyKey(properties, "main"));
     }
 
     public String getName() {
@@ -69,11 +65,11 @@ public final class PluginDescriptor {
         this.author = author;
     }
 
-    public Class getMain() {
+    public String getMain() {
       return main;
     }
 
-    public void setMain(Class main) {
+    public void setMain(String main) {
       this.main = main;
     }
 

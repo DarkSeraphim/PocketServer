@@ -48,10 +48,12 @@ public class PocketServer extends Server {
         Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
 
         Server.setServer(this);
-        this.commandManager = new CommandManager();
-        this.pluginManager = new PluginManager(this);
+        this.eventLoopGroup = PipelineUtils.newEventLoop(6);
         this.logger = LoggerFactory.getLogger("PocketServer");
+        this.pluginManager = new PluginManager(this);
+        this.commandManager = new CommandManager();
         this.eventBus = new EventBus();
+        startListener();
 
         // TODO: Replace with Pipeline<PermissionResolver>
         this.permissionResolver = new PermissionResolver() {
@@ -92,15 +94,13 @@ public class PocketServer extends Server {
             getLogger().info(PocketLogging.Server.STARTUP, "Created \"plugins\" directory");
         }
 
-        this.eventLoopGroup = PipelineUtils.newEventLoop(6);
         this.running = true;
-
+        this.pluginManager.loadPlugins();
         getCommandManager().registerCommand(new CommandShutdown(this));
-
-        startListener();
     }
 
     private void startListener() {
+        running = true;
         // TODO: Add configuration stuff
         ChannelFutureListener listener = new ChannelFutureListener() {
             private static final int PORT = 19132;

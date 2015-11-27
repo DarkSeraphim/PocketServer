@@ -51,7 +51,7 @@ public abstract class Plugin {
         this.enabled = enabled;
         if (this.enabled) {
             logger.info(PocketLogging.Plugin.INIT, "Enabling {} v{} by {}", descriptor.getName(), descriptor.getVersion(), descriptor.getAuthor());
-            logger.debug(PocketLogging.Plugin.INIT, "Main class: {}", descriptor.getMain().getCanonicalName());
+            logger.debug(PocketLogging.Plugin.INIT, "Main class: {}", descriptor.getMain());
             benchmarkMethod("onEnable", this::onEnable);
         } else {
             logger.info(PocketLogging.Plugin.INIT, "Disabling {}", descriptor.getName());
