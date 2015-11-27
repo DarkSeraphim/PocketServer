@@ -8,8 +8,6 @@ import com.google.common.collect.Maps;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
-import com.pocketserver.PocketServer;
-import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.packet.PacketClientConnect;
 import com.pocketserver.net.packet.PacketClientConnectCancelled;
 import com.pocketserver.net.packet.PacketConnectionRequest;
@@ -81,7 +79,6 @@ public final class PacketRegistry {
     public static byte getId(Packet packet) {
         for (Map.Entry<Byte, Class<? extends Packet>> entry : packetMap.entrySet()) {
             if (entry.getValue() == packet.getClass()) {
-                PocketServer.getServer().getLogger().debug(PocketLogging.Server.NETWORK, entry.getValue().getSimpleName());
                 return entry.getKey();
             }
         }

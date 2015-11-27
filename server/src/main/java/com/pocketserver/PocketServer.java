@@ -53,6 +53,7 @@ public class PocketServer extends Server {
         this.pluginManager = new PluginManager(this);
         this.commandManager = new CommandManager();
         this.eventBus = new EventBus();
+        getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
         startListener();
 
         // TODO: Replace with Pipeline<PermissionResolver>
@@ -110,7 +111,6 @@ public class PocketServer extends Server {
                 if (future.isSuccess()) {
                     channel = future.channel();
                     getLogger().info(PocketLogging.Server.STARTUP, "Listening on port {}", PORT);
-                    getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
                 } else {
                     getLogger().error(PocketLogging.Server.STARTUP, "Could not bind to {}", PORT, future.cause());
                     shutdown();
