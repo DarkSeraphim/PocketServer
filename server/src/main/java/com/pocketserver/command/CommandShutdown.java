@@ -8,7 +8,7 @@ public final class CommandShutdown extends Command {
     private final Server server;
 
     public CommandShutdown(Server server) {
-        super("stop");
+        super("stop", "end", "shutdown", "quit");
         this.server = server;
     }
 
@@ -19,10 +19,5 @@ public final class CommandShutdown extends Command {
         } else {
             executor.sendMessage("You are not an operator.");
         }
-    }
-
-    @Override
-    public void help(CommandExecutor executor) {
-
     }
 }

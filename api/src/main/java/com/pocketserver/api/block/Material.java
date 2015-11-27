@@ -1,5 +1,12 @@
 package com.pocketserver.api.block;
 
+/**
+ * Enum of every single type in the MCPE game.
+ *
+ * @author TheLightMC
+ * @version 1.0-SNAPSHOT
+ * @since 1.0-SNAPSHOT
+ */
 public enum Material {
     AIR(0),
     STONE(1),
