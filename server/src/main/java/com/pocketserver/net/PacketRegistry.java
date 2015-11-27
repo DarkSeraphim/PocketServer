@@ -60,7 +60,6 @@ public final class PacketRegistry {
 
         register(0xA0, PacketRaknetNack.class);
         register(0xC0, PacketRaknetAck.class);
-
         for (int i = 0x80; i <= 0x8F; i++) {
             register(i, PacketRaknetCustom.class);
         }

@@ -7,7 +7,7 @@ import org.slf4j.MarkerFactory;
  * Provide a convenient way to access the {@link Marker} objects we use around PocketServer.
  *
  * @author Connor Spencer Harries
- * @author Nathan Severyns
+ * @author TheLightMC
  * @author Nick Robson
  */
 public interface PocketLogging {
