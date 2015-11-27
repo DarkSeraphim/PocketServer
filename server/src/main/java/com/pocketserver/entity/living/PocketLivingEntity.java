@@ -2,8 +2,8 @@ package com.pocketserver.entity.living;
 
 import com.pocketserver.api.entity.living.LivingEntity;
 import com.pocketserver.api.entity.living.Path;
-import com.pocketserver.entity.PocketEntity;
 import com.pocketserver.api.world.Location;
+import com.pocketserver.entity.PocketEntity;
 
 public class PocketLivingEntity extends PocketEntity implements LivingEntity {
 
@@ -34,15 +34,15 @@ public class PocketLivingEntity extends PocketEntity implements LivingEntity {
 
     }
 
-    @Override
-    public void setFoodLevel(double foodLevel) {
-        this.foodLevel = foodLevel;
-    }
-
-    @Override
-    public double getFootLevel() {
-        return foodLevel;
-    }
+//    @Override
+//    public void setFoodLevel(double foodLevel) {
+//        this.foodLevel = foodLevel;
+//    }
+//
+//    @Override
+//    public double getFootLevel() {
+//        return foodLevel;
+//    }
 
     @Override
     public void kill() {

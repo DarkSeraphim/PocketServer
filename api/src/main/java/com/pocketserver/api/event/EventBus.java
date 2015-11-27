@@ -1,27 +1,27 @@
 package com.pocketserver.api.event;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 
 import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.util.PocketLogging;
 
+@SuppressWarnings("unchecked")
 public final class EventBus {
-    private final ConcurrentMap<Class<?>, List<EventData>> eventListeners;
-    private final Lock listenerLock;
+    private final Multimap<Class<? extends Event>, EventDelegate> delegateMap;
+    private final ReadWriteLock delegateLock;
 
     public EventBus() {
-        this.eventListeners = new ConcurrentHashMap<>();
-        this.listenerLock = new ReentrantLock();
+        this.delegateLock = new ReentrantReadWriteLock();
+        this.delegateMap = HashMultimap.create();
     }
 
     public void registerListener(Plugin plugin, Listener listener) {
@@ -29,21 +29,23 @@ public final class EventBus {
         Preconditions.checkNotNull(listener, "listener should not be null");
         Preconditions.checkArgument(plugin.isEnabled(), "plugin is trying to register listener when it is disabled");
 
-        listenerLock.lock();
+        delegateLock.writeLock().lock();
         try {
             for (Method method : listener.getClass().getMethods()) {
-                if (!method.isAnnotationPresent(Subscribe.class)) {
-                    continue;
+                if (method.isAnnotationPresent(Subscribe.class)) {
+                    Class[] params = method.getParameterTypes();
+                    Class<?> clazz;
+                    if (params.length == 1 && Event.class.isAssignableFrom(clazz = params[0])) {
+                        EventDelegate delegate = new EventDelegate(listener, plugin, method);
+                        delegateMap.put((Class<? extends Event>) clazz, delegate);
+                        plugin.getLogger().debug(PocketLogging.Plugin.EVENT, "Registered handler {}", dumpMethod(method));
+                    } else {
+                        plugin.getLogger().warn(PocketLogging.Plugin.EVENT, "Event handler is incorrectly setup: {}", dumpMethod(method));
+                    }
                 }
-                Class<?>[] parameters = method.getParameterTypes();
-                if (parameters.length == 0) {
-                    continue;
-                }
-                Class<?> type = parameters[0];
-                eventListeners.computeIfAbsent(type, t -> Lists.newArrayList()).add(new EventData(plugin, listener, method));
             }
         } finally {
-            listenerLock.unlock();
+            delegateLock.writeLock().unlock();
         }
     }
 
@@ -58,55 +60,83 @@ public final class EventBus {
     }
 
     public <T extends Event> T post(T event) {
-        if (event == null) {
-            return null;
+        Preconditions.checkNotNull(event, "event should not be null");
+        delegateLock.readLock().lock();
+        try {
+            for (EventDelegate delegate : delegateMap.get(event.getClass())) {
+                delegate.execute(event);
+            }
+            event.done();
+            return event;
+        } finally {
+            delegateLock.readLock().unlock();
         }
-
-        eventListeners.entrySet().stream().filter(entry -> entry.getKey().isInstance(event)).forEach(entry -> {
-            entry.getValue().forEach(data -> data.invoke(event));
-        });
-        return event;
     }
 
-    private void unregisterListener(Predicate<EventData> predicate) {
-        listenerLock.lock();
+    private void unregisterListener(Predicate<EventDelegate> predicate) {
+        delegateLock.writeLock().lock();
         try {
-            for (List<EventData> containers : eventListeners.values()) {
-                for (Iterator<EventData> dataIterator = containers.iterator(); dataIterator.hasNext(); ) {
-                    if (predicate.test(dataIterator.next())) {
-                        dataIterator.remove();
-                    }
+            for(Iterator<EventDelegate> delegates = delegateMap.values().iterator(); delegates.hasNext(); ) {
+                if (predicate.test(delegates.next())) {
+                    delegates.remove();
                 }
             }
         } finally {
-            listenerLock.unlock();
+            delegateLock.writeLock().unlock();
         }
     }
 
-    private class EventData {
+    private static String dumpMethod(Method method) {
+        Preconditions.checkNotNull(method, "method should not be null");
+        StringBuilder builder = new StringBuilder();
+        builder.append(method.getDeclaringClass().getCanonicalName()).append("(");
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            builder.append(method.getParameterTypes()[i].getSimpleName());
+            if (i != method.getParameterTypes().length - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.append(")").toString();
+    }
+
+    private final class EventDelegate {
         private final Listener listener;
         private final Plugin plugin;
         private final Method method;
+        private final byte priority;
 
-        public EventData(Plugin plugin, Listener listener, Method method) {
+        public EventDelegate(Listener listener, Plugin plugin, Method method) {
             this.listener = listener;
+            this.priority = 0x00;
             this.plugin = plugin;
             this.method = method;
         }
 
-        public void invoke(Event event) {
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
-
+        public void execute(Event event) {
             try {
                 method.invoke(listener, event);
+            } catch (IllegalAccessException ex) {
+                plugin.getLogger().error(PocketLogging.Plugin.EVENT, "Event handler is not accessible: {}", dumpMethod(method));
             } catch (Exception ex) {
-                plugin.getLogger().error(PocketLogging.Plugin.EVENT, "Failed to handle event {}", new Object[] {
-                    event.getClass().getCanonicalName(),
+                plugin.getLogger().error(PocketLogging.Plugin.EVENT, "Threw an exception whilst handling {}", new Object[] {
+                    event.getClass().getSimpleName(),
                     ex
                 });
             }
+        }
+
+        @Override
+        public int hashCode() {
+            return String.join(":", plugin.getName(), dumpMethod(method)).hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                .add("plugin", plugin.getName())
+                .add("method", method.getName())
+                .add("priority", priority)
+                .toString();
         }
     }
 }

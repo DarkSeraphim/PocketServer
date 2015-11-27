@@ -2,7 +2,7 @@ package com.pocketserver.example;
 
 import com.pocketserver.api.event.Listener;
 import com.pocketserver.api.event.Subscribe;
-import com.pocketserver.api.event.player.PlayerChatEvent;
+import com.pocketserver.api.event.server.ServerPingEvent;
 
 /**
  * Our example listener.
@@ -12,9 +12,8 @@ import com.pocketserver.api.event.player.PlayerChatEvent;
  */
 public final class ExampleListener implements Listener {
     @Subscribe
-    public void onChat(PlayerChatEvent event) {
-        if (event.getMessage().equals("hello")) {
-          event.getPlayer().sendMessage("Hello world, beautiful day!");
-        }
+    public void onChat(ServerPingEvent event) {
+        // We'll cook up a nice object for doing this in future.
+        event.setMotd("MCPE;Example plugin;35;0.13.0; 0;20;20");
     }
 }
