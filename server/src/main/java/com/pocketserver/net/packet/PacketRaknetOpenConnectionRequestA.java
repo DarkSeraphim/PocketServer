@@ -1,6 +1,6 @@
 package com.pocketserver.net.packet;
 
-import java.util.Optional;
+import java.util.List;
 
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.Protocol;
@@ -23,13 +23,11 @@ public class PacketRaknetOpenConnectionRequestA extends Packet {
     }
 
     @Override
-    public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        Packet packet;
+    public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
         if (raknetVersion == Protocol.RAKNET_VERSION) {
-            packet = new PacketRaknetOpenConnectionReplyA((short) mtu);
+            out.add(new PacketRaknetOpenConnectionReplyA((short) mtu));
         } else {
-            packet = new PacketRaknetIncompatibleProtocol();
+            out.add(new PacketRaknetIncompatibleProtocol());
         }
-        return Optional.of(packet);
     }
 }

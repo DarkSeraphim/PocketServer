@@ -4,14 +4,14 @@ import com.google.common.base.Charsets;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
-import java.util.Optional;
+import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 public abstract class Packet {
-    public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        return Optional.empty();
+    public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
+
     }
 
     public void write(ByteBuf buf) throws Exception {
@@ -24,7 +24,10 @@ public abstract class Packet {
 
     @Override
     public final String toString() {
-        return MoreObjects.toStringHelper(Packet.class).add("type", getClass().getSimpleName()).toString();
+        return MoreObjects.toStringHelper(Packet.class)
+            .add("id", PacketRegistry.getId(this))
+            .add("type", getClass().getSimpleName())
+            .toString();
     }
 
     protected final void writeMagic(ByteBuf buf) {

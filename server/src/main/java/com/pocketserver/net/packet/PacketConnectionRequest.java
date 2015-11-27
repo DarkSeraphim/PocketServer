@@ -1,6 +1,6 @@
 package com.pocketserver.net.packet;
 
-import java.util.Optional;
+import java.util.List;
 
 import com.pocketserver.net.Packet;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +19,7 @@ public class PacketConnectionRequest extends Packet {
     }
 
     @Override
-    public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        return Optional.of(new PacketConnectionRequestAccepted(timestamp));
+    public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
+        out.add(new PacketConnectionRequestAccepted(timestamp));
     }
 }
