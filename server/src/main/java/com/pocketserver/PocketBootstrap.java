@@ -57,17 +57,11 @@ public class PocketBootstrap {
 
         PocketServer server = new PocketServer();
 
-        // TODO: Possibly move elsewhere
-        // if (options.has(gui) && gui.value(options)) {
-        //     ConsoleWindow window = new ConsoleWindow(server);
-        // }
-
         Scanner reader = new Scanner(System.in);
         while (server.isRunning()) {
-            // TODO: Implement console handling
             String line = reader.nextLine();
             if (!line.isEmpty()) {
-                server.getCommandManager().executeCommand(server.getCommandManager().getConsole(), line);
+                server.getCommandManager().dispatch(server.getCommandManager().getConsole(), line);
             }
         }
     }

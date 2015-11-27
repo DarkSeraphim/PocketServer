@@ -1,6 +1,11 @@
 package com.pocketserver.api.command;
 
-import java.util.function.Predicate;
+import com.google.common.collect.ImmutableList;
+
+import java.util.Collection;
+import java.util.List;
+
+import com.pocketserver.api.ChatColor;
 
 /**
  * An abstract class that all in game commands should extend. These commands will be sent
@@ -12,65 +17,76 @@ import java.util.function.Predicate;
  *
  */
 public abstract class Command {
-    private final String commandName;
-    private final String[] aliases;
+    private final List<String> aliases;
+    private final String permission;
+    private final String name;
 
-    /**
-     * Creates a new command with basic details.
-     *
-     * @implNote This should be called via the super method generally however it isn't required.
-     *
-     * @param name the primary command that will execute the command.
-     * @param aliases all the other command names that will execute the command.
-     */
-    public Command(String name, String... aliases) {
-        this.commandName = name;
-        this.aliases = aliases;
+    protected Command(String name) {
+        this(name, "");
+    }
+
+    protected Command(String name, String permission, String... aliases) {
+        this.aliases = ImmutableList.copyOf(aliases);
+        this.permission = permission;
+        this.name = name;
     }
 
     /**
-     * The aliases that were previously declared in the constructor are returned.
-     * These aliases, while editable, will not affect the command class.
-     *
-     * @return the predefined array of aliases that execute the command.
+     * @return immutable collection of aliases that may be used to invoke the command
      */
-    public final String[] getAliases() {
-        return aliases.clone();
+    public final Collection<String> getAliases() {
+        return aliases;
     }
 
     /**
-     * This method will be called whenever the command is executed.
+     * Method that processes execution of the command.
      *
      * @param executor whoever executed the command. Able to be a {@link ConsoleCommandExecutor} or {@link com.pocketserver.api.player.Player}
      * @param used the specific label or alias that was used for the command.
      * @param args any additional arguments that were executed alongside the command label.
      */
-    public abstract void executeCommand(CommandExecutor executor, String used, String[] args);
+    public abstract void execute(CommandExecutor executor, String used, String[] args);
 
     /**
-     * The primary command name that was specific in the constructor.
-     *
-     * @return primary command name.
+     * @return name used to register the command.
      */
-    public String getCommandName() {
-        return commandName;
+    public final String getName() {
+        return name;
     }
 
     /**
-     * Called when a {@link CommandExecutor} executes a command. This will be called
-     * in order to check if the executor has permission for the command. By default everyone
-     * has permission to execute the command however it can be overridden.
-     *
-     * @return a predicate to check if the executor has permission.
-     *
-     * @see CommandExecutor
-     * @see Predicate
-     *
-     * @implNote this can be ignored completely while doing perission checks in the
-     * {@link #executeCommand(CommandExecutor, String, String[])} method however it provides an easy
-     * and generalized way to do permission checks.
+     * @return permission node required to execute the command
      */
-    public Predicate<CommandExecutor> getPermission() {
-        return executor -> true;
+    public final String getPermission() {
+        return this.permission;
+    }
+
+    /**
+     * Convenience method for verbosely testing if a {@link CommandExecutor} has a permission or not.
+     * Effectively the same as {@code testPermission(executor, getPermission())}. This method is
+     * called prior to command execution so you do <b>not</b> need to run it first.
+     *
+     * @param executor executor to test for permission
+     * @return {@code true} if thet executor has the permission node returned by {@link Command#getPermission()}
+     * @see Command#testPermission(CommandExecutor, String)
+     */
+    protected final boolean testPermission(CommandExecutor executor) {
+        return testPermission(executor, getPermission());
+    }
+
+    /**
+     * Convenience method for verbosely testing if a {@link CommandExecutor} has a permission or not.
+     *
+     * @param executor executor to test for permission
+     * @param permission permission node to test for
+     * @return {@code true} if the executor has the given permission node
+     */
+    protected final boolean testPermission(CommandExecutor executor, String permission) {
+        if (executor.hasPermission(permission)) {
+            return true;
+        } else {
+            executor.sendMessage(ChatColor.RED + "You do not have permission to do that!");
+            return false;
+        }
     }
 }

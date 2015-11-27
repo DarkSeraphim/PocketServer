@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0-SNAPSHOT
  */
 public class CommandManager {
-    private static final String NO_PERMISSION = "No permission.";
     private static final String NO_COMMAND = "That is not a valid command.";
     private final Map<String, Command> commands = new ConcurrentHashMap<>();
 
@@ -28,7 +27,7 @@ public class CommandManager {
     public void registerCommand(Command command) {
         Preconditions.checkNotNull(command, "Command cannot be null");
 
-        this.commands.put(command.getCommandName(), command);
+        this.commands.put(command.getName(), command);
         for (String s : command.getAliases()) {
             this.commands.put(s, command);
         }
@@ -43,10 +42,8 @@ public class CommandManager {
     public void unregisterCommand(Command command) {
         Preconditions.checkNotNull(command, "Command cannot be null");
 
-        this.commands.remove(command.getCommandName());
-        for (String s : command.getAliases()) {
-            this.commands.remove(s);
-        }
+        this.commands.remove(command.getName());
+        command.getAliases().forEach(this.commands::remove);
     }
 
     /**
@@ -59,7 +56,7 @@ public class CommandManager {
      * @param executor the {@link CommandExecutor} that executed the command.
      * @param commandName the label of the command to be executed.
      */
-    public void executeCommand(CommandExecutor executor, String commandName) {
+    public void dispatch(CommandExecutor executor, String commandName) {
         Preconditions.checkNotNull(executor, "CommandExecutor cannot be null");
         Preconditions.checkNotNull(commandName, "Command string cannot be null");
 
@@ -70,10 +67,10 @@ public class CommandManager {
             executor.sendMessage(NO_COMMAND);
             return;
         }
-        if (!command.getPermission().test(executor)) {
-            executor.sendMessage(NO_PERMISSION);
+
+        if(command.testPermission(executor)) {
+            command.execute(executor, label, Arrays.copyOfRange(arguments, 1, arguments.length));
         }
-        command.executeCommand(executor, label, Arrays.copyOfRange(arguments,1,arguments.length));
     }
 
     /**

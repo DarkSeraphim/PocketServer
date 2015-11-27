@@ -16,7 +16,7 @@ public class CommandChangeName extends Command {
     }
 
     @Override
-    public void executeCommand(CommandExecutor executor, String used, String[] args) {
+    public void execute(CommandExecutor executor, String used, String[] args) {
         if (args.length > 0) {
             listener.setServerName(String.join(" ", args));
         } else {
