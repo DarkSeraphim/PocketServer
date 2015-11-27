@@ -20,6 +20,6 @@ public class PacketConnectionRequest extends Packet {
 
     @Override
     public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        return Optional.of(new PacketConnectionRequestAccepted(timestamp).setRemote(getRemote()));
+        return Optional.of(new PacketConnectionRequestAccepted(timestamp));
     }
 }

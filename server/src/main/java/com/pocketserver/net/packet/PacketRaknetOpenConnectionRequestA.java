@@ -30,6 +30,6 @@ public class PacketRaknetOpenConnectionRequestA extends Packet {
         } else {
             packet = new PacketRaknetIncompatibleProtocol();
         }
-        return Optional.of(packet.setRemote(getRemote()));
+        return Optional.of(packet);
     }
 }

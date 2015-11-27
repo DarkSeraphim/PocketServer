@@ -4,15 +4,12 @@ import com.google.common.base.Charsets;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
-import java.net.InetSocketAddress;
 import java.util.Optional;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 public abstract class Packet {
-    private InetSocketAddress remote;
-
     public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
         return Optional.empty();
     }
@@ -23,15 +20,6 @@ public abstract class Packet {
 
     public void read(ByteBuf buf) throws Exception {
         throw new UnsupportedOperationException("packet should implement read");
-    }
-
-    public final InetSocketAddress getRemote() {
-        return remote;
-    }
-
-    public final Packet setRemote(InetSocketAddress remote) {
-        this.remote = remote;
-        return this;
     }
 
     @Override

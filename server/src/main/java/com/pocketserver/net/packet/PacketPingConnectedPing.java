@@ -16,6 +16,6 @@ public class PacketPingConnectedPing extends Packet {
 
     @Override
     public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        return Optional.of(new PacketPingConnectedPong(identifier).setRemote(getRemote()));
+        return Optional.of(new PacketPingConnectedPong(identifier));
     }
 }

@@ -27,6 +27,6 @@ public class PacketRaknetOpenConnectionRequestB extends Packet {
 
     @Override
     public Optional<Packet> handle(ChannelHandlerContext ctx) throws Exception {
-        return Optional.of(new PacketRaknetOpenConnectionReplyB(mtu).setRemote(getRemote()));
+        return Optional.of(new PacketRaknetOpenConnectionReplyB(mtu, port));
     }
 }

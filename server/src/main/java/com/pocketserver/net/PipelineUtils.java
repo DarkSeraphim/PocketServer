@@ -2,6 +2,7 @@ package com.pocketserver.net;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,6 +18,7 @@ import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.AttributeKey;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,8 @@ public final class PipelineUtils {
         }
         useEpoll = tempUseEpoll;
     }
+
+    public static final AttributeKey<InetSocketAddress> ADDRESS_ATTRIBUTE = AttributeKey.valueOf("recipient");
 
     public static final ChannelInitializer<?> INITIALIZER = new ChannelInitializer<Channel>() {
         @Override

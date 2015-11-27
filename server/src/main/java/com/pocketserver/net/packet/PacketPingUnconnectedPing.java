@@ -16,6 +16,6 @@ public class PacketPingUnconnectedPing extends Packet {
 
     @Override
     public Optional<Packet> handle(ChannelHandlerContext ctx) {
-        return Optional.of(new PacketPingUnconnectedPong(pingTimestamp).setRemote(getRemote()));
+        return Optional.of(new PacketPingUnconnectedPong(pingTimestamp));
     }
 }

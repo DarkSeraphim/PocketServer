@@ -17,7 +17,7 @@ public final class Encapsulation {
         byte packetId = buf.readByte();
         Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Decoding packet 0x{} using BARE strategy", String.format("%02x", packetId));
         Packet packet = PacketRegistry.construct(packetId);
-        packet.setRemote(remoteAddress).read(buf);
+        packet.read(buf);
         packet.handle(ctx);
     };
 

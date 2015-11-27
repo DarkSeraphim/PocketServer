@@ -5,9 +5,11 @@ import com.pocketserver.net.Protocol;
 import io.netty.buffer.ByteBuf;
 
 public class PacketRaknetOpenConnectionReplyB extends Packet {
+    private final short port;
     private final short mtu;
 
-    public PacketRaknetOpenConnectionReplyB(short mtu) {
+    public PacketRaknetOpenConnectionReplyB(short mtu, short port) {
+        this.port = port;
         this.mtu = mtu;
     }
 
@@ -15,7 +17,7 @@ public class PacketRaknetOpenConnectionReplyB extends Packet {
     public void write(ByteBuf buf) throws Exception {
         writeMagic(buf);
         buf.writeLong(Protocol.SERVER_ID);
-        buf.writeShort(getRemote().getPort());
+        buf.writeShort(port);
         buf.writeShort(mtu);
         buf.writeByte(0);
     }
