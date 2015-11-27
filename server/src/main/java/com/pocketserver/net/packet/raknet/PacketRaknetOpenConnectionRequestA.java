@@ -1,4 +1,4 @@
-package com.pocketserver.net.packet;
+package com.pocketserver.net.packet.raknet;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.pocketserver.net.packet;
+package com.pocketserver.net.packet.connection;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.net.Packet;
