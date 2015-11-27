@@ -2,6 +2,8 @@ package com.pocketserver.net.netty;
 
 import java.util.List;
 
+import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import io.netty.buffer.ByteBuf;
@@ -15,7 +17,8 @@ public class PacketEncoder extends MessageToMessageEncoder<Packet> {
         ByteBuf buf = ctx.alloc().buffer();
         byte id = PacketRegistry.getId(msg);
         buf.writeByte(id);
-        msg.write(buf);
+        Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, msg.getClass().getSimpleName());
+                        msg.write(buf);
         out.add(new DatagramPacket(buf, msg.getRemote()));
     }
 }
