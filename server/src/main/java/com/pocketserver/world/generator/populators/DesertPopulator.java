@@ -1,13 +1,13 @@
 package com.pocketserver.world.generator.populators;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 import com.pocketserver.api.block.Material;
 import com.pocketserver.api.world.Chunk;
 import com.pocketserver.world.Biome;
 import com.pocketserver.world.generator.ChunkPopulator;
 import com.pocketserver.world.generator.structures.BedrockStructure;
-
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class DesertPopulator extends ChunkPopulator {
 

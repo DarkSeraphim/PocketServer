@@ -1,8 +1,8 @@
 package com.pocketserver.player;
 
-import com.pocketserver.net.Packet;
-
 import java.net.InetSocketAddress;
+
+import com.pocketserver.net.Packet;
 
 public class PlayerConnection {
     private final InetSocketAddress address;

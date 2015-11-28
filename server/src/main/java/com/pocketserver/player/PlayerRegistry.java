@@ -1,13 +1,14 @@
 package com.pocketserver.player;
 
 import com.google.common.collect.ImmutableList;
-import com.pocketserver.api.player.Player;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.pocketserver.api.player.Player;
 
 public class PlayerRegistry {
 

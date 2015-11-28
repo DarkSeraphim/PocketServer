@@ -2,6 +2,9 @@ package com.pocketserver.net.packet.raknet;
 
 import com.google.common.base.Preconditions;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+
 import com.pocketserver.PocketServer;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
@@ -9,9 +12,6 @@ import com.pocketserver.net.PipelineUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.net.InetSocketAddress;
-import java.util.List;
 
 public class PacketRaknetAck extends Packet {
     private final int[] packets;

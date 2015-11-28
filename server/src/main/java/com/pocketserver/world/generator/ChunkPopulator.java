@@ -1,14 +1,15 @@
 package com.pocketserver.world.generator;
 
 import com.google.common.collect.ImmutableList;
-import com.pocketserver.world.Biome;
-import com.pocketserver.api.world.Chunk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
+import com.pocketserver.api.world.Chunk;
+import com.pocketserver.world.Biome;
 
 //TODO: Fix all of the chunk populators.
 public abstract class ChunkPopulator {

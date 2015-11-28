@@ -4,10 +4,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.pocketserver.api.block.Block;
 import com.pocketserver.api.block.Material;
-import com.pocketserver.block.PocketBlock;
 import com.pocketserver.api.world.Chunk;
 import com.pocketserver.api.world.Location;
 import com.pocketserver.api.world.World;
+import com.pocketserver.block.PocketBlock;
 
 public class PocketChunk implements Chunk {
 
