@@ -2,9 +2,16 @@ package com.pocketserver.net.packet.raknet;
 
 import com.google.common.base.Preconditions;
 
+import com.pocketserver.PocketServer;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PipelineUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.net.InetSocketAddress;
+import java.util.List;
 
 public class PacketRaknetAck extends Packet {
     private final int[] packets;
@@ -16,6 +23,18 @@ public class PacketRaknetAck extends Packet {
 
     public PacketRaknetAck() {
         this.packets = new int[0];
+    }
+
+    @Override
+    public void read(ByteBuf buf) throws Exception {
+        //Doesn't necessarily need to decode anything.
+    }
+
+    @Override
+    public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
+        InetSocketAddress address = ctx.attr(PipelineUtils.ADDRESS_ATTRIBUTE).get();
+        PocketServer.getServer().getLogger().debug(PocketLogging.Server.NETWORK, String.format(
+                "Received a %s from %s.", getClass().getSimpleName(), address.getHostName()));
     }
 
     @Override
