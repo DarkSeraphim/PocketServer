@@ -11,7 +11,6 @@ import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
 public final class Encapsulation {
@@ -30,7 +29,7 @@ public final class Encapsulation {
         public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
             int length = buf.readableBytes();
             int totalLength = length + 7;
-            ByteBuf outer = Unpooled.buffer(totalLength, totalLength);
+            ByteBuf outer = ctx.alloc().buffer(totalLength, totalLength);
             {
                 outer.writeByte(0x80);
                 outer.writeMedium(counter.getAndIncrement());
