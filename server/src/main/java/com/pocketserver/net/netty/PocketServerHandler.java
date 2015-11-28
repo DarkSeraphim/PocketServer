@@ -15,14 +15,9 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
         List<Packet> out = Lists.newLinkedList();
         packet.handle(ctx, out);
         out.forEach(ctx::write);
-        ctx.flush();
-    }
-
-    @Override
-    public void flush(ChannelHandlerContext ctx) throws Exception {
         if (ctx.hasAttr(PipelineUtils.ADDRESS_ATTRIBUTE)) {
             ctx.attr(PipelineUtils.ADDRESS_ATTRIBUTE).remove();
         }
-        super.flush(ctx);
+        ctx.flush();
     }
 }

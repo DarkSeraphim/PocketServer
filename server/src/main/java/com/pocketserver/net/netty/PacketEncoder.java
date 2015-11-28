@@ -27,12 +27,17 @@ public class PacketEncoder extends MessageToMessageEncoder<Packet> {
         buf.writeByte(id);
         msg.write(buf);
         if (msg instanceof AbstractEncapsulatedPacket) {
-            buf = Encapsulation.encode(ctx, buf);
+            buf = Encapsulation.encode(Encapsulation.BARE, ctx, buf);
         }
         out.add(new DatagramPacket(buf, recipient));
         Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent 0x{} to {}", new Object[] {
             String.format("%02x", id).toUpperCase(),
             recipient
         });
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Failure in PacketEncoder", cause);
     }
 }

@@ -1,13 +1,13 @@
-package com.pocketserver.net.packet.connection;
+package com.pocketserver.net.packet.connect;
 
 import com.pocketserver.net.packet.AbstractEncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 
-public class PacketConnectionRequestAccepted extends AbstractEncapsulatedPacket {
+public class PacketConnectOpenResponse extends AbstractEncapsulatedPacket {
     private final long serverTimestamp;
     private final long clientTimestamp;
 
-    public PacketConnectionRequestAccepted(long clientTimestamp) {
+    public PacketConnectOpenResponse(long clientTimestamp) {
         this.serverTimestamp = System.currentTimeMillis();
         this.clientTimestamp = clientTimestamp;
     }

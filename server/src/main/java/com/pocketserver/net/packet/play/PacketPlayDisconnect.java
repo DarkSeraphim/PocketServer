@@ -1,4 +1,4 @@
-package com.pocketserver.net.packet.connection;
+package com.pocketserver.net.packet.play;
 
 import com.pocketserver.net.Packet;
 import io.netty.buffer.ByteBuf;

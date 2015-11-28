@@ -1,4 +1,4 @@
-package com.pocketserver.net.packet.connection.ping;
+package com.pocketserver.net.packet.ping;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.event.server.ServerPingEvent;
@@ -7,10 +7,10 @@ import com.pocketserver.net.Protocol;
 import io.netty.buffer.ByteBuf;
 
 public class PacketPingUnconnectedPong extends Packet {
-    private final long pingTimestamp;
+    private final long timestamp;
 
-    public PacketPingUnconnectedPong(long pingTimestamp) {
-        this.pingTimestamp = pingTimestamp;
+    public PacketPingUnconnectedPong(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -18,7 +18,7 @@ public class PacketPingUnconnectedPong extends Packet {
         ServerPingEvent event = new ServerPingEvent(Protocol.TEMP_IDENTIFIER);
         Server.getServer().getEventBus().post(event);
 
-        buf.writeLong(pingTimestamp);
+        buf.writeLong(timestamp);
         buf.writeLong(Protocol.SERVER_ID);
         writeMagic(buf);
         writeString(buf, event.getMotd());
