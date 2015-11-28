@@ -1,9 +1,9 @@
 package com.pocketserver.net.packet.connection;
 
-import com.pocketserver.net.Packet;
+import com.pocketserver.net.packet.AbstractEncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 
-public class PacketConnectionRequestAccepted extends Packet {
+public class PacketConnectionRequestAccepted extends AbstractEncapsulatedPacket {
     private final long serverTimestamp;
     private final long clientTimestamp;
 
