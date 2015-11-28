@@ -10,6 +10,7 @@ import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
+import com.pocketserver.net.codec.Encapsulation;
 import com.pocketserver.net.packet.AbstractEncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,8 +27,7 @@ public class PacketEncoder extends MessageToMessageEncoder<Packet> {
         buf.writeByte(id);
         msg.write(buf);
         if (msg instanceof AbstractEncapsulatedPacket) {
-            AbstractEncapsulatedPacket encapsulated = (AbstractEncapsulatedPacket) msg;
-            buf = encapsulated.writeEncapsulation(buf);
+            buf = Encapsulation.encode(ctx, buf);
         }
         out.add(new DatagramPacket(buf, recipient));
         Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent 0x{} to {}", new Object[] {

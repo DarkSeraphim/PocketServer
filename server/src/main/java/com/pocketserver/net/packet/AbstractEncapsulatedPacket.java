@@ -10,18 +10,4 @@ public abstract class AbstractEncapsulatedPacket extends Packet {
 
     @Override
     public abstract void write(ByteBuf buf) throws Exception;
-
-    public ByteBuf writeEncapsulation(ByteBuf buf) {
-        int length = buf.readableBytes();
-        int totalLength = length+7;
-        ByteBuf outer = Unpooled.buffer(totalLength, totalLength);
-        {
-            outer.writeByte(0x80);
-            outer.writeMedium(counter++);
-            outer.writeByte(0x00);
-            outer.writeShort(length);
-            outer.writeBytes(buf);
-        }
-        return outer;
-    }
 }

@@ -3,21 +3,43 @@ package com.pocketserver.net.codec;
 import com.google.common.base.Preconditions;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
 public final class Encapsulation {
-    public static final EncapsulationStrategy BARE = (buf, ctx, out) -> {
-        Preconditions.checkArgument(buf.isReadable(), "unable to read from buf!");
-        byte packetId = buf.readByte();
-        Packet packet = PacketRegistry.construct(packetId);
-        packet.read(buf);
-        packet.handle(ctx, out);
+    public static final EncapsulationStrategy BARE = new EncapsulationStrategy() {
+        @Override
+        public void decode(ByteBuf buf, ChannelHandlerContext ctx, List<Packet> out) throws Exception {
+            Preconditions.checkArgument(buf.isReadable(), "unable to read from buf!");
+            byte packetId = buf.readByte();
+            Packet packet = PacketRegistry.construct(packetId);
+            packet.read(buf);
+            packet.handle(ctx, out);
+        }
+
+        private AtomicInteger counter = new AtomicInteger(0);
+        @Override
+        public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
+            int length = buf.readableBytes();
+            int totalLength = length + 7;
+            ByteBuf outer = Unpooled.buffer(totalLength, totalLength);
+            {
+                outer.writeByte(0x80);
+                outer.writeMedium(counter.getAndIncrement());
+                outer.writeByte(0x00);
+                outer.writeShort(length);
+                outer.writeBytes(buf);
+            }
+            return outer;
+        }
     };
 
     public static final EncapsulationStrategy COUNT = (buf, ctx, out) -> {
@@ -35,6 +57,15 @@ public final class Encapsulation {
             strategy.decode(buf, ctx, out);
         } catch (Exception ex) {
             Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to decode packet!", ex);
+        }
+    }
+
+    public static ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) {
+        try {
+            return BARE.encode(ctx, buf);
+        } catch (Exception ex) {
+            Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to encode packet!", ex);
+            return null;
         }
     }
 
