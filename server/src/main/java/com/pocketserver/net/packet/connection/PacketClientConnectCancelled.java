@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
  */
 public class PacketClientConnectCancelled extends Packet {
     @Override
-    public void read(ByteBuf buf) throws Exception {
+    public void read(ByteBuf buf) {
         Server.getServer().getLogger().info(PocketLogging.Server.NETWORK, ":( our clients hate us");
     }
 }

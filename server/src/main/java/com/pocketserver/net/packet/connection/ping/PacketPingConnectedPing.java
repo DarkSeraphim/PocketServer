@@ -10,7 +10,7 @@ public class PacketPingConnectedPing extends Packet {
     private long timestamp;
 
     @Override
-    public void read(ByteBuf buf) throws Exception {
+    public void read(ByteBuf buf) {
         timestamp = buf.readLong();
     }
 

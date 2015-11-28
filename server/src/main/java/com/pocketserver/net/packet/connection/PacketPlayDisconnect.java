@@ -11,7 +11,7 @@ public class PacketPlayDisconnect extends Packet {
     }
 
     @Override
-    public void write(ByteBuf buf) throws Exception {
+    public void write(ByteBuf buf) {
         writeString(buf, reason);
     }
 }

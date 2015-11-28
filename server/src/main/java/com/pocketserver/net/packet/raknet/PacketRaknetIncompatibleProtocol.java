@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 
 public class PacketRaknetIncompatibleProtocol extends Packet {
     @Override
-    public void write(ByteBuf buf) throws Exception {
+    public void write(ByteBuf buf) {
         buf.writeByte(Protocol.RAKNET_VERSION);
         writeMagic(buf);
         buf.writeLong(Protocol.SERVER_ID);

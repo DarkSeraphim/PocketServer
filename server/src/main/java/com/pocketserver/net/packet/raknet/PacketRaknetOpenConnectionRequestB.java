@@ -15,7 +15,7 @@ public class PacketRaknetOpenConnectionRequestB extends Packet {
     private byte sec;
 
     @Override
-    public void read(ByteBuf buf) throws Exception {
+    public void read(ByteBuf buf) {
         if (buf.readLong() == Protocol.MAGIC_1 && buf.readLong() == Protocol.MAGIC_2) {
             sec = buf.readByte();
             cookie = buf.readInt();

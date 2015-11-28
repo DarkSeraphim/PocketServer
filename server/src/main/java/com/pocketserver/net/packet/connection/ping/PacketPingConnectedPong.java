@@ -11,7 +11,7 @@ public class PacketPingConnectedPong extends Packet {
     }
 
     @Override
-    public void write(ByteBuf buf) throws Exception {
+    public void write(ByteBuf buf) {
         buf.writeLong(timestamp);
     }
 }
