@@ -14,7 +14,7 @@ public class PacketRaknetOpenConnectionReplyB extends Packet {
     }
 
     @Override
-    public void write(ByteBuf buf) {
+    public void write(ByteBuf buf) throws Exception {
         writeMagic(buf);
         buf.writeLong(Protocol.SERVER_ID);
         buf.writeShort(port);

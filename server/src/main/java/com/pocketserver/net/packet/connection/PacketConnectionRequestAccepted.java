@@ -15,7 +15,6 @@ public class PacketConnectionRequestAccepted extends Packet {
     // TODO: https://github.com/NiclasOlofsson/MiNET/blob/master/src/MiNET/MiNET/Net/MCPE%20Protocol%20Documentation.md#package-connection-request-accepted-0x10
     @Override
     public void write(ByteBuf buf) {
-        System.out.println("YAY FUK DA SYSTUM");
         for (int i = 0; i < 2; i++) {
             buf.writeByte(0x04);
             for (int x = 0; x < 4; x++) {

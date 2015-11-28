@@ -12,16 +12,14 @@ public class PacketConnectionRequest extends Packet {
     private byte sec;
 
     @Override
-    public void read(ByteBuf buf) {
+    public void read(ByteBuf buf) throws Exception {
         clientId = buf.readLong();
         timestamp = buf.readLong();
         sec = buf.readByte();
-        System.out.println("Reading the 0x09 packet.");
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
-        System.out.println("Handling the 0x09 packet.");
         out.add(new PacketConnectionRequestAccepted(timestamp));
     }
 }

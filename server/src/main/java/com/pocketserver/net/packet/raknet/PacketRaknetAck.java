@@ -7,7 +7,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 public class PacketRaknetAck extends Packet {
-    private static final byte PACKET_ID = (byte) 0xC0;
     private final int[] packets;
 
     public PacketRaknetAck(int... packets) {
@@ -62,10 +61,5 @@ public class PacketRaknetAck extends Packet {
         }
         buf.writeShort(records);
         buf.writeBytes(payload);
-    }
-
-    @Override
-    public byte getPacketId() {
-        return PACKET_ID;
     }
 }

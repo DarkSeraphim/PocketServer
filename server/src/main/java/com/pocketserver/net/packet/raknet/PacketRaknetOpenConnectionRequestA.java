@@ -12,7 +12,7 @@ public class PacketRaknetOpenConnectionRequestA extends Packet {
     private int mtu;
 
     @Override
-    public void read(ByteBuf buf) {
+    public void read(ByteBuf buf) throws Exception {
         long magicOne = buf.readLong();
         long magicTwo = buf.readLong();
 

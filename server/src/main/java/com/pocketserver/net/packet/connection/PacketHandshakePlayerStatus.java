@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 
 public class PacketHandshakePlayerStatus extends Packet {
     @Override
-    public void read(ByteBuf buf) {
+    public void read(ByteBuf buf) throws Exception {
         int status = buf.readInt();
         switch (status) {
             case 0:

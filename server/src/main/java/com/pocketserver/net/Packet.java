@@ -14,16 +14,12 @@ public abstract class Packet {
 
     }
 
-    public void write(ByteBuf buf) {
+    public void write(ByteBuf buf) throws Exception {
         throw new UnsupportedOperationException("packet should implement write");
     }
 
-    public void read(ByteBuf buf) {
+    public void read(ByteBuf buf) throws Exception {
         throw new UnsupportedOperationException("packet should implement read");
-    }
-
-    public byte getPacketId() {
-        return PacketRegistry.getId(this); //TODO: Implement this in all packets.
     }
 
     @Override
