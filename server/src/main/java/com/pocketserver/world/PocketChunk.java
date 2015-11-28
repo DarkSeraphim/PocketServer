@@ -15,7 +15,7 @@ public class PocketChunk implements Chunk {
     private final int z;
     private final PocketWorld world;
     private final PocketBlock[] blocks = new PocketBlock[256 * 16 * 16];
-    private AtomicBoolean updated;
+    private final AtomicBoolean updated = new AtomicBoolean(true);
 
     public PocketChunk(PocketWorld world, int x, int z) {
         this.world = world;

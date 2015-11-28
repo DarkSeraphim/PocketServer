@@ -34,7 +34,6 @@ public class PocketWorld implements World {
 
     @Override
     public Block getBlockAt(Location location) {
-        return getBlockAt(location.getBlockX(), location.getBlockY(),
-            location.getBlockZ());
+        return getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 }

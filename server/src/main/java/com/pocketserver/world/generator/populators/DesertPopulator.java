@@ -1,18 +1,18 @@
 package com.pocketserver.world.generator.populators;
 
 import com.pocketserver.api.block.Material;
+import com.pocketserver.api.world.Chunk;
 import com.pocketserver.world.Biome;
 import com.pocketserver.world.generator.ChunkPopulator;
-import com.pocketserver.api.world.Chunk;
 import com.pocketserver.world.generator.structures.BedrockStructure;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class PlainsPopulator extends ChunkPopulator {
+public class DesertPopulator extends ChunkPopulator {
 
-    protected PlainsPopulator() {
-        super(Biome.PLAINS, new BedrockStructure());
+    public DesertPopulator() {
+        super(Biome.DESERT, new BedrockStructure());
     }
 
     @Override
