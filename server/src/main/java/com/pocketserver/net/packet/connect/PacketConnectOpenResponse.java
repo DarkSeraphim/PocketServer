@@ -15,13 +15,14 @@ public class PacketConnectOpenResponse extends AbstractEncapsulatedPacket {
     // TODO: https://github.com/NiclasOlofsson/MiNET/blob/master/src/MiNET/MiNET/Net/MCPE%20Protocol%20Documentation.md#package-connection-request-accepted-0x10
     @Override
     public void write(ByteBuf buf) {
-        for (int i = 0; i < 2; i++) {
-            buf.writeByte(0x04);
-            for (int x = 0; x < 4; x++) {
-                buf.writeByte(0xFF);
-            }
-            buf.writeShort(19132);
+        buf.writeByte(4);
+        {
+            buf.writeByte(~127);
+            buf.writeByte(~0);
+            buf.writeByte(~0);
+            buf.writeByte(~1);
         }
+        buf.writeShort(19132);
         buf.writeLong(clientTimestamp);
         buf.writeLong(serverTimestamp);
     }
