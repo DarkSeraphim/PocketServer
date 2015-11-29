@@ -3,10 +3,11 @@ package com.pocketserver.net.packet.connect;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import com.pocketserver.net.packet.AbstractEncapsulatedPacket;
+import com.pocketserver.net.Packet;
+import com.pocketserver.net.packet.Encapsulated;
 import io.netty.buffer.ByteBuf;
 
-public class PacketConnectOpenResponse extends AbstractEncapsulatedPacket {
+public class PacketConnectOpenResponse extends Packet implements Encapsulated {
     private static final InetSocketAddress SYSTEM_ADDRESS = new InetSocketAddress(InetAddress.getLoopbackAddress(), 19132);
 
     private final long serverTimestamp;

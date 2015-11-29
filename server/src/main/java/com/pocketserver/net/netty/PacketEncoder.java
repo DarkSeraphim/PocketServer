@@ -11,7 +11,7 @@ import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.codec.Encapsulation;
-import com.pocketserver.net.packet.AbstractEncapsulatedPacket;
+import com.pocketserver.net.packet.Encapsulated;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -26,8 +26,8 @@ public class PacketEncoder extends MessageToMessageEncoder<Packet> {
         byte id = PacketRegistry.getId(msg);
         buf.writeByte(id);
         msg.write(buf);
-        if (msg instanceof AbstractEncapsulatedPacket) {
-            buf = Encapsulation.encode(Encapsulation.BARE, ctx, buf);
+        if (msg instanceof Encapsulated) {
+            buf = Encapsulation.encode(((Encapsulated) msg).getEncapsulationStrategy(), ctx, buf);
         }
         out.add(new DatagramPacket(buf, recipient));
         Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent 0x{} to {}", new Object[] {

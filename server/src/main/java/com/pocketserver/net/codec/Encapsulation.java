@@ -32,7 +32,7 @@ public final class Encapsulation {
                 out.writeByte(0x80);
                 out.writeMedium(counter.getAndIncrement());
                 out.writeByte(0x00);
-                out.writeShort(buf.readableBytes());
+                out.writeShort(buf.readableBytes() * 8);
                 out.writeBytes(buf);
             }
             return out;
