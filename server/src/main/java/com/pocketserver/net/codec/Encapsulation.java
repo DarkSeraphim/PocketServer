@@ -48,7 +48,7 @@ public final class Encapsulation {
 
         @Override
         public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-            return Encapsulation.BARE.encode(ctx, buf);
+            throw new UnsupportedOperationException("cannot encode packets using this strategy");
         }
     };
 
@@ -61,7 +61,7 @@ public final class Encapsulation {
 
         @Override
         public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-            return Encapsulation.BARE.encode(ctx, buf);
+            throw new UnsupportedOperationException("cannot encode packets using this strategy");
         }
     };
 

@@ -27,7 +27,8 @@ public class PacketEncoder extends MessageToMessageEncoder<Packet> {
         buf.writeByte(id);
         msg.write(buf);
         if (msg instanceof AbstractEncapsulatedPacket) {
-            buf = Encapsulation.encode(Encapsulation.BARE, ctx, buf);
+            AbstractEncapsulatedPacket aep = (AbstractEncapsulatedPacket) msg;
+            buf = Encapsulation.encode(aep.getEncapsulationStrategy(), ctx, buf);
         }
         out.add(new DatagramPacket(buf, recipient));
         Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent 0x{} to {}", new Object[] {

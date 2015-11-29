@@ -3,6 +3,8 @@ package com.pocketserver.net.packet.connect;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import com.pocketserver.net.codec.Encapsulation;
+import com.pocketserver.net.codec.EncapsulationStrategy;
 import com.pocketserver.net.packet.AbstractEncapsulatedPacket;
 import io.netty.buffer.ByteBuf;
 
@@ -15,6 +17,11 @@ public class PacketConnectOpenResponse extends AbstractEncapsulatedPacket {
     public PacketConnectOpenResponse(long clientTimestamp) {
         this.serverTimestamp = System.currentTimeMillis();
         this.clientTimestamp = clientTimestamp;
+    }
+
+    @Override
+    public EncapsulationStrategy getEncapsulationStrategy() {
+        return Encapsulation.BARE;
     }
 
     @Override
