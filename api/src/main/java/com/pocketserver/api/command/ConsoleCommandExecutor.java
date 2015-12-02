@@ -46,20 +46,6 @@ public class ConsoleCommandExecutor implements CommandExecutor {
     }
 
     /**
-     * This method does absolutely nothing due to the console already
-     * having all permissions.
-     *
-     * @param permission doesn't do anything.
-     * @param value doesn't do anything.
-     *
-     * @deprecated since the method doesn't do anything.
-     */
-    @Deprecated
-    @Override
-    public void setPermission(String permission, boolean value) {
-    }
-
-    /**
      * Always returns true.
      *
      * @return a constant value of true.
