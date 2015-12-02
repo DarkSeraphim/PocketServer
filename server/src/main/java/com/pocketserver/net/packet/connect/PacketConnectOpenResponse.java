@@ -8,7 +8,8 @@ import com.pocketserver.net.packet.Encapsulated;
 import io.netty.buffer.ByteBuf;
 
 public class PacketConnectOpenResponse extends Packet implements Encapsulated {
-    private static final InetSocketAddress SYSTEM_ADDRESS = new InetSocketAddress(InetAddress.getLoopbackAddress(), 19132);
+    private static final InetSocketAddress LOOPBACK_ADDRESS = new InetSocketAddress(InetAddress.getLoopbackAddress(), 19132);
+    private static final InetSocketAddress SYSTEM_ADDRESS = new InetSocketAddress("0.0.0.0", 19132);
 
     private final long serverTimestamp;
     private final long clientTimestamp;
@@ -23,10 +24,9 @@ public class PacketConnectOpenResponse extends Packet implements Encapsulated {
     @Override
     public void write(ByteBuf buf) {
         writeAddress(buf, address);
-        buf.writeShort(0);
-        writeAddress(buf, SYSTEM_ADDRESS);
+        writeAddress(buf, LOOPBACK_ADDRESS);
         for (int i = 0; i < 9; i++) {
-            writeAddress(buf, new InetSocketAddress("0.0.0.0", 19132));
+            writeAddress(buf, SYSTEM_ADDRESS);
         }
         buf.writeLong(clientTimestamp);
         buf.writeLong(serverTimestamp);
