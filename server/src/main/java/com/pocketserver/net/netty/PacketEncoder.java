@@ -27,7 +27,14 @@ public class PacketEncoder extends MessageToMessageEncoder<Packet> {
         buf.writeByte(id);
         msg.write(buf);
         if (msg instanceof Encapsulated) {
-            buf = Encapsulation.encode(((Encapsulated) msg).getEncapsulationStrategy(), ctx, buf);
+            buf.markReaderIndex();
+            try {
+                buf = ((Encapsulated) msg).getEncapsulationStrategy().encode(ctx, buf);
+            } catch (Exception ex) {
+                Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to encode packet!", ex);
+                // Should reset the buffer to the old state to prevent 'corrupt' buffers
+                buf.resetReaderIndex();
+            }
         }
         out.add(new DatagramPacket(buf, recipient));
         Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent 0x{} to {}", new Object[] {
