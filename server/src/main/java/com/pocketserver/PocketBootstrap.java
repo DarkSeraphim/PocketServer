@@ -5,28 +5,39 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Scanner;
 
+import ch.qos.logback.classic.LoggerContext;
+import com.pocketserver.api.ChatColor;
+import com.pocketserver.util.LoggingColourFilter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import org.slf4j.impl.SimpleLogger;
+import org.fusesource.jansi.AnsiConsole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PocketBootstrap {
-    public static void main(String[] args) {
-        System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[HH:mm:ss]");
-        System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
-        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "debug");
-        System.setProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, "true");
-        System.setProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, "true");
-        System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "true");
-        System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "true");
+    public static void main(String[] args) throws Exception {
+        AnsiConsole.systemInstall();
+
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        context.addTurboFilter(new LoggingColourFilter());
 
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
-        OptionSpec<Boolean> gui = parser.acceptsAll(ImmutableList.of("g", "gui"), "display console output in a window").withRequiredArg().ofType(Boolean.class).defaultsTo(false);
+        parser.acceptsAll(ImmutableList.of("c", "colours"), "print colours to the console");
         parser.acceptsAll(ImmutableList.of("v", "version"), "print the application version");
         parser.acceptsAll(ImmutableList.of("h", "help"), "print command line help");
 
         OptionSet options = parser.parse(args);
+        if (options.has("c")) {
+            Logger logger = context.getLogger("PocketServer");
+            for (ChatColor color : ChatColor.values()) {
+                logger.info(color + "{}", new Object[]{
+                    color.name()
+                });
+            }
+            return;
+        }
+
         if (options.has("help")) {
             try {
                 parser.printHelpOn(System.out);
@@ -56,6 +67,7 @@ public class PocketBootstrap {
 
 
         PocketServer server = new PocketServer();
+        server.getLogger().info(ChatColor.GREEN + "Hello World!");
 
         Scanner reader = new Scanner(System.in);
         while (server.running) {

@@ -61,11 +61,11 @@ public abstract class Plugin {
     }
 
     private void benchmarkMethod(String methodName, Runnable action) {
-        long start = System.nanoTime();
+        long start = System.currentTimeMillis();
         try {
             action.run();
         } finally {
-            logger.debug(PocketLogging.Plugin.BENCHMARK, "Executing {} took {} nanos", methodName, System.nanoTime() - start);
+            logger.trace(PocketLogging.Plugin.BENCHMARK, "Executing {} took {} ms", methodName, System.currentTimeMillis() - start);
         }
     }
 

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -53,7 +54,7 @@ public class PocketServer extends Server {
 
     private Channel channel;
 
-    PocketServer() {
+    PocketServer() throws Exception {
         this.directory = new File(".").toPath().toAbsolutePath().toFile();
         Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
 
@@ -73,7 +74,7 @@ public class PocketServer extends Server {
             getLogger().info(PocketLogging.Server.STARTUP, "Created \"plugins\" directory");
         }
 
-        startListener();
+        startListener().await();
 
         this.running = true;
         this.pluginManager.loadPlugins();
@@ -81,8 +82,9 @@ public class PocketServer extends Server {
         getCommandManager().registerCommand(new CommandShutdown(this));
     }
 
-    private void startListener() {
-        running = true;
+    private CountDownLatch startListener() {
+        CountDownLatch latch = new CountDownLatch(1);
+
         // TODO: Add configuration stuff
         ChannelFutureListener listener = new ChannelFutureListener() {
             private static final int PORT = 19132;
@@ -92,6 +94,7 @@ public class PocketServer extends Server {
                 if (future.isSuccess()) {
                     channel = future.channel();
                     getLogger().info(PocketLogging.Server.STARTUP, "Listening on port {}", PORT);
+                    latch.countDown();
                 } else {
                     getLogger().error(PocketLogging.Server.STARTUP, "Could not bind to {}", PORT, future.cause());
                     shutdown();
@@ -106,6 +109,8 @@ public class PocketServer extends Server {
                 .option(ChannelOption.SO_BROADCAST, true)
                 .bind(19132)
                 .addListener(listener);
+
+        return latch;
     }
 
     @Override

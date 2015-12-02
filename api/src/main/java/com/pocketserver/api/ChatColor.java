@@ -27,7 +27,6 @@ public enum ChatColor {
     RESET('r');
 
     public static final char COLOR_CHAR = '\u00A7';
-    public static final String ALL_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + String.valueOf(COLOR_CHAR) + "[0-9A-FK-OR]");
 
     private final char code;
@@ -42,6 +41,10 @@ public enum ChatColor {
         }
 
         return STRIP_COLOR_PATTERN.matcher(input).replaceAll("");
+    }
+
+    public char getCharacter() {
+        return code;
     }
 
     @Override

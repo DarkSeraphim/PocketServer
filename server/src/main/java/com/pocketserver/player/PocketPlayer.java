@@ -25,11 +25,17 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
     public PocketPlayer(int entityId, Server server, Channel channel, InetSocketAddress address) {
         super(entityId);
-        this.unsafe = channel::writeAndFlush;
         this.gameMode = GameMode.SURVIVAL;
         this.channel = channel;
         this.address = address;
         this.server = server;
+
+        this.unsafe = new Unsafe() {
+            @Override
+            public void send(Packet packet) {
+                PocketPlayer.this.channel.writeAndFlush(packet);
+            }
+        };
     }
 
     @Override
