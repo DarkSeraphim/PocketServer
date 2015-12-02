@@ -79,11 +79,6 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     }
 
     @Override
-    public void setPermission(String permission, boolean value) {
-        // NOP
-    }
-
-    @Override
     public boolean isOp() {
         return op;
     }
