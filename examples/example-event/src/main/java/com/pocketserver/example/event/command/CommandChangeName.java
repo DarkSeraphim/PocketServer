@@ -1,16 +1,13 @@
-package com.pocketserver.example.command;
+package com.pocketserver.example.event.command;
 
 import com.pocketserver.api.command.Command;
 import com.pocketserver.api.command.CommandExecutor;
-import com.pocketserver.example.ExampleListener;
+import com.pocketserver.example.event.event.ServerListener;
 
-/**
- * @author PocketServer Team
- */
 public class CommandChangeName extends Command {
-    private final ExampleListener listener;
+    private final ServerListener listener;
 
-    public CommandChangeName(ExampleListener listener) {
+    public CommandChangeName(ServerListener listener) {
         super("change-name");
         this.listener = listener;
     }

@@ -1,19 +1,13 @@
-package com.pocketserver.example;
+package com.pocketserver.example.event.event;
 
 import com.pocketserver.api.event.Listener;
 import com.pocketserver.api.event.Subscribe;
 import com.pocketserver.api.event.server.ServerPingEvent;
 
-/**
- * Our example listener.
- *
- * @author PocketServer Team
- * @version 1.0-SNAPSHOT
- */
-public final class ExampleListener implements Listener {
+public final class ServerListener implements Listener {
     private String serverName;
 
-    public ExampleListener() {
+    public ServerListener() {
         this.serverName = "Example Plugin";
     }
 
