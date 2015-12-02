@@ -56,7 +56,7 @@ public abstract class Plugin {
         } else {
             logger.info(PocketLogging.Plugin.INIT, "Disabling {}", descriptor.getName());
             benchmarkMethod("onDisable", this::onDisable);
-            getServer().getEventBus().unregisterListener(this);
+            getServer().getPluginManager().unregisterListeners(this);
         }
     }
 

@@ -8,7 +8,7 @@ public final class EventExamplePlugin extends Plugin {
     @Override
     public void onEnable() {
         ServerListener listener = new ServerListener();
-        getServer().getEventBus().registerListener(this, listener);
-        getServer().getCommandManager().registerCommand(new CommandChangeName(listener));
+        getServer().getPluginManager().registerListener(this, listener);
+        getServer().getPluginManager().registerCommand(this, new CommandChangeName(listener));
     }
 }

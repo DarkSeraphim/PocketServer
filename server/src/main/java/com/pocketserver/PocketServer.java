@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.command.CommandManager;
-import com.pocketserver.api.event.EventBus;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.permissions.PocketPermissionResolver;
 import com.pocketserver.api.player.Player;
@@ -32,27 +31,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PocketServer extends Server {
-    private final Logger logger;
-    private final File directory;
-    private final EventBus eventBus;
-    private final PluginManager pluginManager;
-    private final CommandManager commandManager;
-    private final EventLoopGroup eventLoopGroup;
     private final Pipeline<PermissionResolver> permissionPipeline;
+    private final EventLoopGroup eventLoopGroup;
+    private final CommandManager commandManager;
+    private final PluginManager pluginManager;
+    private final File directory;
+    private final Logger logger;
 
     private volatile boolean running;
     private Channel channel;
 
     PocketServer() {
-        this.directory = new File(".");
+        this.directory = new File(".").toPath().toAbsolutePath().toFile();
         Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
 
         Server.setServer(this);
-        this.eventLoopGroup = PipelineUtils.newEventLoop(6);
         this.logger = LoggerFactory.getLogger("PocketServer");
+        this.eventLoopGroup = PipelineUtils.newEventLoop(6);
+        this.commandManager = new CommandManager(this);
         this.pluginManager = new PluginManager(this);
-        this.commandManager = new CommandManager();
-        this.eventBus = new EventBus();
+        getLogger().debug("Directory: {}", directory.toString());
         getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
         startListener();
 
@@ -141,16 +139,11 @@ public class PocketServer extends Server {
                 eventLoopGroup.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
             }
         } catch (Exception e) {
-
+            // NOP
         }
 
         getLogger().info("Thanks for using PocketServer!");
         System.exit(0);
-    }
-
-    @Override
-    public EventBus getEventBus() {
-        return this.eventBus;
     }
 
     @Override
@@ -170,6 +163,7 @@ public class PocketServer extends Server {
 
     @Override
     public List<? extends Player> getOnlinePlayers() {
+        // TODO: Nuke oh so hard.
         return PlayerRegistry.get().getPlayers();
     }
 

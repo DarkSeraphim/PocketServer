@@ -16,7 +16,7 @@ public class PacketPingUnconnectedPong extends Packet {
     @Override
     public void write(ByteBuf buf) {
         ServerPingEvent event = new ServerPingEvent(Protocol.TEMP_IDENTIFIER);
-        Server.getServer().getEventBus().post(event);
+        Server.getServer().getPluginManager().post(event);
 
         buf.writeLong(timestamp);
         buf.writeLong(Protocol.SERVER_ID);

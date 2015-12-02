@@ -15,6 +15,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.pocketserver.api.Server;
+import com.pocketserver.api.command.Command;
+import com.pocketserver.api.event.Event;
+import com.pocketserver.api.event.EventBus;
+import com.pocketserver.api.event.Listener;
 import com.pocketserver.api.exceptions.InvalidPluginException;
 import com.pocketserver.api.util.PocketLogging;
 import org.slf4j.LoggerFactory;
@@ -22,13 +26,13 @@ import org.slf4j.LoggerFactory;
 public class PluginManager {
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
 
-    private static final boolean GC_ON_UNLOAD = System.getProperty("os.name").contains("win");
-
     private final List<Plugin> plugins;
+    private final EventBus eventBus;
     private final Server server;
 
     public PluginManager(Server server) {
         this.plugins = Lists.newArrayList();
+        this.eventBus = new EventBus();
         this.server = server;
     }
 
@@ -139,11 +143,6 @@ public class PluginManager {
             if (plugin.getClass().getClassLoader() instanceof URLClassLoader) {
                 URLClassLoader loader = (URLClassLoader) plugin.getClass().getClassLoader();
                 loader.close();
-
-                // Force explicit garbage collection to release Windows' lock on the JAR file
-                if (GC_ON_UNLOAD) {
-                    System.gc();
-                }
             }
         } catch (Exception ex) {
             server.getLogger().error(PocketLogging.Plugin.INIT, "Failed to unload plugin!", ex);
@@ -164,5 +163,34 @@ public class PluginManager {
             }
         }
         return false;
+    }
+
+    public void registerListener(Plugin plugin, Listener listener) {
+        eventBus.registerListener(plugin, listener);
+    }
+
+    public void unregisterListener(Listener listener) {
+        eventBus.unregisterListener(listener);
+    }
+
+    public void unregisterListeners(Plugin plugin) {
+        eventBus.unregisterListener(plugin);
+    }
+
+    public <T extends Event> T post(T event) {
+        return eventBus.post(event);
+    }
+
+    // TODO: Reimplement command registration
+    public void registerCommand(Plugin plugin, Command command) {
+
+    }
+
+    public void unregisterCommand(Command command) {
+
+    }
+
+    public void unregisterCommands(Plugin plugin) {
+
     }
 }

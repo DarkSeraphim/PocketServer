@@ -1,6 +1,6 @@
 package com.pocketserver.api.command;
 
-import org.slf4j.LoggerFactory;
+import com.pocketserver.api.Server;
 
 /**
  * The executor for a console command.
@@ -13,11 +13,14 @@ import org.slf4j.LoggerFactory;
  * @see CommandExecutor
  */
 public class ConsoleCommandExecutor implements CommandExecutor {
+    private final Server server;
+
+    public ConsoleCommandExecutor(Server server) {
+        this.server = server;
+    }
 
     /**
-     * Returns a constant value due to the console not having a specific name.
-     *
-     * @return the name of console.
+     * {@inheritDoc}
      */
     @Override
     public String getName() {
@@ -25,20 +28,17 @@ public class ConsoleCommandExecutor implements CommandExecutor {
     }
 
     /**
-     * Logs a message to the console directly.
+     * Prints a message to the server {@link org.slf4j.Logger}
      *
-     * @param message the message to send.
+     * @param message string to log
      */
     @Override
     public void sendMessage(String message) {
-        LoggerFactory.getLogger("PocketServer").info(message);
+        server.getLogger().info(message);
     }
 
     /**
-     * Always returns a constant value of true since console has all permissions.
-     *
-     * @param permission doesn't do anything.
-     * @return true
+     * @return {@code true} as console has all permissions
      */
     @Override
     public boolean hasPermission(String permission) {
@@ -46,11 +46,7 @@ public class ConsoleCommandExecutor implements CommandExecutor {
     }
 
     /**
-     * Always returns true.
-     *
-     * @return a constant value of true.
-     *
-     * @see #hasPermission(String)
+     * {@inheritDoc}
      */
     @Override
     public boolean isOp() {
@@ -58,11 +54,7 @@ public class ConsoleCommandExecutor implements CommandExecutor {
     }
 
     /**
-     * Doesn't do anything due to the console always being op.
-     *
-     * @param op doesn't do anything.
-     *
-     * @deprecated since the method doesn't do anything.
+     * {@inheritDoc}
      */
     @Deprecated
     @Override

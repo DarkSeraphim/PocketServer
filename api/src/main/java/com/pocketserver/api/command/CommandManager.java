@@ -1,10 +1,12 @@
 package com.pocketserver.api.command;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import com.pocketserver.api.Server;
 
 /**
  * Handles all of the commands. Will process the commands and
@@ -14,9 +16,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0-SNAPSHOT
  * @since 1.0-SNAPSHOT
  */
+@Deprecated
 public class CommandManager {
     private static final String NO_COMMAND = "That is not a valid command.";
-    private final Map<String, Command> commands = new ConcurrentHashMap<>();
+
+    private final CommandExecutor consoleExecutor;
+    private final Map<String, Command> commands;
+
+    public CommandManager(Server server) {
+        this.consoleExecutor = new ConsoleCommandExecutor(server);
+        this.commands = Maps.newConcurrentMap();
+    }
 
     /**
      * Registers a command into the registery. This will allow the command to be
@@ -80,7 +90,7 @@ public class CommandManager {
      * @return the command if it's in the registery or returns null if not.
      */
     private Command getCommand(String commandName) {
-        return commands.getOrDefault(commandName, null);
+        return commands.get(commandName);
     }
 
     /**
@@ -91,6 +101,6 @@ public class CommandManager {
      * @see ConsoleCommandExecutor
      */
     public CommandExecutor getConsole() {
-        return new ConsoleCommandExecutor();
+        return consoleExecutor;
     }
 }

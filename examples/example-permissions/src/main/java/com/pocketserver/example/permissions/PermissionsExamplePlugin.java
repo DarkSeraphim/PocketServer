@@ -12,7 +12,7 @@ public class PermissionsExamplePlugin extends Plugin {
     @Override
     public void onEnable() {
         permissionLoader = new FilePermissionLoader(this);
-        getServer().getCommandManager().registerCommand(new CommandTestPermission(getServer()));
+        getServer().getPluginManager().registerCommand(this, new CommandTestPermission(getServer()));
         getServer().getPermissionPipeline().addFirst((player, permission) -> {
             if (permissionLoader.get(player.getName()).contains(permission)) {
                 return PermissionResolver.Result.ALLOW;
