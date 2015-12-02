@@ -10,6 +10,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>pocketserver-example</artifactId>
     <packaging>pom</packaging>
+    <modules>
+        <module>example-permissions</module>
+        <module>example-event</module>
+    </modules>
     <dependencies>
         <dependency>
             <groupId>com.pocketserver</groupId>
