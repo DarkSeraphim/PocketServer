@@ -10,18 +10,25 @@ import com.pocketserver.api.permissions.PermissionResolver.Result;
 import com.pocketserver.api.player.GameMode;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.entity.living.PocketLivingEntity;
+import com.pocketserver.net.Packet;
+import io.netty.channel.Channel;
 
 public class PocketPlayer extends PocketLivingEntity implements Player {
-    private final PlayerConnection playerConnection;
+    private final InetSocketAddress address;
+    private final Channel channel;
+    private final Server server;
+    private final Unsafe unsafe;
+
     private GameMode gameMode;
-    private Server server;
     private String name;
     private boolean op;
 
-    public PocketPlayer(int entityId, Server server, PlayerConnection playerConnection) {
+    public PocketPlayer(int entityId, Server server, Channel channel, InetSocketAddress address) {
         super(entityId);
-        this.playerConnection = playerConnection;
+        this.unsafe = channel::writeAndFlush;
         this.gameMode = GameMode.SURVIVAL;
+        this.channel = channel;
+        this.address = address;
         this.server = server;
     }
 
@@ -42,7 +49,7 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
     @Override
     public InetSocketAddress getAddress() {
-        return playerConnection.getAddress();
+        return address;
     }
 
     @Override
@@ -86,5 +93,13 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     @Override
     public void setOp(boolean op) {
         this.op = op;
+    }
+
+    public Unsafe unsafe() {
+        return unsafe;
+    }
+
+    public interface Unsafe {
+        void send(Packet packet);
     }
 }

@@ -58,7 +58,7 @@ public class PocketBootstrap {
         PocketServer server = new PocketServer();
 
         Scanner reader = new Scanner(System.in);
-        while (server.isRunning()) {
+        while (server.running) {
             String line = reader.nextLine();
             if (!line.isEmpty()) {
                 server.getCommandManager().dispatch(server.getCommandManager().getConsole(), line);

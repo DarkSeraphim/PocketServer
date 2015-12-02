@@ -1,6 +1,7 @@
 package com.pocketserver;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,8 +25,11 @@ import com.pocketserver.api.plugin.PluginManager;
 import com.pocketserver.api.util.Pipeline;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.command.CommandShutdown;
+import com.pocketserver.net.Packet;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.Protocol;
+import com.pocketserver.net.packet.play.PacketPlayDisconnect;
+import com.pocketserver.player.PocketPlayer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -37,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 public class PocketServer extends Server {
     private final Pipeline<PermissionResolver> permissionPipeline;
-    private final Map<String, Player> connectionMap;
+    private final Map<String, PocketPlayer> connectionMap;
     private final EventLoopGroup eventLoopGroup;
     private final CommandManager commandManager;
     private final ReadWriteLock connectionLock;
@@ -45,7 +49,8 @@ public class PocketServer extends Server {
     private final File directory;
     private final Logger logger;
 
-    private volatile boolean running;
+    protected volatile boolean running;
+
     private Channel channel;
 
     PocketServer() {
@@ -120,7 +125,8 @@ public class PocketServer extends Server {
             }).syncUninterruptibly();
         }
 
-        // TODO: Kick connected clients
+        Packet packet = new PacketPlayDisconnect("Server is shutting down!");
+        broadcast(packet);
 
         for (Iterator<PermissionResolver> resolvers = permissionPipeline.iterator(); resolvers.hasNext(); ) {
             PermissionResolver resolver = resolvers.next();
@@ -201,7 +207,41 @@ public class PocketServer extends Server {
         }
     }
 
-    public boolean isRunning() {
-        return this.running;
+    public void addPlayer(PocketPlayer player) {
+        Preconditions.checkNotNull(player, "player should not be null!");
+        connectionLock.writeLock().lock();
+        try {
+            connectionMap.put(player.getName(), player);
+        } finally {
+            connectionLock.writeLock().unlock();
+        }
+    }
+
+    public void removePlayer(PocketPlayer player) {
+        Preconditions.checkNotNull(player, "player should not be null!");
+        connectionLock.writeLock().lock();
+        try {
+            for (Iterator<PocketPlayer> players = connectionMap.values().iterator(); players.hasNext(); ) {
+                if (players.next() == player) {
+                    players.remove();
+                    break;
+                }
+            }
+        } finally {
+            connectionLock.writeLock().unlock();
+        }
+    }
+
+    public void broadcast(Packet packet) {
+        broadcast(packet, player -> true);
+    }
+
+    public void broadcast(Packet packet, Predicate<Player> predicate) {
+        connectionLock.writeLock().lock();
+        try {
+            connectionMap.values().stream().filter(predicate::apply).forEach(player -> player.unsafe().send(packet));
+        } finally {
+            connectionLock.writeLock().unlock();
+        }
     }
 }
