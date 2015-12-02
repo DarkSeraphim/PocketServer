@@ -1,12 +1,18 @@
 package com.pocketserver;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.command.CommandManager;
@@ -20,7 +26,6 @@ import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.Protocol;
-import com.pocketserver.player.PlayerRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -32,8 +37,10 @@ import org.slf4j.LoggerFactory;
 
 public class PocketServer extends Server {
     private final Pipeline<PermissionResolver> permissionPipeline;
+    private final Map<String, Player> connectionMap;
     private final EventLoopGroup eventLoopGroup;
     private final CommandManager commandManager;
+    private final ReadWriteLock connectionLock;
     private final PluginManager pluginManager;
     private final File directory;
     private final Logger logger;
@@ -48,17 +55,20 @@ public class PocketServer extends Server {
         Server.setServer(this);
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.eventLoopGroup = PipelineUtils.newEventLoop(6);
+        this.connectionLock = new ReentrantReadWriteLock();
         this.commandManager = new CommandManager(this);
         this.pluginManager = new PluginManager(this);
+        this.permissionPipeline = new Pipeline<>();
+        this.connectionMap = Maps.newHashMap();
+
         getLogger().debug("Directory: {}", directory.toString());
         getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
-        startListener();
-
-        this.permissionPipeline = new Pipeline<>();
 
         if (new File(directory, "plugins").mkdirs()) {
             getLogger().info(PocketLogging.Server.STARTUP, "Created \"plugins\" directory");
         }
+
+        startListener();
 
         this.running = true;
         this.pluginManager.loadPlugins();
@@ -157,17 +167,6 @@ public class PocketServer extends Server {
     }
 
     @Override
-    public boolean isRunning() {
-        return this.running;
-    }
-
-    @Override
-    public List<? extends Player> getOnlinePlayers() {
-        // TODO: Nuke oh so hard.
-        return PlayerRegistry.get().getPlayers();
-    }
-
-    @Override
     public CommandManager getCommandManager() {
         return this.commandManager;
     }
@@ -180,5 +179,29 @@ public class PocketServer extends Server {
     @Override
     public Pipeline<PermissionResolver> getPermissionPipeline() {
         return permissionPipeline;
+    }
+
+    @Override
+    public Optional<Player> getPlayer(String username) {
+        connectionLock.readLock().lock();
+        try {
+            return Optional.ofNullable(connectionMap.get(username.toLowerCase()));
+        } finally {
+            connectionLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Collection<Player> getOnlinePlayers() {
+        connectionLock.readLock().lock();
+        try {
+            return ImmutableList.copyOf(connectionMap.values());
+        } finally {
+            connectionLock.readLock().unlock();
+        }
+    }
+
+    public boolean isRunning() {
+        return this.running;
     }
 }

@@ -21,10 +21,7 @@ public class CommandTestPermission extends Command {
         if (args.length < 2) {
             executor.sendMessage("Usage: /test-permission <username> <permission>");
         } else {
-            Optional<? extends Player> possiblePlayer = server.getOnlinePlayers().stream()
-                .filter(player -> player.getName().equalsIgnoreCase(args[0]))
-                .findFirst();
-
+            Optional<Player> possiblePlayer = server.getPlayer(args[0]);
             if (possiblePlayer.isPresent()) {
                 Player player = possiblePlayer.get();
                 if (player.hasPermission(args[1])) {

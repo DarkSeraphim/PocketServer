@@ -3,7 +3,8 @@ package com.pocketserver.api;
 import com.google.common.base.Preconditions;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 import com.pocketserver.api.command.CommandManager;
 import com.pocketserver.api.permissions.PermissionResolver;
@@ -31,10 +32,6 @@ public abstract class Server {
     
     public abstract Logger getLogger();
 
-    public abstract boolean isRunning();
-
-    public abstract List<? extends Player> getOnlinePlayers();
-
     @Deprecated
     public abstract CommandManager getCommandManager();
 
@@ -43,4 +40,8 @@ public abstract class Server {
     public abstract Pipeline<PermissionResolver> getPermissionPipeline();
 
     // TODO: Implement Settings interface
+
+    public abstract Optional<Player> getPlayer(String username);
+
+    public abstract Collection<Player> getOnlinePlayers();
 }
