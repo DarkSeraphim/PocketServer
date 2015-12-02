@@ -67,7 +67,6 @@ public class PocketBootstrap {
 
 
         PocketServer server = new PocketServer();
-        server.getLogger().info(ChatColor.GREEN + "Hello World!");
 
         Scanner reader = new Scanner(System.in);
         while (server.running) {
