@@ -16,9 +16,9 @@ import com.pocketserver.api.player.Player;
  *
  * @see Player#hasPermission(String)
  *
- * @deprecated Implementing this interface yourself is unwise until a stable release has been
- *             published as it is likely that it will evolve rapidly until a final design
- *             decision has been made by the project collaborators.
+ * @apiNote  Implementing this interface yourself is unwise until a stable release has been
+ *           published as it is likely that it will evolve rapidly until a final design
+ *           decision has been made by the project collaborators.
  */
 public interface PermissionResolver {
     Result checkPermission(Player player, String permission);

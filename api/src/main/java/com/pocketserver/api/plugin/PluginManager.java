@@ -17,14 +17,12 @@ import java.util.jar.JarFile;
 import com.pocketserver.api.Server;
 import com.pocketserver.api.exceptions.InvalidPluginException;
 import com.pocketserver.api.util.PocketLogging;
-import io.netty.util.internal.PlatformDependent;
 import org.slf4j.LoggerFactory;
 
 public class PluginManager {
-    /**
-     * File filter that only "accepts" JAR files.
-     */
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
+
+    private static final boolean GC_ON_UNLOAD = System.getProperty("os.name").contains("win");
 
     private final List<Plugin> plugins;
     private final Server server;
@@ -143,7 +141,7 @@ public class PluginManager {
                 loader.close();
 
                 // Force explicit garbage collection to release Windows' lock on the JAR file
-                if (PlatformDependent.isWindows()) {
+                if (GC_ON_UNLOAD) {
                     System.gc();
                 }
             }
