@@ -1,11 +1,10 @@
 package com.pocketserver;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -13,9 +12,11 @@ import com.pocketserver.api.Server;
 import com.pocketserver.api.command.CommandManager;
 import com.pocketserver.api.event.EventBus;
 import com.pocketserver.api.permissions.PermissionResolver;
+import com.pocketserver.api.permissions.PocketPermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
+import com.pocketserver.api.util.Pipeline;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.PipelineUtils;
@@ -37,9 +38,8 @@ public class PocketServer extends Server {
     private final PluginManager pluginManager;
     private final CommandManager commandManager;
     private final EventLoopGroup eventLoopGroup;
+    private final Pipeline<PermissionResolver> permissionPipeline;
 
-    // TODO: Possibly replace with Pipeline<PermissionResolver>
-    private PermissionResolver permissionResolver;
     private volatile boolean running;
     private Channel channel;
 
@@ -56,40 +56,7 @@ public class PocketServer extends Server {
         getLogger().debug("Server ID: {}", Protocol.SERVER_ID);
         startListener();
 
-        // TODO: Replace with Pipeline<PermissionResolver>
-        this.permissionResolver = new PermissionResolver() {
-            // TODO: Make less ugly
-            private Cache<String, List<String>> cache = CacheBuilder.newBuilder().maximumSize(250).build();
-
-            @Override
-            public void setPermission(Player player, String permission, boolean state) {
-                Preconditions.checkNotNull(permission, "permission should not be null!");
-                Preconditions.checkArgument(permission.length() > 0, "permission should not be empty!");
-
-                permission = permission.toLowerCase();
-                List<String> target = getPermissions(player);
-                if (state) {
-                    target.add(permission);
-                } else {
-                    target.remove(permission);
-                }
-            }
-
-            @Override
-            public boolean checkPermission(Player player, String permission) {
-                return getPermissions(player).contains(permission.toLowerCase());
-            }
-
-            @Override
-            public List<String> getPermissions(Player player) {
-                List<String> permissions = cache.getIfPresent(Preconditions.checkNotNull(player, "player should not be null!").getName());
-                if (permissions == null) {
-                    permissions = Lists.newArrayList();
-                    cache.put(player.getName(), permissions);
-                }
-                return permissions;
-            }
-        };
+        this.permissionPipeline = new Pipeline<>();
 
         if (new File(directory, "plugins").mkdirs()) {
             getLogger().info(PocketLogging.Server.STARTUP, "Created \"plugins\" directory");
@@ -97,6 +64,7 @@ public class PocketServer extends Server {
 
         this.running = true;
         this.pluginManager.loadPlugins();
+        getPermissionPipeline().addFirst(new PocketPermissionResolver());
         getCommandManager().registerCommand(new CommandShutdown(this));
     }
 
@@ -146,7 +114,19 @@ public class PocketServer extends Server {
 
         // TODO: Kick connected clients
 
-        permissionResolver.close();
+        for (Iterator<PermissionResolver> resolvers = permissionPipeline.iterator(); resolvers.hasNext(); ) {
+            PermissionResolver resolver = resolvers.next();
+            try {
+                resolver.close();
+            } catch (Throwable cause) {
+                getLogger().error(PocketLogging.Server.SHUTDOWN, "Failed to close PermissionResolver[type={}]", new Object[] {
+                    resolver.getClass().getCanonicalName(),
+                    cause
+                });
+            } finally {
+                resolvers.remove();
+            }
+        }
 
         getLogger().info(PocketLogging.Server.SHUTDOWN, "Disabling plugins");
         Lists.reverse(getPluginManager().getPlugins()).stream().filter(Plugin::isEnabled).forEachOrdered(plugin -> {
@@ -199,17 +179,12 @@ public class PocketServer extends Server {
     }
 
     @Override
-    public void setPermissionResolver(PermissionResolver permissionResolver) {
-        this.permissionResolver = Preconditions.checkNotNull(permissionResolver, "permissionResolver should not be null!");
-    }
-
-    @Override
-    public PermissionResolver getPermissionResolver() {
-        return permissionResolver;
-    }
-
-    @Override
     public File getDirectory() {
         return directory;
+    }
+
+    @Override
+    public Pipeline<PermissionResolver> getPermissionPipeline() {
+        return permissionPipeline;
     }
 }

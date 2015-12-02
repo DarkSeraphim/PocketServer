@@ -1,8 +1,5 @@
 package com.pocketserver.api.permissions;
 
-import java.util.List;
-
-import com.pocketserver.api.Server;
 import com.pocketserver.api.player.Player;
 
 /**
@@ -18,19 +15,38 @@ import com.pocketserver.api.player.Player;
  * @since 1.0-SNAPSHOT
  *
  * @see Player#hasPermission(String)
- * @see Server#setPermissionResolver(PermissionResolver)
- * @see Server#getPermissionResolver()
  *
  * @deprecated Implementing this interface yourself is unwise until a stable release has been
  *             published as it is likely that it will evolve rapidly until a final design
  *             decision has been made by the project collaborators.
  */
 public interface PermissionResolver {
-    void setPermission(Player player, String permission, boolean state);
-    boolean checkPermission(Player player, String permission);
-    List<String> getPermissions(Player player);
+    Result checkPermission(Player player, String permission);
 
-    default void close() {
+    /**
+     * Give the implementation a chance to clean up any possible database connections or flush
+     * changes to disk. Always called at server shutdown.
+     *
+     * @throws Exception an exception thrown whilst cleaning up. Handled by the server instance.
+     */
+    default void close() throws Exception {
 
+    }
+
+    enum Result {
+        /**
+         * Instruct the server to move onto the next {@link PermissionResolver}
+         */
+        UNSET,
+        /**
+         * Instruct the server to {@code return false} inside the {@link Player#hasPermission(String)} method
+         *
+         * @deprecated unless you want to explicitly deny access to a permission then use {@link Result#UNSET}
+         */
+        DENY,
+        /**
+         * Instruct the server to {@code return true} inside the {@link Player#hasPermission(String)}} method
+         */
+        ALLOW
     }
 }

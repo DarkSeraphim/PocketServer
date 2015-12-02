@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.TreeSet;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.util.PocketLogging;

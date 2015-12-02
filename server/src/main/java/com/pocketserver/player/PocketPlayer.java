@@ -5,23 +5,28 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 
 import com.pocketserver.api.Server;
+import com.pocketserver.api.permissions.PermissionResolver;
+import com.pocketserver.api.permissions.PermissionResolver.Result;
 import com.pocketserver.api.player.GameMode;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.entity.living.PocketLivingEntity;
 
 public class PocketPlayer extends PocketLivingEntity implements Player {
     private final PlayerConnection playerConnection;
-    private boolean op;
+    private GameMode gameMode;
+    private Server server;
     private String name;
-    private GameMode gameMode = GameMode.SURVIVAL;
+    private boolean op;
 
-    public PocketPlayer(int entityId, PlayerConnection playerConnection) {
+    public PocketPlayer(int entityId, Server server, PlayerConnection playerConnection) {
         super(entityId);
         this.playerConnection = playerConnection;
+        this.gameMode = GameMode.SURVIVAL;
+        this.server = server;
     }
 
     @Override
-    public void sendMessage(String message) {
+    public void chat(String message) {
 
     }
 
@@ -41,13 +46,13 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     }
 
     @Override
-    public void chat(String message) {
-
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void sendMessage(String message) {
+
     }
 
     public Player setName(String name) {
@@ -61,12 +66,21 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
         if (permission.isEmpty()) {
             return true;
         }
-        return Server.getServer().getPermissionResolver().checkPermission(this, permission);
+
+        for (PermissionResolver resolver : server.getPermissionPipeline()) {
+            Result result = resolver.checkPermission(this, permission);
+            if (result == Result.ALLOW) {
+                return true;
+            } else if (result == Result.DENY) {
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     public void setPermission(String permission, boolean value) {
-        Server.getServer().getPermissionResolver().setPermission(this, permission, value);
+        // NOP
     }
 
     @Override

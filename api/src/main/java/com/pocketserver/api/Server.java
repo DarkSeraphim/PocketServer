@@ -10,6 +10,7 @@ import com.pocketserver.api.event.EventBus;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.PluginManager;
+import com.pocketserver.api.util.Pipeline;
 import org.slf4j.Logger;
 
 public abstract class Server {
@@ -39,9 +40,9 @@ public abstract class Server {
 
     public abstract CommandManager getCommandManager();
 
-    public abstract void setPermissionResolver(PermissionResolver permissionResolver);
-
-    public abstract PermissionResolver getPermissionResolver();
-
     public abstract File getDirectory();
+
+    public abstract Pipeline<PermissionResolver> getPermissionPipeline();
+
+    // TODO: Implement Settings interface
 }

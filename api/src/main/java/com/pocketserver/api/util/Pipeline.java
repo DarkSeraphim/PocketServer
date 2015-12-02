@@ -6,8 +6,9 @@ import com.google.common.collect.Queues;
 
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.Spliterator;
 
-public class Pipeline<T> {
+public final class Pipeline<T> implements Iterable<T> {
     private final Deque<T> deque;
 
     public Pipeline() {
@@ -53,6 +54,10 @@ public class Pipeline<T> {
 
     public Iterator<T> iterator() {
         return deque.iterator();
+    }
+
+    public Spliterator<T> spliterator() {
+        return deque.spliterator();
     }
 
     private void checkNotNull(T elem) {
