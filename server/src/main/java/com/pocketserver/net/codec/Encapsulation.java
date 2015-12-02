@@ -1,19 +1,16 @@
 package com.pocketserver.net.codec;
 
 import com.google.common.base.Preconditions;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.pocketserver.api.Server;
-import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
-public final class Encapsulation {
-    public static final EncapsulationStrategy BARE = new EncapsulationStrategy() {
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public enum Encapsulation implements EncapsulationStrategy {
+    BARE((byte) 0x00) {
         private final AtomicInteger counter = new AtomicInteger();
 
         @Override
@@ -37,52 +34,46 @@ public final class Encapsulation {
             }
             return out;
         }
-    };
+    },
+    COUNT ((byte) 0x40, BARE, 3),
+    COUNT_UNKNOWN ((byte) 0x60, COUNT, 4);
 
-    public static final EncapsulationStrategy COUNT = new EncapsulationStrategy() {
-        @Override
-        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            buf.skipBytes(3);
-            BARE.decode(ctx, buf, out);
-        }
+    private final byte id;
 
-        @Override
-        public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-            throw new UnsupportedOperationException("cannot encode packets using this strategy");
-        }
-    };
+    private final EncapsulationStrategy delegate;
 
-    public static final EncapsulationStrategy COUNT_UNKNOWN = new EncapsulationStrategy() {
-        @Override
-        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            buf.skipBytes(4);
-            COUNT.decode(ctx, buf, out);
-        }
+    private final int skip;
 
-        @Override
-        public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-            throw new UnsupportedOperationException("cannot encode packets using this strategy");
-        }
-    };
-
-    public static void decode(EncapsulationStrategy strategy, ByteBuf buf, ChannelHandlerContext ctx, List<Packet> out) {
-        try {
-            strategy.decode(ctx, buf, out);
-        } catch (Exception ex) {
-            Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to decode packet!", ex);
-        }
+    Encapsulation(byte id) {
+        this(id, null, 0);
     }
 
-    public static ByteBuf encode(EncapsulationStrategy strategy, ChannelHandlerContext ctx, ByteBuf buf) {
-        try {
-            return strategy.encode(ctx, buf);
-        } catch (Exception ex) {
-            Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to encode packet!", ex);
-            return buf;
-        }
+    Encapsulation(byte id, EncapsulationStrategy delegate, int skip) {
+        this.id = id;
+        this.delegate = delegate;
+        this.skip = skip;
     }
 
-    private Encapsulation() {
-        throw new UnsupportedOperationException("Encapsulation cannot be instantiated!");
+    @Override
+    public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+        if (this.delegate == null) {
+            throw new IllegalStateException(name() + " does neither override decode nor provide a delegate");
+        }
+        buf.skipBytes(this.skip);
+        this.delegate.decode(ctx, buf, out);
+    }
+
+    @Override
+    public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
+        throw new UnsupportedOperationException("cannot encode packets using this strategy");
+    }
+
+    public static EncapsulationStrategy fromId(byte id) {
+        for (Encapsulation strategy : values()) {
+            if (strategy.id == id) {
+                return strategy;
+            }
+        }
+        return null;
     }
 }

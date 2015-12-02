@@ -6,11 +6,12 @@ import com.pocketserver.api.Server;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.codec.Encapsulation;
+import com.pocketserver.net.codec.EncapsulationStrategy;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 public class PacketRaknetCustom extends Packet {
-    private byte encapsulationMethod;
+    private EncapsulationStrategy encapsulationStrategy;
     private ByteBuf content;
     private int count;
 
@@ -18,26 +19,22 @@ public class PacketRaknetCustom extends Packet {
     public void read(ByteBuf buf) {
         content = buf.copy();
         count = content.readMedium();
-        encapsulationMethod = content.readByte();
+        byte id = content.readByte();
+        encapsulationStrategy = Encapsulation.fromId(id);
+        if (encapsulationStrategy == null) {
+            Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Unhandled EncapsulationStrategy: 0x{}", String.format("%02x", id));
+            // Consider throwing an error?
+        }
         content.readShort();
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, List<Packet> out) {
         out.add(new PacketRaknetAck(count));
-        switch (encapsulationMethod) {
-            case 0x00:
-                Encapsulation.decode(Encapsulation.BARE, content, ctx, out);
-                break;
-            case 0x40:
-                Encapsulation.decode(Encapsulation.COUNT, content, ctx, out);
-                break;
-            case 0x60:
-                Encapsulation.decode(Encapsulation.COUNT_UNKNOWN, content, ctx, out);
-                break;
-            default:
-                Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Unhandled EncapsulationStrategy: 0x{}", String.format("%02x", encapsulationMethod));
-                break;
+        try {
+            encapsulationStrategy.decode(ctx, content, out);
+        } catch (Exception ex) {
+            Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to decode packet!", ex);
         }
         content.release();
     }
