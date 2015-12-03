@@ -1,13 +1,12 @@
 package com.pocketserver.api.plugin;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
@@ -22,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -37,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class PluginManager {
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
 
-    private final BiMap<Plugin, Set<Listener>> listenersByPlugin;
+    private final SetMultimap<Plugin, Listener> listenersByPlugin;
     private final List<Plugin> plugins;
     private final EventBus eventBus;
     private final Server server;
@@ -48,16 +46,14 @@ public class PluginManager {
             public void handleException(Throwable exception, SubscriberExceptionContext context) {
                 if (Listener.class.isAssignableFrom(context.getSubscriber().getClass())) {
                     Listener listener = (Listener) context.getSubscriber();
-                    for (Map.Entry<Set<Listener>, Plugin> entry : listenersByPlugin.inverse().entrySet()) {
-                        for (Listener cursor : entry.getKey()) {
-                            if (cursor == listener) {
-                                Plugin plugin = entry.getValue();
-                                plugin.getLogger().error(PocketLogging.Plugin.EVENT, "An unhandled exception was thrown by {}", new Object[]{
-                                    printMethod(context.getSubscriberMethod()),
-                                    exception
-                                });
-                                return;
-                            }
+                    for (Map.Entry<Plugin, Listener> entry : listenersByPlugin.entries()) {
+                        if (listener == entry.getValue()) {
+                            Plugin plugin = entry.getKey();
+                            plugin.getLogger().error(PocketLogging.Plugin.EVENT, "An unhandled exception was thrown by {}", new Object[]{
+                                printMethod(context.getSubscriberMethod()),
+                                exception
+                            });
+                            return;
                         }
                     }
                     server.getLogger().error(PocketLogging.Plugin.EVENT, "An unhandled exception was thrown whilst handling {}", new Object[]{
@@ -67,7 +63,7 @@ public class PluginManager {
                 }
             }
         });
-        this.listenersByPlugin = Maps.synchronizedBiMap(HashBiMap.create());
+        this.listenersByPlugin = Multimaps.synchronizedSetMultimap(HashMultimap.create());
         this.plugins = Lists.newArrayList();
         this.server = server;
     }
@@ -202,18 +198,27 @@ public class PluginManager {
     }
 
     public void registerListener(Plugin plugin, Listener listener) {
+        Preconditions.checkNotNull(listener, "listener should not be null");
+        Preconditions.checkNotNull(plugin, "plugin should not be null");
         eventBus.register(listener);
-        listenersByPlugin.computeIfAbsent(plugin, p -> Sets.newHashSet()).add(listener);
+
+        Object[] params = new Object[]{
+            listener.getClass().getCanonicalName()
+        };
+
+        if (listenersByPlugin.put(plugin, listener)) {
+            plugin.getLogger().trace(PocketLogging.Plugin.EVENT, "Registered {}", params);
+        } else {
+            plugin.getLogger().warn(PocketLogging.Plugin.EVENT, "Attempted registration of {} multiple times", params);
+        }
     }
 
     public void unregisterListener(Listener listener) {
         try {
             eventBus.unregister(listener);
-            for (Set<Listener> listeners : listenersByPlugin.values()) {
-                for (Iterator<Listener> iterator = listeners.iterator(); iterator.hasNext(); ) {
-                    if (iterator.next() == listener) {
-                        iterator.remove();
-                    }
+            for (Iterator<Listener> listeners = listenersByPlugin.values().iterator(); listeners.hasNext(); ) {
+                if (listeners.next() == listener) {
+                    listeners.remove();
                 }
             }
         } catch (IllegalArgumentException ex) {
@@ -222,10 +227,10 @@ public class PluginManager {
     }
 
     public void unregisterListeners(Plugin plugin) {
-        for (Iterator<Listener> listeners = listenersByPlugin.get(plugin).iterator(); listeners.hasNext(); ) {
-            eventBus.unregister(listeners.next());
-            listeners.remove();
-        }
+        Preconditions.checkNotNull(plugin, "plugin should not be null!");
+        plugin.getLogger().trace(PocketLogging.Plugin.EVENT, "Unregistered {} listeners", new Object[]{
+            String.valueOf(listenersByPlugin.removeAll(plugin).size())
+        });
     }
 
     public <T extends Event> void post(T event) {
