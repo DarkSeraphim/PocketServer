@@ -11,8 +11,12 @@ import java.util.Spliterator;
 public final class Pipeline<T> implements Iterable<T> {
     private final Deque<T> deque;
 
-    public Pipeline() {
+    Pipeline() {
         this.deque = Queues.newLinkedBlockingDeque();
+    }
+
+    public static <V> Pipeline<V> of() {
+        return new Pipeline<>();
     }
 
     public Pipeline<T> addFirst(T elem) {

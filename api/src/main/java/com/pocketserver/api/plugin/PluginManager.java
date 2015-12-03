@@ -197,32 +197,37 @@ public class PluginManager {
         return false;
     }
 
-    public void registerListener(Plugin plugin, Listener listener) {
+    public boolean registerListener(Plugin plugin, Listener listener) {
         Preconditions.checkNotNull(listener, "listener should not be null");
         Preconditions.checkNotNull(plugin, "plugin should not be null");
         eventBus.register(listener);
 
-        Object[] params = new Object[]{
+        Object[] logParams = new Object[]{
             listener.getClass().getCanonicalName()
         };
 
         if (listenersByPlugin.put(plugin, listener)) {
-            plugin.getLogger().trace(PocketLogging.Plugin.EVENT, "Registered {}", params);
+            plugin.getLogger().debug(PocketLogging.Plugin.EVENT, "Registered {}", logParams);
+            return true;
         } else {
-            plugin.getLogger().warn(PocketLogging.Plugin.EVENT, "Attempted registration of {} multiple times", params);
+            plugin.getLogger().warn(PocketLogging.Plugin.EVENT, "Attempted registration of {} multiple times", logParams);
+            return false;
         }
     }
 
-    public void unregisterListener(Listener listener) {
+    public boolean unregisterListener(Listener listener) {
         try {
             eventBus.unregister(listener);
+            boolean removed = false;
             for (Iterator<Listener> listeners = listenersByPlugin.values().iterator(); listeners.hasNext(); ) {
                 if (listeners.next() == listener) {
                     listeners.remove();
+                    removed = true;
                 }
             }
+            return removed;
         } catch (IllegalArgumentException ex) {
-            // NOP
+            return false;
         }
     }
 

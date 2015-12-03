@@ -64,7 +64,7 @@ public class PocketServer extends Server {
         this.connectionLock = new ReentrantReadWriteLock();
         this.commandManager = new CommandManager(this);
         this.pluginManager = new PluginManager(this);
-        this.permissionPipeline = new Pipeline<>();
+        this.permissionPipeline = Pipeline.of();
         this.connectionMap = Maps.newHashMap();
 
         getLogger().debug("Directory: {}", directory.toString());
