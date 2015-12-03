@@ -1,11 +1,17 @@
 package com.pocketserver.net.codec;
 
+import com.google.common.collect.MapMaker;
+import com.google.common.collect.Sets;
+
+import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.pocketserver.exception.BadPacketException;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
+import com.pocketserver.net.PipelineUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -15,16 +21,8 @@ public enum Encapsulation implements EncapsulationStrategy {
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            int packetLength = buf.readShort() / 8;
-
-            if (buf.readableBytes() < packetLength) {
-                throw new BadPacketException(String.format("Expecting packet with a length of %d, received packet with a length of %d instead", packetLength, buf.readableBytes()));
-            }
-
-            byte packetId = buf.readByte();
-            Packet packet = PacketRegistry.construct(packetId);
-            packet.read(buf);
-            packet.handle(ctx, out);
+            assertLength(buf);
+            decode0(ctx, buf, out);
         }
 
         @Override
@@ -40,38 +38,34 @@ public enum Encapsulation implements EncapsulationStrategy {
             return out;
         }
     },
-    COUNT(0x40, BARE, 3),
+    COUNT(0x40) {
+        @Override
+        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+            assertLength(buf);
+            buf.skipBytes(3);
+            decode0(ctx, buf, out);
+        }
+    },
     COUNT_UNKNOWN(0x60) {
-        private volatile boolean hasReceived = false;
+        private Set<InetSocketAddress> receivedFrom = Sets.newSetFromMap(new MapMaker().weakKeys().makeMap());
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            int packetLength = buf.readShort() / 8;
-            buf.skipBytes(3);
-            if (!hasReceived) {
-                buf.skipBytes(4);
-                hasReceived = true;
-            }
+            InetSocketAddress address = ctx.attr(PipelineUtils.ADDRESS_ATTRIBUTE).get();
 
-            if (buf.readableBytes() < packetLength) {
-                throw new BadPacketException(String.format("Expecting packet with a length of %d, received packet with a length of %d instead", packetLength, buf.readableBytes()));
+            assertLength(buf);
+            buf.skipBytes(3);
+            if (receivedFrom.add(address)) {
+                buf.skipBytes(4);
             }
-            Encapsulation.BARE.decode(ctx, buf, out);
+            decode0(ctx, buf, out);
         }
     };
 
-    private final EncapsulationStrategy delegate;
-    private final int skip;
     private final int id;
 
     Encapsulation(int id) {
-        this(id, null, 0);
-    }
-
-    Encapsulation(int id, EncapsulationStrategy delegate, int skip) {
         this.id = id;
-        this.delegate = delegate;
-        this.skip = skip;
     }
 
     public static EncapsulationStrategy fromId(byte id) {
@@ -84,16 +78,21 @@ public enum Encapsulation implements EncapsulationStrategy {
     }
 
     @Override
-    public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-        if (this.delegate == null) {
-            throw new IllegalStateException(name() + " does neither override decode nor provide a delegate");
-        }
-        buf.skipBytes(skip);
-        delegate.decode(ctx, buf, out);
-    }
-
-    @Override
     public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
         throw new UnsupportedOperationException("cannot encode packets using this strategy");
+    }
+
+    void decode0(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+        byte packetId = buf.readByte();
+        Packet packet = PacketRegistry.construct(packetId);
+        packet.read(buf);
+        packet.handle(ctx, out);
+    }
+
+    void assertLength(ByteBuf buf) {
+        int packetLength = buf.readShort() / 8;
+        if (packetLength > buf.readableBytes()) {
+            throw new BadPacketException(String.format("Expecting packet with a length of %d, received packet with a length of %d instead", packetLength, buf.readableBytes()));
+        }
     }
 }
