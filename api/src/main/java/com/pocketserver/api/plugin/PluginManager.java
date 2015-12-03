@@ -1,23 +1,34 @@
 package com.pocketserver.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.SubscriberExceptionContext;
+import com.google.common.eventbus.SubscriberExceptionHandler;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.api.command.Command;
 import com.pocketserver.api.event.Event;
-import com.pocketserver.api.event.EventBus;
 import com.pocketserver.api.event.Listener;
 import com.pocketserver.api.exceptions.InvalidPluginException;
 import com.pocketserver.api.util.PocketLogging;
@@ -26,13 +37,38 @@ import org.slf4j.LoggerFactory;
 public class PluginManager {
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
 
+    private final BiMap<Plugin, Set<Listener>> listenersByPlugin;
     private final List<Plugin> plugins;
     private final EventBus eventBus;
     private final Server server;
 
     public PluginManager(Server server) {
+        this.eventBus = new EventBus(new SubscriberExceptionHandler() {
+            @Override
+            public void handleException(Throwable exception, SubscriberExceptionContext context) {
+                if (Listener.class.isAssignableFrom(context.getSubscriber().getClass())) {
+                    Listener listener = (Listener) context.getSubscriber();
+                    for (Map.Entry<Set<Listener>, Plugin> entry : listenersByPlugin.inverse().entrySet()) {
+                        for (Listener cursor : entry.getKey()) {
+                            if (cursor == listener) {
+                                Plugin plugin = entry.getValue();
+                                plugin.getLogger().error(PocketLogging.Plugin.EVENT, "An unhandled exception was thrown by {}", new Object[]{
+                                    printMethod(context.getSubscriberMethod()),
+                                    exception
+                                });
+                                return;
+                            }
+                        }
+                    }
+                    server.getLogger().error(PocketLogging.Plugin.EVENT, "An unhandled exception was thrown whilst handling {}", new Object[]{
+                        context.getEvent().getClass().getName(),
+                        exception
+                    });
+                }
+            }
+        });
+        this.listenersByPlugin = Maps.synchronizedBiMap(HashBiMap.create());
         this.plugins = Lists.newArrayList();
-        this.eventBus = new EventBus();
         this.server = server;
     }
 
@@ -166,19 +202,34 @@ public class PluginManager {
     }
 
     public void registerListener(Plugin plugin, Listener listener) {
-        eventBus.registerListener(plugin, listener);
+        eventBus.register(listener);
+        listenersByPlugin.computeIfAbsent(plugin, p -> Sets.newHashSet()).add(listener);
     }
 
     public void unregisterListener(Listener listener) {
-        eventBus.unregisterListener(listener);
+        try {
+            eventBus.unregister(listener);
+            for (Set<Listener> listeners : listenersByPlugin.values()) {
+                for (Iterator<Listener> iterator = listeners.iterator(); iterator.hasNext(); ) {
+                    if (iterator.next() == listener) {
+                        iterator.remove();
+                    }
+                }
+            }
+        } catch (IllegalArgumentException ex) {
+            // NOP
+        }
     }
 
     public void unregisterListeners(Plugin plugin) {
-        eventBus.unregisterListener(plugin);
+        for (Iterator<Listener> listeners = listenersByPlugin.get(plugin).iterator(); listeners.hasNext(); ) {
+            eventBus.unregister(listeners.next());
+            listeners.remove();
+        }
     }
 
-    public <T extends Event> T post(T event) {
-        return eventBus.post(event);
+    public <T extends Event> void post(T event) {
+        eventBus.post(event);
     }
 
     // TODO: Reimplement command registration
@@ -192,5 +243,19 @@ public class PluginManager {
 
     public void unregisterCommands(Plugin plugin) {
 
+    }
+
+    private String printMethod(Method method) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(method.getDeclaringClass().getCanonicalName());
+        builder.append("#");
+        builder.append(method.getName()).append("(");
+        for (Iterator<Class> iterator = Iterators.forArray(method.getParameterTypes()); iterator.hasNext(); ) {
+            builder.append(iterator.next().getName());
+            if (iterator.hasNext()) {
+                builder.append(", ");
+            }
+        }
+        return builder.append(")").toString();
     }
 }

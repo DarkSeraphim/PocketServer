@@ -1,7 +1,8 @@
 package com.pocketserver.example.event.event;
 
+import com.google.common.eventbus.Subscribe;
+
 import com.pocketserver.api.event.Listener;
-import com.pocketserver.api.event.Subscribe;
 import com.pocketserver.api.event.server.ServerPingEvent;
 
 public final class ServerListener implements Listener {
