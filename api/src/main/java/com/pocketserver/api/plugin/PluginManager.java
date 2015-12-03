@@ -202,9 +202,13 @@ public class PluginManager {
         Preconditions.checkNotNull(plugin, "plugin should not be null");
         eventBus.register(listener);
 
-        Object[] logParams = new Object[]{
-            listener.getClass().getCanonicalName()
-        };
+        Object[] logParams = new Object[1];
+        Class clazz = listener.getClass();
+        if (clazz.isAnonymousClass()) {
+            logParams[0] = clazz.getName();
+        } else {
+            logParams[1] = clazz.getCanonicalName();
+        }
 
         if (listenersByPlugin.put(plugin, listener)) {
             plugin.getLogger().debug(PocketLogging.Plugin.EVENT, "Registered {}", logParams);

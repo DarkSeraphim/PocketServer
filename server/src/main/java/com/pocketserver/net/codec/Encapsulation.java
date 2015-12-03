@@ -1,21 +1,26 @@
 package com.pocketserver.net.codec;
 
-import com.google.common.base.Preconditions;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.pocketserver.exception.BadPacketException;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public enum Encapsulation implements EncapsulationStrategy {
-    BARE((byte) 0x00) {
+    BARE(0x00) {
         private final AtomicInteger counter = new AtomicInteger();
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            Preconditions.checkArgument(buf.isReadable(), "unable to read from buf!");
+            int packetLength = buf.readShort() / 8;
+
+            if (buf.readableBytes() < packetLength) {
+                throw new BadPacketException(String.format("Expecting packet with a length of %d, received packet with a length of %d instead", packetLength, buf.readableBytes()));
+            }
+
             byte packetId = buf.readByte();
             Packet packet = PacketRegistry.construct(packetId);
             packet.read(buf);
@@ -35,37 +40,38 @@ public enum Encapsulation implements EncapsulationStrategy {
             return out;
         }
     },
-    COUNT ((byte) 0x40, BARE, 3),
-    COUNT_UNKNOWN ((byte) 0x60, COUNT, 4);
+    COUNT(0x40, BARE, 3),
+    COUNT_UNKNOWN(0x60) {
+        private volatile boolean hasReceived = false;
 
-    private final byte id;
+        @Override
+        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+            int packetLength = buf.readShort() / 8;
+            buf.skipBytes(3);
+            if (!hasReceived) {
+                buf.skipBytes(4);
+                hasReceived = true;
+            }
+
+            if (buf.readableBytes() < packetLength) {
+                throw new BadPacketException(String.format("Expecting packet with a length of %d, received packet with a length of %d instead", packetLength, buf.readableBytes()));
+            }
+            Encapsulation.BARE.decode(ctx, buf, out);
+        }
+    };
 
     private final EncapsulationStrategy delegate;
-
     private final int skip;
+    private final int id;
 
-    Encapsulation(byte id) {
+    Encapsulation(int id) {
         this(id, null, 0);
     }
 
-    Encapsulation(byte id, EncapsulationStrategy delegate, int skip) {
+    Encapsulation(int id, EncapsulationStrategy delegate, int skip) {
         this.id = id;
         this.delegate = delegate;
         this.skip = skip;
-    }
-
-    @Override
-    public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-        if (this.delegate == null) {
-            throw new IllegalStateException(name() + " does neither override decode nor provide a delegate");
-        }
-        buf.skipBytes(this.skip);
-        this.delegate.decode(ctx, buf, out);
-    }
-
-    @Override
-    public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-        throw new UnsupportedOperationException("cannot encode packets using this strategy");
     }
 
     public static EncapsulationStrategy fromId(byte id) {
@@ -74,6 +80,20 @@ public enum Encapsulation implements EncapsulationStrategy {
                 return strategy;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unsupported EncapsulationStrategy");
+    }
+
+    @Override
+    public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+        if (this.delegate == null) {
+            throw new IllegalStateException(name() + " does neither override decode nor provide a delegate");
+        }
+        buf.skipBytes(skip);
+        delegate.decode(ctx, buf, out);
+    }
+
+    @Override
+    public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
+        throw new UnsupportedOperationException("cannot encode packets using this strategy");
     }
 }
