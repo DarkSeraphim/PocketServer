@@ -10,4 +10,8 @@ public interface EncapsulationStrategy {
     void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception;
 
     ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception;
+
+    default int peekLength(ByteBuf buf) {
+        return buf.readShort() / 8;
+    }
 }

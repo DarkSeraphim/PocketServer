@@ -47,6 +47,15 @@ public class PacketRaknetCustom extends Packet {
         Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Packet contains {} encapsulated packets", new Object[]{
             String.valueOf(count)
         });
-        IntStream.range(0, count).forEachOrdered(value -> strategies.add(Encapsulation.fromId(content.readByte())));
+        int originalIndex = content.readerIndex();
+        IntStream.range(0, count).forEachOrdered(value -> {
+            EncapsulationStrategy strategy = Encapsulation.fromId(content.readByte());
+            strategies.add(strategy);
+
+            int length = strategy.peekLength(content);
+            // TODO: Figure out if header has been sent to account for COUNT_UNKNOWN's mysterious 4 bytes
+            content.skipBytes(length);
+        });
+        content.readerIndex(originalIndex);
     }
 }
