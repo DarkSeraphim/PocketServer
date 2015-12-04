@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.io.File;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -241,12 +243,27 @@ public class PocketServer extends Server {
         broadcast(packet, player -> true);
     }
 
-    public void broadcast(Packet packet, Predicate<Player> predicate) {
+    public void broadcast(Packet packet, Predicate<PocketPlayer> predicate) {
         connectionLock.writeLock().lock();
         try {
             connectionMap.values().stream().filter(predicate::apply).forEach(player -> player.unsafe().send(packet));
         } finally {
             connectionLock.writeLock().unlock();
+        }
+    }
+
+    public Optional<PocketPlayer> getPlayer(InetSocketAddress address) {
+        connectionLock.readLock().lock();
+        try {
+            return connectionMap.values().stream().filter(player -> {
+                InetSocketAddress playerAddress = player.getAddress();
+                if (playerAddress.getPort() == address.getPort()) {
+                    return Arrays.equals(playerAddress.getAddress().getAddress(), address.getAddress().getAddress());
+                }
+                return false;
+            }).findFirst();
+        } finally {
+            connectionLock.readLock().unlock();
         }
     }
 }

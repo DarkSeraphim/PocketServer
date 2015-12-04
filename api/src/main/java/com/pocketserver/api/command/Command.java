@@ -23,7 +23,7 @@ public abstract class Command {
         Preconditions.checkNotNull(name, "name should not be null");
         Preconditions.checkArgument(name.length() > 0, "name should not be empty");
         this.aliases = Arrays.stream(aliases).filter(a -> a != null && !a.isEmpty()).toArray(String[]::new);
-        this.permission = permission == null ? "" : permission;
+        this.permission = permission == null ? "" : permission.replace(" ", "");
         this.name = name.toLowerCase();
     }
 

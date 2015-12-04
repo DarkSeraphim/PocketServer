@@ -1,6 +1,6 @@
 package com.pocketserver.api.player;
 
-public enum GameMode {
+public enum Gamemode {
     CREATIVE, SURVIVAL;
 
     private int id;

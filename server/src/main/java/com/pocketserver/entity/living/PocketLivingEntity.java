@@ -6,12 +6,16 @@ import com.pocketserver.api.world.Location;
 import com.pocketserver.entity.PocketEntity;
 
 public class PocketLivingEntity extends PocketEntity implements LivingEntity {
-
     private double health;
-    private double foodLevel;
 
-    public PocketLivingEntity(int entityId) {
-        super(entityId);
+    public PocketLivingEntity() {
+        this.health = 20.00D;
+    }
+
+    @Override
+    public void kill() {
+        this.health = 0;
+        // TODO: Send death packets & remove from memory
     }
 
     @Override
@@ -32,22 +36,6 @@ public class PocketLivingEntity extends PocketEntity implements LivingEntity {
     @Override
     public void setPath(Path path) {
 
-    }
-
-//    @Override
-//    public void setFoodLevel(double foodLevel) {
-//        this.foodLevel = foodLevel;
-//    }
-//
-//    @Override
-//    public double getFootLevel() {
-//        return foodLevel;
-//    }
-
-    @Override
-    public void kill() {
-        this.health = 0;
-        // TODO: Send death packets & remove from memory
     }
 
 }

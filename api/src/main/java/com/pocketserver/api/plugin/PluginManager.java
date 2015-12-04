@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class PluginManager {
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
 
-    private static final Splitter COMMA_SPLITTER = Splitter.on(' ');
+    private static final Splitter WHITESPACE_SPLITTER = Splitter.on(' ');
 
     private final SetMultimap<Plugin, Listener> listenersByPlugin;
     private final SetMultimap<Plugin, Command> commandsByPlugin;
@@ -311,7 +311,7 @@ public class PluginManager {
     }
 
     public boolean dispatch(CommandExecutor executor, String commandString) {
-        String[] split = Iterables.toArray(COMMA_SPLITTER.split(commandString), String.class);
+        String[] split = Iterables.toArray(WHITESPACE_SPLITTER.split(commandString), String.class);
         Command command = commandMap.get(split[0]);
         if (command == null) {
             return false;

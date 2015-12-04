@@ -1,17 +1,20 @@
 package com.pocketserver.entity;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.pocketserver.api.entity.Entity;
 import com.pocketserver.api.world.Location;
 import com.pocketserver.api.world.Vector;
 
 public class PocketEntity implements Entity {
+    private static final AtomicInteger entityTracker = new AtomicInteger(1);
 
-    private int entityId;
+    private final int entityId;
     private Location location;
-    private Vector velocity = new Vector();
+    private Vector velocity;
 
-    public PocketEntity(int entityId) {
-        this.entityId = entityId;
+    public PocketEntity() {
+        this.entityId = entityTracker.getAndIncrement();
     }
 
     @Override
