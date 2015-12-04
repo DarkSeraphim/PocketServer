@@ -24,7 +24,7 @@ public class PacketRaknetCustom extends Packet {
                 try {
                     strategy.decode(ctx, content, out);
                 } catch (Exception cause) {
-                    Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to code packet {}/{}", new Object[]{
+                    Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to decode packet {}/{}", new Object[]{
                         String.valueOf(i),
                         String.valueOf(count),
                         cause

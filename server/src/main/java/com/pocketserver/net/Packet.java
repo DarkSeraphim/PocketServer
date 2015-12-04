@@ -111,6 +111,8 @@ public abstract class Packet {
     }
 
     public final void close() {
-        leak.close();
+        if (leak != null) {
+            leak.close();
+        }
     }
 }
