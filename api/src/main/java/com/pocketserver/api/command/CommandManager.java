@@ -53,7 +53,9 @@ public class CommandManager {
         Preconditions.checkNotNull(command, "Command cannot be null");
 
         this.commands.remove(command.getName());
-        command.getAliases().forEach(this.commands::remove);
+        for (String alias : command.getAliases()) {
+            commands.remove(alias);
+        }
     }
 
     /**
