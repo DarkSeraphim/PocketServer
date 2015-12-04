@@ -1,23 +1,17 @@
 package com.pocketserver.api.command;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Preconditions;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Arrays;
 
 import com.pocketserver.api.ChatColor;
 
 /**
- * An abstract class that all in game commands should extend. These commands will be sent
- * through chat similar to the regular Minecraft game.
- *
- * @author TheLightMC
- * @version 1.0-SNAPSHOT
- * @since 1.0-SNAPSHOT
- *
+ * TODO: Be all fancy.
+ * @deprecated implementing this class is unwise as the design is constantly being updated.
  */
 public abstract class Command {
-    private final List<String> aliases;
+    private final String[] aliases;
     private final String permission;
     private final String name;
 
@@ -26,16 +20,18 @@ public abstract class Command {
     }
 
     protected Command(String name, String permission, String... aliases) {
-        this.aliases = ImmutableList.copyOf(aliases);
-        this.permission = permission;
-        this.name = name;
+        Preconditions.checkNotNull(name, "name should not be null");
+        Preconditions.checkArgument(name.length() > 0, "name should not be empty");
+        this.aliases = Arrays.stream(aliases).filter(a -> a != null && !a.isEmpty()).toArray(String[]::new);
+        this.permission = permission == null ? "" : permission;
+        this.name = name.toLowerCase();
     }
 
     /**
      * @return immutable collection of aliases that may be used to invoke the command
      */
-    public final Collection<String> getAliases() {
-        return aliases;
+    public final String[] getAliases() {
+        return Arrays.copyOf(aliases, aliases.length);
     }
 
     /**

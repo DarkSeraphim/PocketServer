@@ -5,6 +5,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.eventbus.EventBus;
@@ -20,6 +21,7 @@ import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -36,6 +38,8 @@ public class PluginManager {
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
 
     private final SetMultimap<Plugin, Listener> listenersByPlugin;
+    private final SetMultimap<Plugin, Command> commandsByPlugin;
+    private final Map<String, Command> commandMap;
     private final List<Plugin> plugins;
     private final EventBus eventBus;
     private final Server server;
@@ -46,7 +50,7 @@ public class PluginManager {
             public void handleException(Throwable exception, SubscriberExceptionContext context) {
                 if (Listener.class.isAssignableFrom(context.getSubscriber().getClass())) {
                     Listener listener = (Listener) context.getSubscriber();
-                    for (Map.Entry<Plugin, Listener> entry : listenersByPlugin.entries()) {
+                    for (Entry<Plugin, Listener> entry : listenersByPlugin.entries()) {
                         if (listener == entry.getValue()) {
                             Plugin plugin = entry.getKey();
                             plugin.getLogger().error(PocketLogging.Plugin.EVENT, "An unhandled exception was thrown by {}", new Object[]{
@@ -64,6 +68,8 @@ public class PluginManager {
             }
         });
         this.listenersByPlugin = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+        this.commandsByPlugin = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+        this.commandMap = new MapMaker().makeMap();
         this.plugins = Lists.newArrayList();
         this.server = server;
     }
@@ -246,17 +252,36 @@ public class PluginManager {
         eventBus.post(event);
     }
 
-    // TODO: Reimplement command registration
     public void registerCommand(Plugin plugin, Command command) {
-
+        Preconditions.checkNotNull(plugin, "plugin should not be null!");
+        Preconditions.checkNotNull(command, "command should not be null!");
+        if (commandMap.putIfAbsent(command.getName().toLowerCase(), command) == command) {
+            commandsByPlugin.put(plugin, command);
+        }
     }
 
     public void unregisterCommand(Command command) {
+        // TODO: Unleash Mark upon thine awful code
+        for (Iterator<Command> commands = commandMap.values().iterator(); commands.hasNext(); ) {
+            if (commands.next() == command) {
+                commands.remove();
+            }
+        }
 
+        for (Iterator<Command> commands = commandsByPlugin.values().iterator(); commands.hasNext(); ) {
+            if (commands.next() == command) {
+                commands.remove();
+            }
+        }
     }
 
     public void unregisterCommands(Plugin plugin) {
-
+        for (Iterator<Entry<Plugin, Command>> entries = commandsByPlugin.entries().iterator(); entries.hasNext(); ) {
+            Entry<Plugin, Command> entry = entries.next();
+            if (entry.getKey() == plugin) {
+                entries.remove();
+            }
+        }
     }
 
     private String printMethod(Method method) {
