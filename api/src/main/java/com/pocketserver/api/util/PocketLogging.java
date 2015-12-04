@@ -32,6 +32,12 @@ public interface PocketLogging {
          * inside an IO thread.
          */
         Marker NETWORK = MarkerFactory.getMarker("NETWORK");
+
+        /**
+         * Logging {@link Marker} used to tag messages (and stack traces) that are logged during
+         * execution of a {@link com.pocketserver.api.command.Command}.
+         */
+        Marker COMMAND = MarkerFactory.getMarker("COMMAND");
     }
 
     /**

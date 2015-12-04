@@ -37,11 +37,10 @@ public abstract class Command {
     /**
      * Method that processes execution of the command.
      *
-     * @param executor whoever executed the command. Able to be a {@link ConsoleCommandExecutor} or {@link com.pocketserver.api.player.Player}
-     * @param used the specific label or alias that was used for the command.
-     * @param args any additional arguments that were executed alongside the command label.
+     * @param executor the entity that executed the command
+     * @param args arguments passed to the command
      */
-    public abstract void execute(CommandExecutor executor, String used, String[] args);
+    public abstract void execute(CommandExecutor executor, String[] args);
 
     /**
      * @return name used to register the command.

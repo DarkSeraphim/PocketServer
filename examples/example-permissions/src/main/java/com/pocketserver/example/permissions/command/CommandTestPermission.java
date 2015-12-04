@@ -17,7 +17,7 @@ public class CommandTestPermission extends Command {
     }
 
     @Override
-    public void execute(CommandExecutor executor, String used, String[] args) {
+    public void execute(CommandExecutor executor, String[] args) {
         if (args.length < 2) {
             executor.sendMessage("Usage: /test-permission <username> <permission>");
         } else {

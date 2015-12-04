@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.pocketserver.api.command.CommandManager;
+import com.pocketserver.api.command.ConsoleCommandExecutor;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.PluginManager;
@@ -38,11 +38,6 @@ public class MockServer extends Server {
     }
 
     @Override
-    public CommandManager getCommandManager() {
-        throw new UnsupportedOperationException("not supported by mocked servers");
-    }
-
-    @Override
     public File getDirectory() {
         throw new UnsupportedOperationException("not supported by mocked servers");
     }
@@ -60,5 +55,10 @@ public class MockServer extends Server {
     @Override
     public Collection<Player> getOnlinePlayers() {
         return ImmutableList.of();
+    }
+
+    @Override
+    public ConsoleCommandExecutor getConsole() {
+        return null;
     }
 }

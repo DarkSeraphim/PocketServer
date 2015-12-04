@@ -1,8 +1,10 @@
 package com.pocketserver.api.plugin;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
@@ -18,6 +20,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,16 +29,21 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.pocketserver.api.ChatColor;
 import com.pocketserver.api.Server;
 import com.pocketserver.api.command.Command;
+import com.pocketserver.api.command.CommandExecutor;
 import com.pocketserver.api.event.Event;
 import com.pocketserver.api.event.Listener;
 import com.pocketserver.api.exceptions.InvalidPluginException;
 import com.pocketserver.api.util.PocketLogging;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PluginManager {
     public static final FileFilter JAR_FILTER = pathname -> pathname.getName().endsWith(".jar");
+
+    private static final Splitter COMMA_SPLITTER = Splitter.on(' ');
 
     private final SetMultimap<Plugin, Listener> listenersByPlugin;
     private final SetMultimap<Plugin, Command> commandsByPlugin;
@@ -253,10 +261,28 @@ public class PluginManager {
     }
 
     public void registerCommand(Plugin plugin, Command command) {
-        Preconditions.checkNotNull(plugin, "plugin should not be null!");
         Preconditions.checkNotNull(command, "command should not be null!");
-        if (commandMap.putIfAbsent(command.getName().toLowerCase(), command) == command) {
-            commandsByPlugin.put(plugin, command);
+        if (commandMap.put(command.getName(), command) != command) {
+            String cleanPluginName = null;
+            if (plugin != null) {
+                cleanPluginName = plugin.getName().toLowerCase().replace(" ", "");
+                commandMap.put(String.join(":", cleanPluginName, command.getName()), command);
+            }
+
+            for (String alias : command.getAliases()) {
+                commandMap.put(alias, command);
+                if (plugin != null && cleanPluginName != null) {
+                    commandMap.put(String.join(":", cleanPluginName, alias), command);
+                }
+            }
+
+            Logger logger = plugin == null ? server.getLogger() : plugin.getLogger();
+            logger.debug(PocketLogging.Server.COMMAND, "Registered Command[name={}]", new Object[]{
+                command.getName()
+            });
+            if (plugin != null) {
+                commandsByPlugin.put(plugin, command);
+            }
         }
     }
 
@@ -281,6 +307,28 @@ public class PluginManager {
             if (entry.getKey() == plugin) {
                 entries.remove();
             }
+        }
+    }
+
+    public boolean dispatch(CommandExecutor executor, String commandString) {
+        String[] split = Iterables.toArray(COMMA_SPLITTER.split(commandString), String.class);
+        Command command = commandMap.get(split[0]);
+        if (command == null) {
+            return false;
+        } else {
+            if (executor.hasPermission(command.getPermission())) {
+                try {
+                    command.execute(executor, Arrays.copyOfRange(split, 1, split.length));
+                } catch (Exception cause) {
+                    server.getLogger().error(PocketLogging.Server.COMMAND, "An unhandled exception was thrown whilst executing {}", new Object[]{
+                        command.getName(),
+                        cause
+                    });
+                }
+            } else {
+                executor.sendMessage(ChatColor.RED + "You do not have permission to do that!");
+            }
+            return true;
         }
     }
 

@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.pocketserver.api.Server;
-import com.pocketserver.api.command.CommandManager;
+import com.pocketserver.api.command.ConsoleCommandExecutor;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.permissions.PocketPermissionResolver;
 import com.pocketserver.api.player.Player;
@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
 public class PocketServer extends Server {
     private final Pipeline<PermissionResolver> permissionPipeline;
     private final Map<String, PocketPlayer> connectionMap;
+    private final ConsoleCommandExecutor consoleExecutor;
     private final EventLoopGroup eventLoopGroup;
-    private final CommandManager commandManager;
     private final ReadWriteLock connectionLock;
     private final PluginManager pluginManager;
     private final File directory;
@@ -59,10 +59,10 @@ public class PocketServer extends Server {
         Preconditions.checkState(directory.getAbsolutePath().indexOf('!') == -1, "PocketServer cannot be run from inside an archive");
 
         Server.setServer(this);
+        this.consoleExecutor = new ConsoleCommandExecutor(this);
         this.logger = LoggerFactory.getLogger("PocketServer");
         this.eventLoopGroup = PipelineUtils.newEventLoop(6);
         this.connectionLock = new ReentrantReadWriteLock();
-        this.commandManager = new CommandManager(this);
         this.pluginManager = new PluginManager(this);
         this.permissionPipeline = Pipeline.of();
         this.connectionMap = Maps.newHashMap();
@@ -76,10 +76,9 @@ public class PocketServer extends Server {
 
         startListener().await();
 
-        this.running = true;
-        this.pluginManager.loadPlugins();
         getPermissionPipeline().addFirst(new PocketPermissionResolver());
-        getCommandManager().registerCommand(new CommandShutdown(this));
+        getPluginManager().registerCommand(null, new CommandShutdown(this));
+        this.pluginManager.loadPlugins();
     }
 
     private CountDownLatch startListener() {
@@ -92,9 +91,10 @@ public class PocketServer extends Server {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                    channel = future.channel();
                     getLogger().info(PocketLogging.Server.STARTUP, "Listening on port {}", PORT);
+                    channel = future.channel();
                     latch.countDown();
+                    running = true;
                 } else {
                     getLogger().error(PocketLogging.Server.STARTUP, "Could not bind to {}", PORT, future.cause());
                     shutdown();
@@ -178,11 +178,6 @@ public class PocketServer extends Server {
     }
 
     @Override
-    public CommandManager getCommandManager() {
-        return this.commandManager;
-    }
-
-    @Override
     public File getDirectory() {
         return directory;
     }
@@ -210,6 +205,11 @@ public class PocketServer extends Server {
         } finally {
             connectionLock.readLock().unlock();
         }
+    }
+
+    @Override
+    public ConsoleCommandExecutor getConsole() {
+        return consoleExecutor;
     }
 
     public void addPlayer(PocketPlayer player) {

@@ -72,7 +72,7 @@ public class PocketBootstrap {
         while (server.running) {
             String line = reader.nextLine();
             if (!line.isEmpty()) {
-                server.getCommandManager().dispatch(server.getCommandManager().getConsole(), line);
+                server.getPluginManager().dispatch(server.getConsole(), line);
             }
         }
     }

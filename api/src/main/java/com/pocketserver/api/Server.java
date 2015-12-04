@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.pocketserver.api.command.CommandManager;
+import com.pocketserver.api.command.ConsoleCommandExecutor;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.api.plugin.PluginManager;
@@ -32,9 +32,6 @@ public abstract class Server {
     
     public abstract Logger getLogger();
 
-    @Deprecated
-    public abstract CommandManager getCommandManager();
-
     public abstract File getDirectory();
 
     public abstract Pipeline<PermissionResolver> getPermissionPipeline();
@@ -44,4 +41,6 @@ public abstract class Server {
     public abstract Optional<Player> getPlayer(String username);
 
     public abstract Collection<Player> getOnlinePlayers();
+
+    public abstract ConsoleCommandExecutor getConsole();
 }

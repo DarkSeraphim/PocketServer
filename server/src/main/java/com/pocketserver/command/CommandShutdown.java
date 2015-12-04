@@ -13,7 +13,7 @@ public final class CommandShutdown extends Command {
     }
 
     @Override
-    public void execute(CommandExecutor executor, String used, String[] args) {
+    public void execute(CommandExecutor executor, String[] args) {
         server.shutdown();
     }
 }
