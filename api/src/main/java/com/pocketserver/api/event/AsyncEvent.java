@@ -13,8 +13,8 @@ import com.pocketserver.api.util.Callback;
 
 @SuppressWarnings("unchecked")
 public class AsyncEvent<T extends Event> extends Event {
-    private final Set<Plugin> intents;
     private final Callback<T> callback;
+    private final Set<Plugin> intents;
     private final AtomicBoolean fired;
     private final AtomicInteger latch;
 
@@ -22,15 +22,13 @@ public class AsyncEvent<T extends Event> extends Event {
         this.intents = Sets.newSetFromMap(Maps.newConcurrentMap());
         this.fired = new AtomicBoolean();
         this.latch = new AtomicInteger();
-        this.callback = callback;
-    }
-
-    @Override
-    public void done() {
-        if (latch.get() == 0) {
-            callback.done((T) this, null);
-        }
-        fired.set(true);
+        this.callback = (val, err) -> {
+            try {
+                callback.done(val, err);
+            } finally {
+                leak.close();
+            }
+        };
     }
 
     public final void registerIntent(Plugin plugin) {
@@ -50,5 +48,13 @@ public class AsyncEvent<T extends Event> extends Event {
         } else {
             latch.decrementAndGet();
         }
+    }
+
+    @Override
+    void done() {
+        if (latch.get() == 0) {
+            callback.done((T) this, null);
+        }
+        fired.set(true);
     }
 }

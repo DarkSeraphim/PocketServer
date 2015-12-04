@@ -19,6 +19,7 @@ public class PacketRaknetCustom extends Packet {
         out.add(new PacketRaknetAck(count));
         try {
             for (int i = 0; i < count; i++) {
+                // diediedie.
                 EncapsulationStrategy strategy = Encapsulation.fromId(content.readByte());
                 try {
                     strategy.decode(ctx, content, out);
@@ -28,6 +29,7 @@ public class PacketRaknetCustom extends Packet {
                         String.valueOf(count),
                         cause
                     });
+                    // PANIC
                     content.skipBytes(content.readableBytes());
                     break;
                 }

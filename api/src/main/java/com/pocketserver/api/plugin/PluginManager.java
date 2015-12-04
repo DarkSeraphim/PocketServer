@@ -34,6 +34,7 @@ import com.pocketserver.api.Server;
 import com.pocketserver.api.command.Command;
 import com.pocketserver.api.command.CommandExecutor;
 import com.pocketserver.api.event.Event;
+import com.pocketserver.api.event.Events;
 import com.pocketserver.api.event.Listener;
 import com.pocketserver.api.exceptions.InvalidPluginException;
 import com.pocketserver.api.util.PocketLogging;
@@ -57,6 +58,9 @@ public class PluginManager {
             @Override
             public void handleException(Throwable exception, SubscriberExceptionContext context) {
                 if (Listener.class.isAssignableFrom(context.getSubscriber().getClass())) {
+                    Event event = (Event) context.getEvent();
+                    Events.record(event, context.getSubscriber());
+
                     Listener listener = (Listener) context.getSubscriber();
                     for (Entry<Plugin, Listener> entry : listenersByPlugin.entries()) {
                         if (listener == entry.getValue()) {
@@ -257,7 +261,9 @@ public class PluginManager {
     }
 
     public <T extends Event> void post(T event) {
+        Events.prepare(this, event);
         eventBus.post(event);
+        Events.done(event);
     }
 
     public void registerCommand(Plugin plugin, Command command) {
