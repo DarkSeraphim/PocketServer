@@ -13,6 +13,7 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) throws Exception {
         List<Packet> out = Lists.newLinkedList();
+        packet.getLeak().record(this);
         packet.handle(ctx, out);
         out.forEach(ctx::write);
         if (ctx.hasAttr(PipelineUtils.ADDRESS_ATTRIBUTE)) {

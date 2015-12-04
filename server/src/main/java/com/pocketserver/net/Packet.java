@@ -13,8 +13,18 @@ import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.ResourceLeak;
+import io.netty.util.ResourceLeakDetector;
 
 public abstract class Packet {
+    private static final ResourceLeakDetector<Packet> leakDetector = new ResourceLeakDetector<Packet>(Packet.class);
+
+    private final ResourceLeak leak;
+
+    protected Packet() {
+        this.leak = leakDetector.open(this);
+    }
+
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
 
     }
@@ -94,5 +104,13 @@ public abstract class Packet {
         builder.setLength(builder.length() - 1);
         short port = buf.readShort();
         return new InetSocketAddress(builder.toString(), port);
+    }
+
+    public final ResourceLeak getLeak() {
+        return leak;
+    }
+
+    public final void close() {
+        leak.close();
     }
 }
