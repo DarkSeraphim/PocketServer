@@ -11,6 +11,8 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ResourceLeak;
@@ -23,6 +25,7 @@ public abstract class Packet {
 
     protected Packet() {
         this.leak = leakDetector.open(this);
+        Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Instantiating new {}", getClass().getCanonicalName());
     }
 
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
@@ -106,8 +109,10 @@ public abstract class Packet {
         return new InetSocketAddress(builder.toString(), port);
     }
 
-    public final ResourceLeak getLeak() {
-        return leak;
+    public final void record(Object hint) {
+        if (leak != null) {
+            leak.record(hint);
+        }
     }
 
     public final void close() {

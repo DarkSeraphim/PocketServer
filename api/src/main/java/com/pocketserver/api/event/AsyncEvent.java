@@ -26,7 +26,9 @@ public class AsyncEvent<T extends Event> extends Event {
             try {
                 callback.done(val, err);
             } finally {
-                leak.close();
+                if (leak != null) {
+                    leak.close();
+                }
             }
         };
     }

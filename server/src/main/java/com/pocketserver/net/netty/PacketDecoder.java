@@ -21,10 +21,13 @@ public class PacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
             msg.sender()
         });
         Packet packet = PacketRegistry.construct(id);
-        if (packet.getLeak() != null) {
-            packet.getLeak().record(this);
+        packet.record(this);
+        try {
+            packet.read(msg.content());
+            out.add(packet);
+        } catch (Exception cause) {
+            packet.close();
+            throw cause;
         }
-        packet.read(msg.content());
-        out.add(packet);
     }
 }

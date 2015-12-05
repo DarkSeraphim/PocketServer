@@ -7,7 +7,10 @@ import com.google.common.collect.Maps;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.packet.connect.PacketConnectOpenNewConnection;
 import com.pocketserver.net.packet.connect.PacketConnectOpenRequest;
 import com.pocketserver.net.packet.connect.PacketConnectOpenResponse;
@@ -84,11 +87,16 @@ public final class PacketRegistry {
         }
     }
 
+    private PacketRegistry() {
+        throw new UnsupportedOperationException("PacketRegistry cannot be instantiated!");
+    }
+
     public static Packet construct(byte id) throws ReflectiveOperationException {
         Class<? extends Packet> clazz;
         if ((clazz = packetMap.get(id)) != null) {
             Constructor<? extends Packet> constructor = constructors.getIfPresent(clazz);
             if (constructor == null) {
+                Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Caching no-args constructor for {}", clazz.getCanonicalName());
                 constructor = clazz.getConstructor();
                 constructors.put(clazz, constructor);
             }
@@ -98,20 +106,20 @@ public final class PacketRegistry {
     }
 
     public static byte getId(Packet packet) {
-        for (Map.Entry<Byte, Class<? extends Packet>> entry : packetMap.entrySet()) {
-            if (entry.getValue() == packet.getClass()) {
+        return getId(packet.getClass());
+    }
+
+    public static byte getId(Class<? extends Packet> clazz) {
+        for (Entry<Byte, Class<? extends Packet>> entry : packetMap.entrySet()) {
+            if (entry.getValue() == clazz) {
                 return entry.getKey();
             }
         }
-        throw new IllegalArgumentException("Packet has not been registered!");
+        throw new IllegalArgumentException("Packet type has not been registered!");
     }
 
     private static void register(int id, Class<? extends Packet> clazz) {
         Preconditions.checkNotNull(clazz, "clazz should not be null!");
         packetMap.putIfAbsent((byte) id, clazz);
-    }
-
-    private PacketRegistry() {
-        throw new UnsupportedOperationException("PacketRegistry cannot be instantiated!");
     }
 }
