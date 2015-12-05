@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.pocketserver.exception.BadPacketException;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
@@ -21,8 +20,16 @@ public enum Encapsulation implements EncapsulationStrategy {
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            assertLength(buf);
-            decode0(ctx, buf, out);
+            short length = buf.readShort();
+            byte packetId = buf.readByte();
+
+            Packet packet = PacketRegistry.construct(packetId);
+            packet.read(buf.copy());
+
+            buf.skipBytes(length / 8);
+
+            packet.handle(ctx, out);
+
         }
 
         @Override
@@ -41,31 +48,32 @@ public enum Encapsulation implements EncapsulationStrategy {
     COUNT(0x40) {
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            assertLength(buf);
             buf.skipBytes(3);
-            decode0(ctx, buf, out);
+            BARE.decode(ctx, buf, out);
         }
     },
     COUNT_UNKNOWN(0x60) {
-        private Set<InetSocketAddress> receivedFrom = Sets.newSetFromMap(new MapMaker().weakKeys().makeMap());
+        private final Set<InetSocketAddress> receivedFrom = Sets.newSetFromMap(new MapMaker().weakKeys().makeMap());
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
             InetSocketAddress address = ctx.attr(PipelineUtils.ADDRESS_ATTRIBUTE).get();
-
-            assertLength(buf);
-            buf.skipBytes(3);
             if (receivedFrom.add(address)) {
                 buf.skipBytes(4);
             }
-            decode0(ctx, buf, out);
+            COUNT.decode(ctx, buf, out);
         }
     };
 
-    private final int id;
+    private final byte id;
 
     Encapsulation(int id) {
-        this.id = id;
+        this.id = (byte) id;
+    }
+
+    @Override
+    public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
+        throw new UnsupportedOperationException("cannot encode packets using this strategy");
     }
 
     public static EncapsulationStrategy fromId(byte id) {
@@ -75,24 +83,5 @@ public enum Encapsulation implements EncapsulationStrategy {
             }
         }
         throw new IllegalArgumentException("Unsupported EncapsulationStrategy");
-    }
-
-    @Override
-    public ByteBuf encode(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-        throw new UnsupportedOperationException("cannot encode packets using this strategy");
-    }
-
-    void decode0(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-        byte packetId = buf.readByte();
-        Packet packet = PacketRegistry.construct(packetId);
-        packet.read(buf);
-        packet.handle(ctx, out);
-    }
-
-    void assertLength(ByteBuf buf) {
-        int packetLength = buf.readShort() / 8;
-        if (packetLength > buf.readableBytes()) {
-            throw new BadPacketException(String.format("Expecting packet with a length of %d, received packet with a length of %d instead", packetLength, buf.readableBytes()));
-        }
     }
 }
