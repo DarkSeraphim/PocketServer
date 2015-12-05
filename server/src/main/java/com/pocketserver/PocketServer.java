@@ -27,6 +27,7 @@ import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
 import com.pocketserver.api.util.Pipeline;
 import com.pocketserver.api.util.PocketLogging;
+import com.pocketserver.command.CommandPlugins;
 import com.pocketserver.command.CommandShutdown;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PipelineUtils;
@@ -80,6 +81,7 @@ public class PocketServer extends Server {
 
         getPermissionPipeline().addFirst(new PocketPermissionResolver());
         getPluginManager().registerCommand(null, new CommandShutdown(this));
+        getPluginManager().registerCommand(null, new CommandPlugins(this.pluginManager));
         this.pluginManager.loadPlugins();
     }
 
@@ -150,9 +152,8 @@ public class PocketServer extends Server {
         }
 
         getLogger().info(PocketLogging.Server.SHUTDOWN, "Disabling plugins");
-        Lists.reverse(getPluginManager().getPlugins()).stream().filter(Plugin::isEnabled).forEachOrdered(plugin -> {
-            getPluginManager().setEnabled(plugin, false);
-        });
+        Lists.reverse(getPluginManager().getPlugins()).stream().filter(Plugin::isEnabled)
+                .forEachOrdered(plugin -> getPluginManager().setEnabled(plugin, false));
 
         getLogger().info(PocketLogging.Server.SHUTDOWN, "Closing IO threads");
         eventLoopGroup.shutdownGracefully();
