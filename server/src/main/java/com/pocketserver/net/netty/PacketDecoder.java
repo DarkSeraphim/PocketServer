@@ -33,7 +33,7 @@ public class PacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
         } else {
             params[0] = String.format("0x%02X", packetId);
         }
-        Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Received 0x{} from {}", params);
+        Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Received {} from {}", params);
         packet.record(this);
         try {
             packet.read(msg.content());

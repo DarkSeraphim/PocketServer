@@ -28,6 +28,7 @@ import com.pocketserver.net.packet.play.PacketPlayRemoveEntity;
 import com.pocketserver.net.packet.play.PacketPlayRemovePlayer;
 import com.pocketserver.net.packet.play.PacketPlaySetTime;
 import com.pocketserver.net.packet.play.PacketPlaySpawnExperience;
+import com.pocketserver.net.packet.play.PacketPlayStartGame;
 import com.pocketserver.net.packet.play.PacketPlayText;
 import com.pocketserver.net.packet.raknet.PacketRaknetAck;
 import com.pocketserver.net.packet.raknet.PacketRaknetCustom;
@@ -66,6 +67,7 @@ public final class PacketRegistry {
         register(0x92, PacketPlayBatch.class);
         register(0x93, PacketPlayText.class);
         register(0x94, PacketPlaySetTime.class);
+        register(0x95, PacketPlayStartGame.class);
 
         register(0x97, PacketPlayRemovePlayer.class);
         register(0x99, PacketPlayRemoveEntity.class);
