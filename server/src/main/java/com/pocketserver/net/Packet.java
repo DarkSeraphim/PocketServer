@@ -19,7 +19,7 @@ import io.netty.util.ResourceLeak;
 import io.netty.util.ResourceLeakDetector;
 
 public abstract class Packet {
-    private static final ResourceLeakDetector<Packet> leakDetector = new ResourceLeakDetector<Packet>(Packet.class);
+    private static final ResourceLeakDetector<Packet> leakDetector = new ResourceLeakDetector<>(Packet.class);
 
     private final ResourceLeak leak;
 
@@ -43,7 +43,7 @@ public abstract class Packet {
     @Override
     public final String toString() {
         return MoreObjects.toStringHelper(Packet.class)
-            .add("id", PacketRegistry.getId(this))
+            .add("id", String.format("0x%02X", PacketRegistry.getId(this)))
             .add("type", getClass().getSimpleName())
             .toString();
     }

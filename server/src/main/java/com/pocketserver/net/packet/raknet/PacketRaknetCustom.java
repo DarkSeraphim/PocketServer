@@ -20,7 +20,7 @@ public class PacketRaknetCustom extends Packet {
         out.add(new PacketRaknetAck(count));
         try {
             byte strategyId = content.readByte();
-            Server.getServer().getLogger().trace("Encapsulation ID: {}", strategyId);
+            Server.getServer().getLogger().trace("Encapsulation ID: 0x{}", String.format("%02x", strategyId));
             try {
                 EncapsulationStrategy strategy = Encapsulation.fromId(strategyId);
                 Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Decoding packet with strategy {}", new Object[]{

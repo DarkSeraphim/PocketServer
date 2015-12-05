@@ -31,10 +31,18 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
-                            Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent 0x{} to {}", new Object[]{
-                                String.format("%02x", PacketRegistry.getId(outbound)).toUpperCase(),
+                            Object[] params = new Object[]{
+                                null,
                                 address
-                            });
+                            };
+
+                            if (Server.getServer().getLogger().isTraceEnabled()) {
+                                params[0] = outbound.toString();
+                            } else {
+                                params[0] = String.format("0x%02X", PacketRegistry.getId(outbound));
+                            }
+
+                            Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Sent {} to {}", params);
                         } else {
                             Server.getServer().getLogger().error("Failed to send packet", future.cause());
                         }

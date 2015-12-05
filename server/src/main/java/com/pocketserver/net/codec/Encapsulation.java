@@ -23,8 +23,8 @@ public enum Encapsulation implements EncapsulationStrategy {
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
             short length = buf.readShort();
-            byte packetId = buf.readByte();
             assertLength(length / 8, buf);
+            byte packetId = buf.readByte();
             Packet packet = PacketRegistry.construct(packetId);
             packet.read(buf);
             packet.handle(ctx, out);
