@@ -25,7 +25,9 @@ public final class Events {
     }
 
     public static void prepare(PluginManager pluginManager, Event event) {
-        event.getLeak().record(pluginManager);
+        if (event.getLeak() != null) {
+            event.getLeak().record(pluginManager);
+        }
     }
 
     public static void record(Event event, Object hint) {

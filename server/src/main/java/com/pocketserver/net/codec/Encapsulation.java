@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.pocketserver.exception.BadPacketException;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
@@ -16,20 +17,17 @@ import io.netty.channel.ChannelHandlerContext;
 
 public enum Encapsulation implements EncapsulationStrategy {
     BARE(0x00) {
+        // TODO: Move or get rid of
         private final AtomicInteger counter = new AtomicInteger();
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
             short length = buf.readShort();
+            assertLength(length / 8, buf);
             byte packetId = buf.readByte();
-
             Packet packet = PacketRegistry.construct(packetId);
-            packet.read(buf.copy());
-
-            buf.skipBytes(length / 8);
-
+            packet.read(buf);
             packet.handle(ctx, out);
-
         }
 
         @Override
@@ -65,10 +63,19 @@ public enum Encapsulation implements EncapsulationStrategy {
         }
     };
 
-    private final byte id;
+    private final int id;
 
     Encapsulation(int id) {
-        this.id = (byte) id;
+        this.id = id;
+    }
+
+    public static EncapsulationStrategy fromId(int id) {
+        for (Encapsulation strategy : values()) {
+            if (strategy.id == id) {
+                return strategy;
+            }
+        }
+        throw new IllegalArgumentException("Unsupported EncapsulationStrategy");
     }
 
     @Override
@@ -76,12 +83,13 @@ public enum Encapsulation implements EncapsulationStrategy {
         throw new UnsupportedOperationException("cannot encode packets using this strategy");
     }
 
-    public static EncapsulationStrategy fromId(byte id) {
-        for (Encapsulation strategy : values()) {
-            if (strategy.id == id) {
-                return strategy;
-            }
+    public int getId() {
+        return id;
+    }
+
+    void assertLength(int length, ByteBuf buf) {
+        if (buf.readableBytes() < length) {
+            throw new BadPacketException(String.format("expecting %d bytes but buffer only contains %d", length, buf.readableBytes()));
         }
-        throw new IllegalArgumentException("Unsupported EncapsulationStrategy");
     }
 }

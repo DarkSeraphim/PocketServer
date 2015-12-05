@@ -13,7 +13,9 @@ public abstract class Event {
     }
 
     void done() {
-        leak.close();
+        if (leak != null) {
+            leak.close();
+        }
     }
 
     ResourceLeak getLeak() {

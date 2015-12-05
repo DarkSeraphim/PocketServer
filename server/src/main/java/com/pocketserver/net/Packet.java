@@ -11,18 +11,21 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import com.pocketserver.api.Server;
+import com.pocketserver.api.util.PocketLogging;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ResourceLeak;
 import io.netty.util.ResourceLeakDetector;
 
 public abstract class Packet {
-    private static final ResourceLeakDetector<Packet> leakDetector = new ResourceLeakDetector<Packet>(Packet.class);
+    private static final ResourceLeakDetector<Packet> leakDetector = new ResourceLeakDetector<>(Packet.class);
 
     private final ResourceLeak leak;
 
     protected Packet() {
         this.leak = leakDetector.open(this);
+        Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Instantiating new {}", getClass().getCanonicalName());
     }
 
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {
@@ -40,7 +43,7 @@ public abstract class Packet {
     @Override
     public final String toString() {
         return MoreObjects.toStringHelper(Packet.class)
-            .add("id", PacketRegistry.getId(this))
+            .add("id", String.format("0x%02X", PacketRegistry.getId(this)))
             .add("type", getClass().getSimpleName())
             .toString();
     }
@@ -106,8 +109,10 @@ public abstract class Packet {
         return new InetSocketAddress(builder.toString(), port);
     }
 
-    public final ResourceLeak getLeak() {
-        return leak;
+    public final void record(Object hint) {
+        if (leak != null) {
+            leak.record(hint);
+        }
     }
 
     public final void close() {
