@@ -15,7 +15,4 @@ public interface Player extends LivingEntity, CommandExecutor {
     void setGamemode(Gamemode mode);
 
     InetSocketAddress getAddress();
-
-    UUID getUniqueId();
-
 }

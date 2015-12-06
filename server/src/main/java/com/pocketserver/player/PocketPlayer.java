@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.pocketserver.PocketServer;
 import com.pocketserver.api.Server;
+import com.pocketserver.api.event.player.PlayerChatEvent;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.permissions.PermissionResolver.Result;
 import com.pocketserver.api.player.Gamemode;
@@ -20,15 +21,13 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     private final Channel channel;
     private final Server server;
     private final Unsafe unsafe;
-    private final UUID uniqueId;
     private final String name;
 
     private Gamemode gamemode;
     private boolean op;
 
-    public PocketPlayer(PocketServer server, Channel channel, InetSocketAddress address, UUID uniqueId, String name) {
+    public PocketPlayer(PocketServer server, Channel channel, InetSocketAddress address, String name) {
         this.gamemode = Gamemode.SURVIVAL;
-        this.uniqueId = uniqueId;
         this.channel = channel;
         this.address = address;
         this.server = server;
@@ -44,7 +43,13 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
     @Override
     public void chat(String message) {
-
+        PocketServer server = (PocketServer) Server.getServer();
+        PlayerChatEvent event = new PlayerChatEvent(this, message);
+        server.getPluginManager().post(event);
+        if (event.isCancelled()) {
+            return;
+        }
+        //server.broadcast();
     }
 
     @Override
@@ -60,11 +65,6 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     @Override
     public InetSocketAddress getAddress() {
         return this.address;
-    }
-
-    @Override
-    public UUID getUniqueId() {
-        return uniqueId;
     }
 
     @Override
@@ -86,10 +86,8 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
         for (PermissionResolver resolver : server.getPermissionPipeline()) {
             Result result = resolver.checkPermission(this, permission);
-            if (result == Result.ALLOW) {
-                return true;
-            } else if (result == Result.DENY) {
-                return false;
+            if (result == Result.ALLOW || result == Result.DENY) {
+                return result == Result.ALLOW;
             }
         }
         return false;
@@ -126,7 +124,7 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
 
         if (obj instanceof PocketPlayer) {
             PocketPlayer that = (PocketPlayer) obj;
-            return name.equals(that.name);
+            return name.equals(that.name) && that.address.equals(address);
         }
         return false;
     }

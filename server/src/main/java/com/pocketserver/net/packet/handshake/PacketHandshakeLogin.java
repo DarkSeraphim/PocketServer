@@ -33,7 +33,7 @@ public class PacketHandshakeLogin extends Packet {
         if (server.getPlayer(address).isPresent()) {
             out.add(new PacketPlayDisconnect("Somebody is already logged in from that address."));
         } else {
-            PocketPlayer player = new PocketPlayer(server, ctx.channel(), address, uniqueId, name);
+            PocketPlayer player = new PocketPlayer(server, ctx.channel(), address, name);
             Callback<PlayerLoginEvent> callback = (event, err) -> {
                 if (event.isCancelled()) {
                     player.unsafe().send(new PacketPlayDisconnect(event.getKickMessage()));
