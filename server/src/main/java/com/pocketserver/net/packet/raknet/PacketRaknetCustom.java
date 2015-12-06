@@ -20,13 +20,15 @@ public class PacketRaknetCustom extends Packet {
         out.add(new PacketRaknetAck(count));
         try {
             byte strategyId = content.readByte();
+            short packetLength = content.readShort();
             Server.getServer().getLogger().trace("Encapsulation ID: 0x{}", String.format("%02x", strategyId));
+            Server.getServer().getLogger().trace("Encapsulation Bit Length: {}", packetLength);
             try {
                 EncapsulationStrategy strategy = Encapsulation.fromId(strategyId);
                 Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, "Decoding packet with strategy {}", new Object[]{
                     Arrays.stream(Encapsulation.class.getEnumConstants()).filter(s -> s.getId() == strategyId).findFirst().map(Encapsulation::name).get()
                 });
-                strategy.decode(ctx, content, out);
+                strategy.decode(ctx, content, out, packetLength);
             } catch (Exception cause) {
                 Server.getServer().getLogger().error(PocketLogging.Server.NETWORK, "Failed to decode packet", new Object[]{
                     cause

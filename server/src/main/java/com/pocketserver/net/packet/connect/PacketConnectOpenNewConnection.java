@@ -9,5 +9,6 @@ public class PacketConnectOpenNewConnection extends Packet {
     @Override
     public void read(ByteBuf buf) throws Exception {
         Server.getServer().getLogger().info(PocketLogging.Server.NETWORK, "A client is logging in!");
+        buf.skipBytes(94);
     }
 }

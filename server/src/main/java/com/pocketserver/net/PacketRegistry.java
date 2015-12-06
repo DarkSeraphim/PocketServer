@@ -104,7 +104,7 @@ public final class PacketRegistry {
             }
             return constructor.newInstance();
         }
-        throw new IllegalArgumentException("A packet with that ID does not exist!");
+        throw new IllegalArgumentException("A packet with the ID \'" + String.format("0x%02x", id) + "\' does not exist!");
     }
 
     public static byte getId(Packet packet) {

@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.pocketserver.exception.BadPacketException;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketHeader;
 import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
 import io.netty.buffer.ByteBuf;
@@ -18,16 +18,25 @@ import io.netty.channel.ChannelHandlerContext;
 public enum Encapsulation implements EncapsulationStrategy {
     BARE(0x00) {
         // TODO: Move or get rid of
+        // TODO: ^ Wait till Connor removes then make Mark agree with me ^
         private final AtomicInteger counter = new AtomicInteger();
 
         @Override
-        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
-            short length = buf.readShort();
-            assertLength(length / 8, buf);
+        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out, short length) throws Exception {
+            //assertLength(length / 8, buf);
             byte packetId = buf.readByte();
+            PacketHeader header = new PacketHeader(packetId);
+
             Packet packet = PacketRegistry.construct(packetId);
             packet.read(buf);
             packet.handle(ctx, out);
+
+            if (header.isPair()) {
+                byte b = buf.readByte();
+                EncapsulationStrategy strategy = Encapsulation.fromId(b);
+                short readShort = buf.readShort();
+                strategy.decode(ctx, buf, out, readShort);
+            }
         }
 
         @Override
@@ -45,21 +54,21 @@ public enum Encapsulation implements EncapsulationStrategy {
     },
     COUNT(0x40) {
         @Override
-        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out, short length) throws Exception {
             buf.skipBytes(3);
-            BARE.decode(ctx, buf, out);
+            BARE.decode(ctx, buf, out, length);
         }
     },
     COUNT_UNKNOWN(0x60) {
         private final Set<InetSocketAddress> receivedFrom = Sets.newSetFromMap(new MapMaker().weakKeys().makeMap());
 
         @Override
-        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out) throws Exception {
+        public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out, short length) throws Exception {
             InetSocketAddress address = ctx.attr(PipelineUtils.ADDRESS_ATTRIBUTE).get();
             if (receivedFrom.add(address)) {
                 buf.skipBytes(4);
             }
-            COUNT.decode(ctx, buf, out);
+            COUNT.decode(ctx, buf, out, length);
         }
     };
 
@@ -85,11 +94,5 @@ public enum Encapsulation implements EncapsulationStrategy {
 
     public int getId() {
         return id;
-    }
-
-    void assertLength(int length, ByteBuf buf) {
-        if (buf.readableBytes() < length) {
-            throw new BadPacketException(String.format("expecting %d bytes but buffer only contains %d", length, buf.readableBytes()));
-        }
     }
 }

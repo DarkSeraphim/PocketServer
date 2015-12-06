@@ -69,5 +69,7 @@ public class PacketHandshakeLogin extends Packet {
         skin.setAlpha(alpha);
         skin.setSlim(slim);
         skin.setData(data);
+
+        System.out.println("HELLO FROM LOGIN PACKET!!!!!!!!!!");
     }
 }

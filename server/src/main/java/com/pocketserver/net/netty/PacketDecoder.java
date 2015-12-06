@@ -19,7 +19,7 @@ public class PacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
         byte packetId = msg.content().readByte();
 
         PacketHeader header = new PacketHeader(packetId);
-        Server.getServer().getLogger().trace(header.toString());
+        Server.getServer().getLogger().debug(PocketLogging.Server.NETWORK, header.toString());
 
         Packet packet = PacketRegistry.construct(packetId);
 
