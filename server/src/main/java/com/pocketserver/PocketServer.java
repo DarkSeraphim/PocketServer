@@ -29,6 +29,7 @@ import com.pocketserver.api.util.Pipeline;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.command.CommandPlugins;
 import com.pocketserver.command.CommandShutdown;
+import com.pocketserver.command.CommandVersion;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.Protocol;
@@ -81,6 +82,7 @@ public class PocketServer extends Server {
 
         getPermissionPipeline().addFirst(new PocketPermissionResolver());
         getPluginManager().registerCommand(null, new CommandShutdown(this));
+        getPluginManager().registerCommand(null, new CommandVersion());
         getPluginManager().registerCommand(null, new CommandPlugins(this.pluginManager));
         this.pluginManager.loadPlugins();
     }
@@ -229,12 +231,7 @@ public class PocketServer extends Server {
         Preconditions.checkNotNull(player, "player should not be null!");
         connectionLock.writeLock().lock();
         try {
-            for (Iterator<PocketPlayer> players = connectionMap.values().iterator(); players.hasNext(); ) {
-                if (players.next() == player) {
-                    players.remove();
-                    break;
-                }
-            }
+            connectionMap.remove(player.getName());
         } finally {
             connectionLock.writeLock().unlock();
         }

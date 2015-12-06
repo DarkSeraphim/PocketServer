@@ -50,8 +50,9 @@ public class PocketBootstrap {
         if (options.has("version")) {
             // TODO: Add git hash, possibly more information?
 
-            String version = PocketBootstrap.class.getPackage().getImplementationVersion();
-            String title = PocketBootstrap.class.getPackage().getImplementationTitle();
+            Package aPackage = PocketBootstrap.class.getPackage();
+            String version = aPackage.getImplementationVersion();
+            String title = aPackage.getImplementationTitle();
 
             if (title == null || title.isEmpty()) {
                 title = "PocketServer-undefined";

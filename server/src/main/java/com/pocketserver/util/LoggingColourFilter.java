@@ -18,29 +18,32 @@ import org.slf4j.Marker;
 /**
  * @author Connor Spencer Harries
  */
+
+//TODO: muricanize
 public class LoggingColourFilter extends TurboFilter {
     private static final Pattern COLOUR_PATTERN = Pattern.compile("\u00A7([a-f0-9k-pr])", Pattern.CASE_INSENSITIVE);
     private static final String RESET_STRING = Ansi.ansi().a(Ansi.Attribute.RESET).toString();
     private static final Map<Character, String> replacementMap;
 
     static {
+        final Ansi ansi = Ansi.ansi().a(Ansi.Attribute.RESET);
         replacementMap = ImmutableMap.copyOf(new HashMap<Character, String>() {{
-            put('a', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.GREEN).bold().toString());
-            put('b', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.CYAN).bold().toString());
-            put('c', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.RED).boldOff().toString());
-            put('d', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.MAGENTA).boldOff().toString());
-            put('e', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.YELLOW).boldOff().toString());
-            put('f', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.WHITE).bold().toString());
-            put('0', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.BLACK).boldOff().toString());
-            put('1', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.BLUE).bold().toString());
-            put('2', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.GREEN).bold().toString());
-            put('3', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.CYAN).bold().toString());
-            put('4', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.RED).bold().toString());
-            put('5', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.MAGENTA).bold().toString());
-            put('6', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.YELLOW).bold().toString());
-            put('7', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.WHITE).boldOff().toString());
-            put('8', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.BLACK).bold().toString());
-            put('9', Ansi.ansi().a(Ansi.Attribute.RESET).fg(Ansi.Color.BLUE).boldOff().toString());
+            put('a', ansi.fg(Ansi.Color.GREEN).bold().toString());
+            put('b', ansi.fg(Ansi.Color.CYAN).bold().toString());
+            put('c', ansi.fg(Ansi.Color.RED).boldOff().toString());
+            put('d', ansi.fg(Ansi.Color.MAGENTA).boldOff().toString());
+            put('e', ansi.fg(Ansi.Color.YELLOW).boldOff().toString());
+            put('f', ansi.fg(Ansi.Color.WHITE).bold().toString());
+            put('0', ansi.fg(Ansi.Color.BLACK).boldOff().toString());
+            put('1', ansi.fg(Ansi.Color.BLUE).bold().toString());
+            put('2', ansi.fg(Ansi.Color.GREEN).bold().toString());
+            put('3', ansi.fg(Ansi.Color.CYAN).bold().toString());
+            put('4', ansi.fg(Ansi.Color.RED).bold().toString());
+            put('5', ansi.fg(Ansi.Color.MAGENTA).bold().toString());
+            put('6', ansi.fg(Ansi.Color.YELLOW).bold().toString());
+            put('7', ansi.fg(Ansi.Color.WHITE).boldOff().toString());
+            put('8', ansi.fg(Ansi.Color.BLACK).bold().toString());
+            put('9', ansi.fg(Ansi.Color.BLUE).boldOff().toString());
             put('r', RESET_STRING);
         }});
     }
