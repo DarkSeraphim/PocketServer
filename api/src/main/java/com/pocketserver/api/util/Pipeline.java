@@ -11,12 +11,17 @@ import java.util.Spliterator;
 public final class Pipeline<T> implements Iterable<T> {
     private final Deque<T> deque;
 
-    Pipeline() {
-        this.deque = Queues.newLinkedBlockingDeque();
+    Pipeline(int size) {
+        this.deque = Queues.newLinkedBlockingDeque(size);
     }
 
     public static <V> Pipeline<V> of() {
-        return new Pipeline<>();
+        return Pipeline.of(128);
+    }
+
+    public static <V> Pipeline<V> of(int size) {
+        Preconditions.checkArgument(size > 0, "size should be greater than zero");
+        return new Pipeline<>(size);
     }
 
     public Pipeline<T> addFirst(T elem) {
@@ -56,12 +61,27 @@ public final class Pipeline<T> implements Iterable<T> {
         return this;
     }
 
+    @Override
     public Iterator<T> iterator() {
         return deque.iterator();
     }
 
+    @Override
     public Spliterator<T> spliterator() {
         return deque.spliterator();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(Pipeline.class.getSimpleName()).append("[");
+        for (Iterator<T> iterator = iterator(); iterator.hasNext(); ) {
+            builder.append(iterator.next().toString());
+            if (iterator.hasNext()) {
+                builder.append(", ");
+            }
+        }
+        return builder.append("]").toString();
     }
 
     private void checkNotNull(T elem) {
