@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.pocketserver.exception.BadPacketException;
 import com.pocketserver.net.Packet;
 import com.pocketserver.net.PacketHeader;
 import com.pocketserver.net.PacketRegistry;
@@ -23,7 +24,7 @@ public enum Encapsulation implements EncapsulationStrategy {
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out, short length) throws Exception {
-            //assertLength(length / 8, buf);
+            assertLength(length / 8, buf);
             byte packetId = buf.readByte();
             PacketHeader header = new PacketHeader(packetId);
 
@@ -55,6 +56,7 @@ public enum Encapsulation implements EncapsulationStrategy {
     COUNT(0x40) {
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out, short length) throws Exception {
+            assertLength(length / 8, buf);
             buf.skipBytes(3);
             BARE.decode(ctx, buf, out, length);
         }
@@ -64,6 +66,7 @@ public enum Encapsulation implements EncapsulationStrategy {
 
         @Override
         public void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Packet> out, short length) throws Exception {
+            assertLength(length / 8, buf);
             InetSocketAddress address = ctx.attr(PipelineUtils.ADDRESS_ATTRIBUTE).get();
             if (receivedFrom.add(address)) {
                 buf.skipBytes(4);
@@ -94,5 +97,11 @@ public enum Encapsulation implements EncapsulationStrategy {
 
     public int getId() {
         return id;
+    }
+
+    void assertLength(int length, ByteBuf buf) {
+        if (length > buf.readableBytes()) {
+            throw new BadPacketException("The packets length can not be longer than the readable.");
+        }
     }
 }
