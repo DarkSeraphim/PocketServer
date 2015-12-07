@@ -18,8 +18,6 @@ import org.slf4j.Marker;
 /**
  * @author Connor Spencer Harries
  */
-
-//TODO: muricanize
 public class LoggingColourFilter extends TurboFilter {
     private static final Pattern COLOUR_PATTERN = Pattern.compile("\u00A7([a-f0-9k-pr])", Pattern.CASE_INSENSITIVE);
     private static final String RESET_STRING = Ansi.ansi().a(Ansi.Attribute.RESET).toString();
@@ -96,6 +94,6 @@ public class LoggingColourFilter extends TurboFilter {
                 return FilterReply.DENY;
             }
         }
-        return FilterReply.ACCEPT;
+        return FilterReply.NEUTRAL;
     }
 }
