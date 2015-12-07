@@ -27,7 +27,7 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
             packet.handle(ctx, out);
             packet.close();
             for (Packet outbound : out) {
-                ctx.writeAndFlush(outbound).addListener(new ChannelFutureListener() {
+                ctx.write(outbound).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
@@ -49,6 +49,7 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
                     }
                 });
             }
+            ctx.flush();
         } finally {
             addressAttribute.remove();
         }
