@@ -21,7 +21,7 @@ public class CommandPlugins extends Command {
     @Override
     public void execute(CommandExecutor executor, String[] args) {
         String join = joiner.join(manager.getPlugins().stream().map(this::formatName).collect(Collectors.toList()));
-        executor.sendMessage(ChatColor.GREEN + "Plugins [" + join + "]");
+        executor.sendMessage(ChatColor.GREEN + "Plugins [" + join + ChatColor.GREEN + "]");
     }
 
     private String formatName(Plugin plugin) {
