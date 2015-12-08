@@ -10,7 +10,7 @@ import com.pocketserver.api.plugin.PluginManager;
 import java.util.stream.Collectors;
 
 public class CommandPlugins extends Command {
-    private final Joiner joiner = Joiner.on(", ");
+    private final Joiner joiner = Joiner.on(ChatColor.RESET + ", ");
     private PluginManager manager;
 
     public CommandPlugins(PluginManager manager) {
