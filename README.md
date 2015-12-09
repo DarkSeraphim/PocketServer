@@ -24,4 +24,4 @@ While we currently have no ETA, we are working actively on it and hope to be fin
 We're aware the API and packet system need a little work. It's on the todo list.
 
 ## Acknowledgements
-![](https://www.yourkit.com/images/yklogo.png)
+![](https://www.yourkit.com/images/yklogo.png) We use YourKit in order to profile the server and therefore improve the performance. Check it out at https://yourkit.com !
