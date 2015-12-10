@@ -54,4 +54,9 @@ public class PocketServerHandler extends SimpleChannelInboundHandler<Packet> {
             addressAttribute.remove();
         }
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        Server.getServer().getLogger().error("", cause);
+    }
 }
