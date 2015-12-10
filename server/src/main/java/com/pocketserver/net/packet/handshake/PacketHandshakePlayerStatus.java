@@ -2,9 +2,15 @@ package com.pocketserver.net.packet.handshake;
 
 import com.pocketserver.api.Server;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 
 public class PacketHandshakePlayerStatus extends Packet {
+
+    public PacketHandshakePlayerStatus() {
+        super(PacketRegistry.PacketType.PLAYER_STATUS);
+    }
+
     @Override
     public void read(ByteBuf buf) throws Exception {
         int status = buf.readInt();

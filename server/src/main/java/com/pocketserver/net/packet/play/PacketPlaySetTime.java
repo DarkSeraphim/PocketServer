@@ -1,6 +1,7 @@
 package com.pocketserver.net.packet.play;
 
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 
 public class PacketPlaySetTime extends Packet {
@@ -8,6 +9,7 @@ public class PacketPlaySetTime extends Packet {
     private final int time;
 
     public PacketPlaySetTime(byte started, int time) {
+        super(PacketRegistry.PacketType.SET_TIME);
         this.started = started;
         this.time = time;
     }

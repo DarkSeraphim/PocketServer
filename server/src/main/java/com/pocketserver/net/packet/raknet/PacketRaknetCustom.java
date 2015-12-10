@@ -6,6 +6,7 @@ import java.util.List;
 import com.pocketserver.api.Server;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.codec.Encapsulation;
 import com.pocketserver.net.codec.EncapsulationStrategy;
 import io.netty.buffer.ByteBuf;
@@ -14,6 +15,10 @@ import io.netty.channel.ChannelHandlerContext;
 public class PacketRaknetCustom extends Packet {
     private ByteBuf content;
     private int count;
+
+    public PacketRaknetCustom() {
+        super(PacketRegistry.PacketType.CUSTOM);
+    }
 
     @Override
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {

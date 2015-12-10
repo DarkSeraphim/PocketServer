@@ -3,6 +3,7 @@ package com.pocketserver.net.packet.raknet;
 import java.util.List;
 
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.Protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +14,10 @@ public class PacketRaknetOpenConnectionRequestB extends Packet {
     private short port;
     private short mtu;
     private byte sec;
+
+    public PacketRaknetOpenConnectionRequestB() {
+        super(PacketRegistry.PacketType.OPEN_CONNECTION_REQUEST_B);
+    }
 
     @Override
     public void read(ByteBuf buf) throws Exception {

@@ -1,6 +1,7 @@
 package com.pocketserver.net.packet.raknet;
 
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.Protocol;
 import io.netty.buffer.ByteBuf;
 
@@ -9,6 +10,7 @@ public class PacketRaknetOpenConnectionReplyB extends Packet {
     private final short mtu;
 
     public PacketRaknetOpenConnectionReplyB(short mtu, short port) {
+        super(PacketRegistry.PacketType.OPEN_CONNECTION_REPLY_B);
         this.port = port;
         this.mtu = mtu;
     }

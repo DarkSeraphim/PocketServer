@@ -3,6 +3,7 @@ package com.pocketserver.net.packet.ping;
 import com.pocketserver.api.Server;
 import com.pocketserver.api.event.server.ServerPingEvent;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.Protocol;
 import io.netty.buffer.ByteBuf;
 
@@ -10,6 +11,7 @@ public class PacketPingUnconnectedPong extends Packet {
     private final long timestamp;
 
     public PacketPingUnconnectedPong(long timestamp) {
+        super(PacketRegistry.PacketType.UNCONNECTED_PONG);
         this.timestamp = timestamp;
     }
 

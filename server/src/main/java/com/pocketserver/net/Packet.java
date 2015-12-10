@@ -23,9 +23,16 @@ public abstract class Packet {
 
     private final ResourceLeak leak;
 
-    protected Packet() {
+    private final PacketRegistry.PacketType type;
+
+    protected Packet(PacketRegistry.PacketType type) {
         this.leak = leakDetector.open(this);
+        this.type = type;
         Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Instantiating new {}", getClass().getCanonicalName());
+    }
+
+    public PacketRegistry.PacketType getType() {
+        return this.type;
     }
 
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {

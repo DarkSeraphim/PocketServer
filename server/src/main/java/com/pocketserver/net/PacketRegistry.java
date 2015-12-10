@@ -1,89 +1,121 @@
 package com.pocketserver.net;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-
-import java.lang.reflect.Constructor;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import com.pocketserver.api.Server;
-import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.packet.connect.PacketConnectOpenNewConnection;
 import com.pocketserver.net.packet.connect.PacketConnectOpenRequest;
 import com.pocketserver.net.packet.connect.PacketConnectOpenResponse;
 import com.pocketserver.net.packet.handshake.PacketHandshakeLogin;
 import com.pocketserver.net.packet.handshake.PacketHandshakePlayerStatus;
+import com.pocketserver.net.packet.notify.PacketNotifyBanned;
 import com.pocketserver.net.packet.notify.PacketNotifyDisconnect;
 import com.pocketserver.net.packet.notify.PacketNotifyNoFreeConnections;
 import com.pocketserver.net.packet.ping.PacketPingConnectedPing;
 import com.pocketserver.net.packet.ping.PacketPingConnectedPong;
 import com.pocketserver.net.packet.ping.PacketPingUnconnectedPing;
 import com.pocketserver.net.packet.ping.PacketPingUnconnectedPong;
-import com.pocketserver.net.packet.play.PacketPlayBatch;
-import com.pocketserver.net.packet.play.PacketPlayDisconnect;
-import com.pocketserver.net.packet.play.PacketPlayRemoveEntity;
-import com.pocketserver.net.packet.play.PacketPlayRemovePlayer;
-import com.pocketserver.net.packet.play.PacketPlaySetTime;
-import com.pocketserver.net.packet.play.PacketPlaySpawnExperience;
-import com.pocketserver.net.packet.play.PacketPlayText;
-import com.pocketserver.net.packet.raknet.PacketRaknetAck;
-import com.pocketserver.net.packet.raknet.PacketRaknetCustom;
-import com.pocketserver.net.packet.raknet.PacketRaknetIncompatibleProtocol;
-import com.pocketserver.net.packet.raknet.PacketRaknetNack;
-import com.pocketserver.net.packet.raknet.PacketRaknetOpenConnectionReplyA;
-import com.pocketserver.net.packet.raknet.PacketRaknetOpenConnectionReplyB;
-import com.pocketserver.net.packet.raknet.PacketRaknetOpenConnectionRequestA;
-import com.pocketserver.net.packet.raknet.PacketRaknetOpenConnectionRequestB;
+import com.pocketserver.net.packet.play.*;
+import com.pocketserver.net.packet.raknet.*;
+
+import java.util.Map;
+import java.util.function.Supplier;
 
 public final class PacketRegistry {
-    private static final Cache<Class<? extends Packet>, Constructor<? extends Packet>> constructors;
-    private static final Map<Byte, Class<? extends Packet>> packetMap;
+
+    public enum PacketType {
+        UNCONNECTED_PING(0x01, PacketPingUnconnectedPing.class, PacketPingUnconnectedPing::new),
+        UNCONNECTED_PONG(0x1C, PacketPingUnconnectedPong.class),
+        CONNECTED_PING(0x00, PacketPingConnectedPing.class, PacketPingConnectedPing::new),
+        CONNECTED_PONG(0x03, PacketPingConnectedPong.class),
+        OPEN_REQUEST(0x09, PacketConnectOpenRequest.class, PacketConnectOpenRequest::new),
+        OPEN_RESPONSE(0x10, PacketConnectOpenResponse.class),
+        OPEN_NEW_CONNECTION(0x13, PacketConnectOpenNewConnection.class, PacketConnectOpenNewConnection::new),
+        NO_FREE_CONNECTIONS(0x14, PacketNotifyNoFreeConnections.class, PacketNotifyNoFreeConnections::new),
+        NOTIFY_DISCONNECT(0x15, PacketNotifyDisconnect.class, PacketNotifyDisconnect::new),
+        // TODO: create proper class, incoming packets are practically indistinguishable
+        CONNECTION_BANNED(0x17, PacketNotifyBanned.class, PacketNotifyBanned::new),
+        LOGIN(0x8F, PacketHandshakeLogin.class, PacketHandshakeLogin::new),
+        PLAYER_STATUS(0x90, PacketHandshakePlayerStatus.class, PacketHandshakePlayerStatus::new),
+        PLAY_DISCONNECT(0x91, PacketPlayDisconnect.class),
+        BATCH(0x92, PacketPlayBatch.class),
+        TEXT(0x93, PacketPlayText.class),
+        SET_TIME(0x94, PacketPlaySetTime.class),
+        REMOVE_PLAYER(0x97, PacketPlayRemovePlayer.class),
+        REMOVE_ENTITY(0x99, PacketPlayRemoveEntity.class),
+        SPAWN_EXPERIENCE(0xC5, PacketPlaySpawnExperience.class),
+        OPEN_CONNECTION_REQUEST_A(0x05, PacketRaknetOpenConnectionRequestA.class, PacketRaknetOpenConnectionRequestA::new),
+        OPEN_CONNECTION_REPLY_A(0x06, PacketRaknetOpenConnectionReplyA.class),
+        OPEN_CONNECTION_REQUEST_B(0x07, PacketRaknetOpenConnectionRequestB.class, PacketRaknetOpenConnectionRequestB::new),
+        OPEN_CONNECTION_REPLY_B(0x08, PacketRaknetOpenConnectionReplyB.class),
+        INCOMPATIBLE_PROTOCOL(0x1A, PacketRaknetIncompatibleProtocol.class, PacketRaknetIncompatibleProtocol::new),
+        NACK(0xA0, PacketRaknetNack.class, PacketRaknetNack::new),
+        ACK(0xC0, PacketRaknetAck.class, PacketRaknetAck::new),
+        CUSTOM(0x80, PacketRaknetCustom.class, PacketRaknetCustom::new, 0x8F),
+        UNKNOWN(-1, null)
+        ;
+
+        private final byte id;
+        private final byte[] extraIds;
+        private final Class<? extends Packet> cls;
+        private final Supplier<? extends Packet> constructor;
+
+        <T extends Packet> PacketType(int id, Class<T> cls) {
+            this(id, cls, null);
+        }
+
+        <T extends Packet> PacketType(int id, Class<T> cls, Supplier<T> constructor) {
+            this(id, cls, constructor, -1);
+        }
+
+        <T extends Packet> PacketType(int id, Class<T> cls, Supplier<T> constructor, int range) {
+            this.id = (byte) id;
+            this.cls = cls;
+            this.constructor = constructor;
+            int extra = range - id;
+            if (extra > 0) {
+                this.extraIds = new byte[extra];
+                for (int i = 0; i < extra; i++) {
+                    this.extraIds[i] = (byte) (id + i + 1);
+                }
+            } else {
+                this.extraIds = new byte[0];
+            }
+        }
+
+        public byte getId() {
+            return this.id;
+        }
+
+        public boolean hasExtraIds() {
+            return this.extraIds.length > 0;
+        }
+
+        public byte[] getExtraIds() {
+            return this.extraIds;
+        }
+
+        public Class<? extends Packet> getPacketClass() {
+            return this.cls;
+        }
+
+        Packet createPacket() {
+            Preconditions.checkNotNull(this.constructor, "Client tried to send a server packet");
+            return this.constructor.get();
+        }
+    }
+
+    private static final Map<Byte, PacketType> packetById;
 
     static {
-        constructors = CacheBuilder.newBuilder().build();
-        packetMap = Maps.newConcurrentMap();
+        packetById = Maps.newConcurrentMap();
 
-        register(0x01, PacketPingUnconnectedPing.class);
-        register(0x1C, PacketPingUnconnectedPong.class);
-        register(0x00, PacketPingConnectedPing.class);
-        register(0x03, PacketPingConnectedPong.class);
-
-        register(0x09, PacketConnectOpenRequest.class);
-        register(0x10, PacketConnectOpenResponse.class);
-        register(0x13, PacketConnectOpenNewConnection.class);
-
-        register(0x14, PacketNotifyNoFreeConnections.class);
-        register(0x15, PacketNotifyDisconnect.class);
-        register(0x17, PacketNotifyDisconnect.class);
-
-        register(0x8F, PacketHandshakeLogin.class);
-        register(0x90, PacketHandshakePlayerStatus.class);
-
-        register(0x91, PacketPlayDisconnect.class);
-        register(0x92, PacketPlayBatch.class);
-        register(0x93, PacketPlayText.class);
-        register(0x94, PacketPlaySetTime.class);
-
-        register(0x97, PacketPlayRemovePlayer.class);
-        register(0x99, PacketPlayRemoveEntity.class);
-
-        register(0xC5, PacketPlaySpawnExperience.class);
-
-
-        register(0x05, PacketRaknetOpenConnectionRequestA.class);
-        register(0x06, PacketRaknetOpenConnectionReplyA.class);
-        register(0x07, PacketRaknetOpenConnectionRequestB.class);
-        register(0x08, PacketRaknetOpenConnectionReplyB.class);
-        register(0x1A, PacketRaknetIncompatibleProtocol.class);
-        register(0xA0, PacketRaknetNack.class);
-        register(0xC0, PacketRaknetAck.class);
-
-        // TODO: Investigate whether getId may have unintended side effects when used on PacketRaknetCustom
-        for (int i = 0x80; i <= 0x8F; i++) {
-            register(i, PacketRaknetCustom.class);
+        for (PacketType packetType : PacketType.values()) {
+            register(packetType.getId(), packetType);
+            if (packetType.hasExtraIds()) {
+                for (byte eid : packetType.getExtraIds()) {
+                    register(eid, packetType);
+                }
+            }
         }
     }
 
@@ -92,34 +124,19 @@ public final class PacketRegistry {
     }
 
     public static Packet construct(byte id) throws ReflectiveOperationException {
-        Class<? extends Packet> clazz;
-        if ((clazz = packetMap.get(id)) != null) {
-            Constructor<? extends Packet> constructor = constructors.getIfPresent(clazz);
-            if (constructor == null) {
-                Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Caching no-args constructor for {}", clazz.getCanonicalName());
-                constructor = clazz.getConstructor();
-                constructors.put(clazz, constructor);
-            }
-            return constructor.newInstance();
+        PacketType type = packetById.getOrDefault(id, PacketType.UNKNOWN);
+        if (type != PacketType.UNKNOWN) {
+            return type.createPacket();
         }
         throw new IllegalArgumentException("A packet with the ID \'" + String.format("0x%02x", id) + "\' does not exist!");
     }
 
     public static byte getId(Packet packet) {
-        return getId(packet.getClass());
+        return packet.getType().getId();
     }
 
-    public static byte getId(Class<? extends Packet> clazz) {
-        for (Entry<Byte, Class<? extends Packet>> entry : packetMap.entrySet()) {
-            if (entry.getValue() == clazz) {
-                return entry.getKey();
-            }
-        }
-        throw new IllegalArgumentException("Packet type has not been registered!");
-    }
-
-    private static void register(int id, Class<? extends Packet> clazz) {
-        Preconditions.checkNotNull(clazz, "clazz should not be null!");
-        packetMap.putIfAbsent((byte) id, clazz);
+    private static void register(int id, PacketType type) {
+        Preconditions.checkNotNull(type.getPacketClass(), "clazz should not be null!");
+        packetById.putIfAbsent((byte) id, type);
     }
 }

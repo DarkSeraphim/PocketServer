@@ -8,6 +8,7 @@ import java.util.List;
 import com.pocketserver.PocketServer;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -17,12 +18,17 @@ public class PacketRaknetAck extends Packet {
     private final int[] packets;
 
     public PacketRaknetAck(int... packets) {
+        this(PacketRegistry.PacketType.ACK, packets);
+    }
+
+    public PacketRaknetAck(PacketRegistry.PacketType type, int... packets) {
+        super(type);
         Preconditions.checkArgument(packets.length > 0, "number of acknowledged packets must be greater than zero");
         this.packets = packets;
     }
 
     public PacketRaknetAck() {
-        this.packets = new int[0];
+        this(new int[0]);
     }
 
     @Override

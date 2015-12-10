@@ -1,5 +1,9 @@
 package com.pocketserver.net.packet.raknet;
 
-public class PacketRaknetNack extends PacketRaknetAck {
+import com.pocketserver.net.PacketRegistry;
 
+public class PacketRaknetNack extends PacketRaknetAck {
+    public PacketRaknetNack() {
+        super(PacketRegistry.PacketType.NACK);
+    }
 }

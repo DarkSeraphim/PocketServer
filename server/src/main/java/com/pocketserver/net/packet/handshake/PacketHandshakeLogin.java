@@ -10,6 +10,7 @@ import com.pocketserver.api.event.player.PlayerLoginEvent;
 import com.pocketserver.api.util.Callback;
 import com.pocketserver.api.util.PocketLogging;
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.PipelineUtils;
 import com.pocketserver.net.packet.play.PacketPlayDisconnect;
 import com.pocketserver.player.PocketPlayer;
@@ -25,6 +26,10 @@ public class PacketHandshakeLogin extends Packet {
     private UUID uniqueId;
     private String name;
     private String host;
+
+    public PacketHandshakeLogin() {
+        super(PacketRegistry.PacketType.LOGIN);
+    }
 
     @Override
     public void handle(ChannelHandlerContext ctx, List<Packet> out) throws Exception {

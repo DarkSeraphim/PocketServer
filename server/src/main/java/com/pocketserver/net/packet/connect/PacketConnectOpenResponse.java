@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.pocketserver.net.Packet;
+import com.pocketserver.net.PacketRegistry;
 import com.pocketserver.net.packet.Encapsulated;
 import io.netty.buffer.ByteBuf;
 
@@ -16,6 +17,7 @@ public class PacketConnectOpenResponse extends Packet implements Encapsulated {
     private InetSocketAddress address;
 
     public PacketConnectOpenResponse(long clientTimestamp, InetSocketAddress address) {
+        super(PacketRegistry.PacketType.OPEN_RESPONSE);
         this.address = address;
         this.serverTimestamp = System.currentTimeMillis();
         this.clientTimestamp = clientTimestamp;
