@@ -70,7 +70,7 @@ public class PocketBootstrap {
         PocketServer server = new PocketServer();
 
         Scanner reader = new Scanner(System.in);
-        while (server.running) {
+        while (server.isRunning()) {
             String line = reader.nextLine();
             if (!line.isEmpty()) {
                 server.getPluginManager().dispatch(server.getConsole(), line);

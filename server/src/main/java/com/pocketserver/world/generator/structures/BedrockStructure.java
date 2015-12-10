@@ -12,9 +12,8 @@ public class BedrockStructure implements Structure {
 
     @Override
     public void generate(Chunk chunk, int x, int y, int z) {
-        if (y > 0) {
-            return;
+        if (y == 0) {
+            chunk.queueUpdate(x,y,z, Material.BEDROCK);
         }
-        chunk.queueUpdate(x,y,z, Material.BEDROCK);
     }
 }

@@ -21,11 +21,11 @@ import org.slf4j.Marker;
 public class LoggingColourFilter extends TurboFilter {
     private static final Pattern COLOUR_PATTERN = Pattern.compile("\u00A7([a-f0-9k-pr])", Pattern.CASE_INSENSITIVE);
     private static final String RESET_STRING = Ansi.ansi().a(Ansi.Attribute.RESET).toString();
-    private static final Map<Character, String> replacementMap;
+    private static final Map<Character, String> REPLACEMENT_MAP;
 
     static {
         final Ansi ansi = Ansi.ansi().a(Ansi.Attribute.RESET);
-        replacementMap = ImmutableMap.copyOf(new HashMap<Character, String>() {{
+        REPLACEMENT_MAP = ImmutableMap.copyOf(new HashMap<Character, String>() {{
             put('a', ansi.fg(Ansi.Color.GREEN).bold().toString());
             put('b', ansi.fg(Ansi.Color.CYAN).bold().toString());
             put('c', ansi.fg(Ansi.Color.RED).boldOff().toString());
@@ -56,7 +56,7 @@ public class LoggingColourFilter extends TurboFilter {
 
                 if (params[i].getClass() == ChatColor.class) {
                     ChatColor color = (ChatColor) params[i];
-                    params[i] = replacementMap.getOrDefault(color.getCharacter(), "");
+                    params[i] = REPLACEMENT_MAP.getOrDefault(color.getCharacter(), "");
                 }
             }
         }
@@ -70,7 +70,7 @@ public class LoggingColourFilter extends TurboFilter {
                 while (found) {
                     char code = Character.toLowerCase(matcher.group(1).charAt(0));
                     buffer.append(format.substring(position, matcher.start()));
-                    buffer.append(replacementMap.getOrDefault(code, ""));
+                    buffer.append(REPLACEMENT_MAP.getOrDefault(code, ""));
                     position = matcher.end();
                     found = matcher.find();
                 }

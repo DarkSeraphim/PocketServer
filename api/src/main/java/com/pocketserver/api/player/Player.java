@@ -10,9 +10,9 @@ public interface Player extends LivingEntity, CommandExecutor {
 
     void chat(String message);
 
-    Gamemode getGamemode();
+    GameMode getGamemode();
 
-    void setGamemode(Gamemode mode);
+    void setGamemode(GameMode mode);
 
     InetSocketAddress getAddress();
 }

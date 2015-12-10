@@ -22,11 +22,11 @@ public class PocketBlock implements Block {
         this(material, location, (byte) 0);
     }
 
-    public PocketBlock(Material material,World world, int x, int y, int z) {
+    public PocketBlock(Material material, World world, int x, int y, int z) {
         this(material, new Location(world, x, y, z));
     }
 
-    public PocketBlock(Material material,World world, int x, int y, int z, byte data) {
+    public PocketBlock(Material material, World world, int x, int y, int z, byte data) {
         this(material, new Location(world, x, y, z), data);
     }
 

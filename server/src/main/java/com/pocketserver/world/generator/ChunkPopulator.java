@@ -21,7 +21,7 @@ public abstract class ChunkPopulator {
         this.structures = new ArrayList<>();
     }
 
-    protected ChunkPopulator(Biome biome, Structure... structures) {
+    protected ChunkPopulator(Biome biome, Structure...structures) {
         this.biome = biome;
         this.structures = Arrays.asList(structures);
     }
@@ -41,6 +41,6 @@ public abstract class ChunkPopulator {
     }
 
     protected void checkPopulators(Chunk chunk, int x, int y, int z, Random random) {
-        structures.stream().filter(s -> s.getGeneratorChance() > random.nextInt(99) + 1).forEach(s -> s.generate(chunk, x,y, z));
+        structures.stream().filter(s -> s.getGeneratorChance() > random.nextInt(100) + 1).forEach(s -> s.generate(chunk, x, y, z));
     }
 }

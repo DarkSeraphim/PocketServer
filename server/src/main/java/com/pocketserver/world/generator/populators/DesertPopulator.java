@@ -18,11 +18,11 @@ public class DesertPopulator extends ChunkPopulator {
     @Override
     public void generateChunk(Chunk chunk) {
         Random random = ThreadLocalRandom.current();
-        for (int x = 0; x < chunk.getX(); x++) {
-            for (int z = 0; z < chunk.getZ(); z++) {
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
                 for (int y = 0; y < 50; y++) {
-                    this.checkPopulators(chunk, x,y,z, random);
-                    chunk.queueUpdate(x,y,z, Material.SAND);
+                    this.checkPopulators(chunk, x, y, z, random);
+                    chunk.queueUpdate(x, y, z, Material.SAND);
                 }
             }
         }

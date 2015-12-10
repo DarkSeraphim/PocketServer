@@ -7,10 +7,14 @@ import com.pocketserver.api.command.CommandExecutor;
 import com.pocketserver.api.plugin.Plugin;
 import com.pocketserver.api.plugin.PluginManager;
 
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class CommandPlugins extends Command {
-    private final Joiner joiner = Joiner.on(ChatColor.RESET + ", ");
+    private static final Collector<CharSequence, ?, String> JOINER = Collectors.joining(ChatColor.GREEN + "Plugins [",
+                                                                                        ChatColor.RESET + ", ",
+                                                                                        ChatColor.GREEN + "]");
+
     private PluginManager manager;
 
     public CommandPlugins(PluginManager manager) {
@@ -20,13 +24,11 @@ public class CommandPlugins extends Command {
 
     @Override
     public void execute(CommandExecutor executor, String[] args) {
-        String join = joiner.join(manager.getPlugins().stream().map(this::formatName).collect(Collectors.toList()));
-        executor.sendMessage(ChatColor.GREEN + "Plugins [" + join + ChatColor.GREEN + "]");
+        String join = manager.getPlugins().stream().map(this::formatName).collect(JOINER);
+        executor.sendMessage(join);
     }
 
     private String formatName(Plugin plugin) {
-        String name = plugin.getName();
-        ChatColor color = plugin.isEnabled() ? ChatColor.GREEN : ChatColor.RED;
-        return color + name;
+        return (plugin.isEnabled() ? ChatColor.GREEN : ChatColor.RED) + plugin.getName();
     }
 }

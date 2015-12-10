@@ -10,7 +10,7 @@ import com.pocketserver.api.Server;
 import com.pocketserver.api.event.player.PlayerChatEvent;
 import com.pocketserver.api.permissions.PermissionResolver;
 import com.pocketserver.api.permissions.PermissionResolver.Result;
-import com.pocketserver.api.player.Gamemode;
+import com.pocketserver.api.player.GameMode;
 import com.pocketserver.api.player.Player;
 import com.pocketserver.entity.living.PocketLivingEntity;
 import com.pocketserver.net.Packet;
@@ -23,11 +23,11 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     private final Unsafe unsafe;
     private final String name;
 
-    private Gamemode gamemode;
+    private GameMode gamemode;
     private boolean op;
 
     public PocketPlayer(PocketServer server, Channel channel, InetSocketAddress address, String name) {
-        this.gamemode = Gamemode.SURVIVAL;
+        this.gamemode = GameMode.SURVIVAL;
         this.channel = channel;
         this.address = address;
         this.server = server;
@@ -53,12 +53,12 @@ public class PocketPlayer extends PocketLivingEntity implements Player {
     }
 
     @Override
-    public Gamemode getGamemode() {
+    public GameMode getGamemode() {
         return this.gamemode;
     }
 
     @Override
-    public void setGamemode(Gamemode gamemode) {
+    public void setGamemode(GameMode gamemode) {
         this.gamemode = gamemode;
     }
 

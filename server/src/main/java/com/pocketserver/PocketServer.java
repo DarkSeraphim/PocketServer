@@ -54,7 +54,7 @@ public class PocketServer extends Server {
     private final File directory;
     private final Logger logger;
 
-    protected volatile boolean running;
+    private volatile boolean running;
 
     private Channel channel;
 
@@ -263,5 +263,9 @@ public class PocketServer extends Server {
         } finally {
             connectionLock.readLock().unlock();
         }
+    }
+
+    public boolean isRunning() {
+        return this.running;
     }
 }

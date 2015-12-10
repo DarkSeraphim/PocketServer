@@ -14,6 +14,15 @@ import com.pocketserver.api.world.Chunk;
 //TODO: Fix all of the structurs and migrate towards a permanent system.
 @Deprecated
 public interface Structure {
+    /**
+     *
+     * @return The chance the structure appears in percentages.
+     * <ul>
+     *     <li>If 0, the generator will <b>not</b> appear, ever.</li>
+     *     <li>If 1-99 the generator will appear based on the percentage returned</li>
+     *     <li>If 100, the generator will always appear</li>
+     * </ul>
+     */
     double getGeneratorChance();
     void generate(Chunk chunk, int x, int y, int z);
 }
