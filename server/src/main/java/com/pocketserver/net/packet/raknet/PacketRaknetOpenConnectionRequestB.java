@@ -16,7 +16,7 @@ public class PacketRaknetOpenConnectionRequestB extends Packet {
     private byte sec;
 
     public PacketRaknetOpenConnectionRequestB() {
-        super(PacketRegistry.PacketType.OPEN_CONNECTION_REQUEST_B);
+        super(PacketRegistry.DefaultPacketType.OPEN_CONNECTION_REQUEST_B);
     }
 
     @Override

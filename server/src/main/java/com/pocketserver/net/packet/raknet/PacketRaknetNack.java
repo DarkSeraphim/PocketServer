@@ -4,6 +4,6 @@ import com.pocketserver.net.PacketRegistry;
 
 public class PacketRaknetNack extends PacketRaknetAck {
     public PacketRaknetNack() {
-        super(PacketRegistry.PacketType.NACK);
+        super(PacketRegistry.DefaultPacketType.NACK);
     }
 }

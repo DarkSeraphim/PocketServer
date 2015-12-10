@@ -23,15 +23,15 @@ public abstract class Packet {
 
     private final ResourceLeak leak;
 
-    private final PacketRegistry.PacketType type;
+    private final PacketType type;
 
-    protected Packet(PacketRegistry.PacketType type) {
+    protected Packet(PacketType type) {
         this.leak = leakDetector.open(this);
         this.type = type;
         Server.getServer().getLogger().trace(PocketLogging.Server.NETWORK, "Instantiating new {}", getClass().getCanonicalName());
     }
 
-    public PacketRegistry.PacketType getType() {
+    public PacketType getType() {
         return this.type;
     }
 

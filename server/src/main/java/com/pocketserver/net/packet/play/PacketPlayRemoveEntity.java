@@ -8,7 +8,7 @@ public class PacketPlayRemoveEntity extends Packet {
     private final long entityId;
 
     public PacketPlayRemoveEntity(long entityId) {
-        super(PacketRegistry.PacketType.REMOVE_ENTITY);
+        super(PacketRegistry.DefaultPacketType.REMOVE_ENTITY);
         this.entityId = entityId;
     }
 

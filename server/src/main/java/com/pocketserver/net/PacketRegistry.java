@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public final class PacketRegistry {
 
-    public enum PacketType {
+    public enum DefaultPacketType implements PacketType {
         UNCONNECTED_PING(0x01, PacketPingUnconnectedPing.class, PacketPingUnconnectedPing::new),
         UNCONNECTED_PONG(0x1C, PacketPingUnconnectedPong.class),
         CONNECTED_PING(0x00, PacketPingConnectedPing.class, PacketPingConnectedPing::new),
@@ -59,15 +59,15 @@ public final class PacketRegistry {
         private final Class<? extends Packet> cls;
         private final Supplier<? extends Packet> constructor;
 
-        <T extends Packet> PacketType(int id, Class<T> cls) {
+        <T extends Packet> DefaultPacketType(int id, Class<T> cls) {
             this(id, cls, null);
         }
 
-        <T extends Packet> PacketType(int id, Class<T> cls, Supplier<T> constructor) {
+        <T extends Packet> DefaultPacketType(int id, Class<T> cls, Supplier<T> constructor) {
             this(id, cls, constructor, -1);
         }
 
-        <T extends Packet> PacketType(int id, Class<T> cls, Supplier<T> constructor, int range) {
+        <T extends Packet> DefaultPacketType(int id, Class<T> cls, Supplier<T> constructor, int range) {
             this.id = (byte) id;
             this.cls = cls;
             this.constructor = constructor;
@@ -82,23 +82,33 @@ public final class PacketRegistry {
             }
         }
 
+        @Override
         public byte getId() {
             return this.id;
         }
 
+        @Override
         public boolean hasExtraIds() {
             return this.extraIds.length > 0;
         }
 
+        @Override
         public byte[] getExtraIds() {
             return this.extraIds;
         }
 
+        @Override
         public Class<? extends Packet> getPacketClass() {
             return this.cls;
         }
 
-        Packet createPacket() {
+        @Override
+        public boolean isClientPacket() {
+            return this.constructor != null;
+        }
+
+        @Override
+        public Packet createPacket() {
             Preconditions.checkNotNull(this.constructor, "Client tried to send a server packet");
             return this.constructor.get();
         }
@@ -109,13 +119,8 @@ public final class PacketRegistry {
     static {
         packetById = Maps.newConcurrentMap();
 
-        for (PacketType packetType : PacketType.values()) {
-            register(packetType.getId(), packetType);
-            if (packetType.hasExtraIds()) {
-                for (byte eid : packetType.getExtraIds()) {
-                    register(eid, packetType);
-                }
-            }
+        for (PacketType packetType : DefaultPacketType.values()) {
+            register(packetType);
         }
     }
 
@@ -124,8 +129,8 @@ public final class PacketRegistry {
     }
 
     public static Packet construct(byte id) throws ReflectiveOperationException {
-        PacketType type = packetById.getOrDefault(id, PacketType.UNKNOWN);
-        if (type != PacketType.UNKNOWN) {
+        PacketType type = packetById.getOrDefault(id, DefaultPacketType.UNKNOWN);
+        if (type != DefaultPacketType.UNKNOWN) {
             return type.createPacket();
         }
         throw new IllegalArgumentException("A packet with the ID \'" + String.format("0x%02x", id) + "\' does not exist!");
@@ -135,8 +140,13 @@ public final class PacketRegistry {
         return packet.getType().getId();
     }
 
-    private static void register(int id, PacketType type) {
+    public static void register(PacketType type) {
         Preconditions.checkNotNull(type.getPacketClass(), "clazz should not be null!");
-        packetById.putIfAbsent((byte) id, type);
+        packetById.putIfAbsent(type.getId(), type);
+        if (type.hasExtraIds()) {
+            for (byte eid : type.getExtraIds()) {
+                packetById.putIfAbsent(eid, type);
+            }
+        }
     }
 }

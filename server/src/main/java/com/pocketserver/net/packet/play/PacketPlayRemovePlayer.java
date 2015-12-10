@@ -11,7 +11,7 @@ public class PacketPlayRemovePlayer extends Packet {
     private final UUID uniqueId;
 
     public PacketPlayRemovePlayer(long entityId, UUID uniqueId) {
-        super(PacketRegistry.PacketType.REMOVE_PLAYER);
+        super(PacketRegistry.DefaultPacketType.REMOVE_PLAYER);
         this.entityId = entityId;
         this.uniqueId = uniqueId;
     }

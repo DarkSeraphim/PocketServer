@@ -8,7 +8,7 @@ public class PacketPlayBatch extends Packet {
     private final byte[] payload;
 
     public PacketPlayBatch(byte[] payload) {
-        super(PacketRegistry.PacketType.BATCH);
+        super(PacketRegistry.DefaultPacketType.BATCH);
         this.payload = payload;
     }
 

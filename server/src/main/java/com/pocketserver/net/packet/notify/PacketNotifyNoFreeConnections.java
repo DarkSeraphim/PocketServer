@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
 public class PacketNotifyNoFreeConnections extends Packet {
 
     public PacketNotifyNoFreeConnections() {
-        super(PacketRegistry.PacketType.NO_FREE_CONNECTIONS);
+        super(PacketRegistry.DefaultPacketType.NO_FREE_CONNECTIONS);
     }
 
     @Override

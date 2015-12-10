@@ -28,7 +28,7 @@ public class PacketHandshakeLogin extends Packet {
     private String host;
 
     public PacketHandshakeLogin() {
-        super(PacketRegistry.PacketType.LOGIN);
+        super(PacketRegistry.DefaultPacketType.LOGIN);
     }
 
     @Override

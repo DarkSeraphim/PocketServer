@@ -11,7 +11,7 @@ public class PacketPingUnconnectedPong extends Packet {
     private final long timestamp;
 
     public PacketPingUnconnectedPong(long timestamp) {
-        super(PacketRegistry.PacketType.UNCONNECTED_PONG);
+        super(PacketRegistry.DefaultPacketType.UNCONNECTED_PONG);
         this.timestamp = timestamp;
     }
 

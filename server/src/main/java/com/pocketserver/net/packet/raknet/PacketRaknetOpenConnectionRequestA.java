@@ -13,7 +13,7 @@ public class PacketRaknetOpenConnectionRequestA extends Packet {
     private int mtu;
 
     public PacketRaknetOpenConnectionRequestA() {
-        super(PacketRegistry.PacketType.OPEN_CONNECTION_REQUEST_A);
+        super(PacketRegistry.DefaultPacketType.OPEN_CONNECTION_REQUEST_A);
     }
 
     @Override

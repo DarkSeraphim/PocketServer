@@ -14,7 +14,7 @@ public class PacketConnectOpenRequest extends Packet {
     private byte sec;
 
     public PacketConnectOpenRequest() {
-        super(PacketRegistry.PacketType.OPEN_REQUEST);
+        super(PacketRegistry.DefaultPacketType.OPEN_REQUEST);
     }
 
     @Override

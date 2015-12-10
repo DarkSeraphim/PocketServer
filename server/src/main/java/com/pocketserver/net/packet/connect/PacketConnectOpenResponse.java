@@ -17,7 +17,7 @@ public class PacketConnectOpenResponse extends Packet implements Encapsulated {
     private InetSocketAddress address;
 
     public PacketConnectOpenResponse(long clientTimestamp, InetSocketAddress address) {
-        super(PacketRegistry.PacketType.OPEN_RESPONSE);
+        super(PacketRegistry.DefaultPacketType.OPEN_RESPONSE);
         this.address = address;
         this.serverTimestamp = System.currentTimeMillis();
         this.clientTimestamp = clientTimestamp;

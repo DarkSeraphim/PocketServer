@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf;
 public class PacketNotifyDisconnect extends Packet {
 
     public PacketNotifyDisconnect() {
-        super(PacketRegistry.PacketType.NOTIFY_DISCONNECT);
+        super(PacketRegistry.DefaultPacketType.NOTIFY_DISCONNECT);
     }
 
     @Override

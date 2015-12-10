@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf;
 public class PacketNotifyBanned extends Packet {
 
     public PacketNotifyBanned() {
-        super(PacketRegistry.PacketType.CONNECTION_BANNED);
+        super(PacketRegistry.DefaultPacketType.CONNECTION_BANNED);
     }
 
     @Override

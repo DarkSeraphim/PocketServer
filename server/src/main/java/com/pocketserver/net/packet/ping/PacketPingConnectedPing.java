@@ -11,7 +11,7 @@ public class PacketPingConnectedPing extends Packet {
     private long timestamp;
 
     public PacketPingConnectedPing() {
-        super(PacketRegistry.PacketType.CONNECTED_PING);
+        super(PacketRegistry.DefaultPacketType.CONNECTED_PING);
     }
 
     @Override

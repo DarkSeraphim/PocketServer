@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 
 public class PacketConnectOpenNewConnection extends Packet {
     public PacketConnectOpenNewConnection(){
-        super(PacketRegistry.PacketType.OPEN_NEW_CONNECTION);
+        super(PacketRegistry.DefaultPacketType.OPEN_NEW_CONNECTION);
     }
 
     @Override

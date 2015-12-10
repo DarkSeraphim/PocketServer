@@ -11,7 +11,7 @@ public class PacketPingUnconnectedPing extends Packet {
     private long timestamp;
 
     public PacketPingUnconnectedPing() {
-        super(PacketRegistry.PacketType.UNCONNECTED_PING);
+        super(PacketRegistry.DefaultPacketType.UNCONNECTED_PING);
     }
 
     @Override

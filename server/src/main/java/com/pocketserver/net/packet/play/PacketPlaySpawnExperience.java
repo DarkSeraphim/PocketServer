@@ -12,7 +12,7 @@ public class PacketPlaySpawnExperience extends Packet {
     private final int z;
 
     public PacketPlaySpawnExperience(long entityId, int amount, int x, int y, int z) {
-        super(PacketRegistry.PacketType.SPAWN_EXPERIENCE);
+        super(PacketRegistry.DefaultPacketType.SPAWN_EXPERIENCE);
         this.entityId = entityId;
         this.amount = amount;
         this.x = x;

@@ -17,7 +17,7 @@ public class PacketRaknetCustom extends Packet {
     private int count;
 
     public PacketRaknetCustom() {
-        super(PacketRegistry.PacketType.CUSTOM);
+        super(PacketRegistry.DefaultPacketType.CUSTOM);
     }
 
     @Override

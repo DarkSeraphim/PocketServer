@@ -9,7 +9,7 @@ public class PacketPlaySetTime extends Packet {
     private final int time;
 
     public PacketPlaySetTime(byte started, int time) {
-        super(PacketRegistry.PacketType.SET_TIME);
+        super(PacketRegistry.DefaultPacketType.SET_TIME);
         this.started = started;
         this.time = time;
     }

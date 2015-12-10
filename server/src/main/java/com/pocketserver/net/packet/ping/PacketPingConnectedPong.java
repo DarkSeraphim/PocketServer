@@ -8,7 +8,7 @@ public class PacketPingConnectedPong extends Packet {
     private final long timestamp;
 
     public PacketPingConnectedPong(long timestamp) {
-        super(PacketRegistry.PacketType.CONNECTED_PONG);
+        super(PacketRegistry.DefaultPacketType.CONNECTED_PONG);
         this.timestamp = timestamp;
     }
 

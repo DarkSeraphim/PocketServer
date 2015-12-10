@@ -8,7 +8,7 @@ public class PacketPlayDisconnect extends Packet {
     private final String reason;
 
     public PacketPlayDisconnect(String reason) {
-        super(PacketRegistry.PacketType.PLAY_DISCONNECT);
+        super(PacketRegistry.DefaultPacketType.PLAY_DISCONNECT);
         this.reason = reason;
     }
 

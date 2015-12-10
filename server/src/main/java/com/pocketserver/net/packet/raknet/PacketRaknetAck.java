@@ -18,10 +18,10 @@ public class PacketRaknetAck extends Packet {
     private final int[] packets;
 
     public PacketRaknetAck(int... packets) {
-        this(PacketRegistry.PacketType.ACK, packets);
+        this(PacketRegistry.DefaultPacketType.ACK, packets);
     }
 
-    public PacketRaknetAck(PacketRegistry.PacketType type, int... packets) {
+    public PacketRaknetAck(PacketRegistry.DefaultPacketType type, int... packets) {
         super(type);
         Preconditions.checkArgument(packets.length > 0, "number of acknowledged packets must be greater than zero");
         this.packets = packets;

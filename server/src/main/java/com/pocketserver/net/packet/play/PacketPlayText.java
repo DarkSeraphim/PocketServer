@@ -8,7 +8,7 @@ public class PacketPlayText extends Packet {
     private final byte type;
 
     public PacketPlayText(byte type) {
-        super(PacketRegistry.PacketType.TEXT);
+        super(PacketRegistry.DefaultPacketType.TEXT);
         this.type = type;
     }
 

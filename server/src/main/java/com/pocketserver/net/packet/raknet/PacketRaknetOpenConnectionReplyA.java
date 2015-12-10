@@ -9,7 +9,7 @@ public class PacketRaknetOpenConnectionReplyA extends Packet {
     private final short mtu;
 
     public PacketRaknetOpenConnectionReplyA(short mtu) {
-        super(PacketRegistry.PacketType.OPEN_CONNECTION_REPLY_A);
+        super(PacketRegistry.DefaultPacketType.OPEN_CONNECTION_REPLY_A);
         this.mtu = mtu;
     }
 

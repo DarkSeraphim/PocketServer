@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 public class PacketHandshakePlayerStatus extends Packet {
 
     public PacketHandshakePlayerStatus() {
-        super(PacketRegistry.PacketType.PLAYER_STATUS);
+        super(PacketRegistry.DefaultPacketType.PLAYER_STATUS);
     }
 
     @Override

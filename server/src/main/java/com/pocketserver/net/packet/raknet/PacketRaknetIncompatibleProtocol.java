@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 public class PacketRaknetIncompatibleProtocol extends Packet {
 
     public PacketRaknetIncompatibleProtocol() {
-        super(PacketRegistry.PacketType.INCOMPATIBLE_PROTOCOL);
+        super(PacketRegistry.DefaultPacketType.INCOMPATIBLE_PROTOCOL);
     }
 
     @Override
